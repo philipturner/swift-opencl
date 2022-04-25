@@ -1,0 +1,5 @@
+module COpenCL {
+  header "COpenCL.h"
+  link "OpenCL"
+  export *
+}
