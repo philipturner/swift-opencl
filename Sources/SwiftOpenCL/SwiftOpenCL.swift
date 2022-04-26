@@ -5,7 +5,7 @@
 //  Created by Philip Turner on 4/25/22.
 //
 
-@_implementationOnly import COpenCL
+import COpenCL
 
 public struct SwiftOpenCL {
   public private(set) var text = "Hello, World!"
