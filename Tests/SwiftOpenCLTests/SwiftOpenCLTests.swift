@@ -1,5 +1,6 @@
 import XCTest
 @testable import SwiftOpenCL
+import CoreLocation
 
 final class SwiftOpenCLTests: XCTestCase {
   func testExample() throws {
