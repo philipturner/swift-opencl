@@ -4,4 +4,4 @@ A native Swift API for OpenCL, which works on every platform. This is similar to
 
 > Note: This is a work in progress.
 
-> Warning: There is a name collision with CLError in Apple’s CoreLocation, but you can just use CoreLocation.CLError and SwiftOpenCL.CLError explicitly. This is cross-platform so we shouldn’t change our namespace from `CL` to `OCL` because of an Apple library.
+> Warning: There is a name collision with CLError in Apple’s CoreLocation, but you can just use CoreLocation.CLError and SwiftOpenCL.CLError explicitly. This is cross-platform, so we shouldn’t change our namespace from `CL` to `OCL` just because of an Apple library.
