@@ -31,6 +31,7 @@ func getVersion(platform: OpaquePointer) -> (Int, Int) {
   clGetPlatformInfo(platform, UInt32(CL_PLATFORM_VERSION), 0, nil, &size)
   
   let versionInfo: UnsafeMutablePointer<CChar> = .allocate(capacity: size)
+  defer { versionInfo.deallocate() }
   clGetPlatformInfo(platform, UInt32(CL_PLATFORM_VERSION), size, versionInfo,
     &size)
   return getVersion(info: versionInfo)
@@ -54,6 +55,7 @@ func getVersion(context: OpaquePointer) -> (Int, Int)? {
   
   let devices: UnsafeMutablePointer<OpaquePointer> =
     .allocate(capacity: size / Int.bitWidth)
+  defer { devices.deallocate() }
   clGetContextInfo(context, UInt32(CL_CONTEXT_DEVICES), size, devices, nil)
   return getVersion(device: devices[0])
 }
