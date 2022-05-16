@@ -10,11 +10,12 @@ import COpenCL
 
 struct CLError: LocalizedError {
   var code: Int32
-  var errorDescription: String?
-}
-
-func errHandler(_ code: Int32, _ message: String?) throws {
-  if code != CL_SUCCESS {
-    throw CLError(code: code, errorDescription: message)
+  var message: String?
+  var errorDescription: String? { message }
+  
+  static func handleCode(_ code: Int32, _ message: String? = nil) throws {
+    if code != CL_SUCCESS {
+      throw CLError(code: code, message: message)
+    }
   }
 }

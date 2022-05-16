@@ -21,7 +21,7 @@ class Wrapper<T> {
   init(_ obj: T?, retainObject: Bool) throws {
     self.object_ = obj
     if (retainObject) {
-      try errHandler(retain(), "Retain Object")
+      try CLError.handleCode(retain(), "Retain Object")
     }
   }
   

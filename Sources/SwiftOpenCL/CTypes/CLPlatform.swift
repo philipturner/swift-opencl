@@ -10,35 +10,60 @@ import COpenCL
 public class CLPlatform {
   var object_: cl_platform_id? = nil
   
-  private static var default_initialized: Bool = false
-  private static var default_: CLPlatform? = nil
+  private static var default_initialized_ = false
+  private static var default_: CLPlatform?
   private static var default_error_: Int32 = 0
   
-  private static func makeDefault() {
+  private static func makeDefault() throws {
+    var n: UInt32 = 0
+    var err = clGetPlatformIDs(0, nil, &n)
+    guard err == CL_SUCCESS else {
+      default_error_ = err
+      return
+    }
+    guard n > 0 else {
+      default_error_ = CL_INVALID_PLATFORM
+      return
+    }
+    
+    var ids: [cl_platform_id?] = .init(repeating: nil, count: Int(n))
+    err = clGetPlatformIDs(n, &ids, nil)
+    guard err == CL_SUCCESS else {
+      default_error_ = err
+      return
+    }
+    
     do {
-      var n: UInt32 = 0
-      var err = clGetPlatformIDs(0, nil, &n)
-      guard err == CL_SUCCESS else {
-        default_error_ = err
-        return
-      }
-      guard n > 0 else {
-        default_error_ = CL_INVALID_PLATFORM
-        return
-      }
-      
-      var ids: [cl_platform_id?] = .init(repeating: nil, count: Int(n))
-      err = clGetPlatformIDs(n, &ids, nil)
-      guard err == CL_SUCCESS else {
-        default_error_ = err
-        return
-      }
-      
-      
-    } catch let e as CLError {
-      default_error_ = e.code
+      default_ = try CLPlatform(ids[0])
+    } catch {
+      default_error_ = (error as! CLError).code
     }
   }
   
+  private static func makeDefaultProvided(_ p: CLPlatform) {
+    default_ = p
+  }
+  
   init() {}
+  
+  init(_ platform: cl_platform_id?) throws {
+    self.object_ = platform
+  }
+  
+  static func getDefault(
+    _ errResult: UnsafeMutablePointer<Int32>? = nil
+  ) throws -> CLPlatform? {
+    if !default_initialized_ {
+      try makeDefault()
+      default_initialized_ = true
+    }
+    if let errResult = errResult {
+      errResult.pointee = default_error_
+    }
+    return default_
+  }
+  
+  static func setDefault(_ default_platform: CLPlatform) {
+    
+  }
 }
