@@ -7,8 +7,9 @@
 
 import COpenCL
 
-internal protocol CommonWrapper {
-  
+protocol CommonWrapper {
+  associatedtype Wrapped
+  var object_: Wrapped? { get }
 }
 
 // TODO: Refactor this into protocol-oriented programming.

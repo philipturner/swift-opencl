@@ -9,17 +9,15 @@ import COpenCL
 
 public class CLContext {
   private static var default_initialized: Bool = false
-  private static var default_: CLDevice? = nil
+  private static var default_: CLContext? = nil
   private static var default_error_: Int32 = 0
   
-  // line 2143: declare Device::makeDefault
-  // line 3211: implement Device::makeDefault
   private static func makeDefault() {
-    
+    fatalError("Not implemented")
   }
   
-  private static func makeDefaultProvided(_ p: CLDevice) {
-    default_ = p
+  private static func makeDefaultProvided(_ c: CLContext) {
+    default_ = c
   }
 }
 

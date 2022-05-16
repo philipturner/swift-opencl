@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Philip Turner on 5/16/22.
 //
@@ -16,7 +16,5 @@ struct CLError: LocalizedError {
 func errHandler(_ code: Int32, _ message: String?) throws {
   if code != CL_SUCCESS {
     throw CLError(code: code, errorDescription: message)
-  } else {
-    return code
   }
 }
