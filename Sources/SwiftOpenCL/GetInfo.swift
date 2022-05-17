@@ -33,17 +33,17 @@ getInfo(cl_int* err = NULL) const
 }
 */
 
-struct GetInfoFunctor0<Func, Arg0> {
-  var f_: Func
-  let arg0_: Arg0
-  
-  func callAsFunction(
-    _ param: UInt32, _ size: Int, _ value: UnsafeMutableRawPointer,
-    _ size_ret: UnsafeMutablePointer<Int>
-  ) -> Int32 {
-    f_(arg0_, param, size, value, size_ret)
-  }
-}
+//struct GetInfoFunctor0<Func, Arg0> {
+//  var f_: Func
+//  let arg0_: Arg0
+//
+//  func callAsFunction(
+//    _ param: UInt32, _ size: Int, _ value: UnsafeMutableRawPointer,
+//    _ size_ret: UnsafeMutablePointer<Int>
+//  ) -> Int32 {
+//    f_(arg0_, param, size, value, size_ret)
+//  }
+//}
 
 func getInfo<Func, Arg0, T>(
   _ f: Func, _ arg0: Arg0, _ name: Int32, _ param: UnsafeMutablePointer<T>
@@ -160,6 +160,153 @@ cl_version_khr getInfo<CL_PLATFORM_NUMERIC_VERSION_KHR>
 cl::vector<cl_name_version_khr> getInfo<CL_PLATFORM_EXTENSIONS_WITH_VERSION_KHR>
 cl_version getInfo<CL_PLATFORM_NUMERIC_VERSION>
 cl::vector<cl_name_version> getInfo<CL_PLATFORM_EXTENSIONS_WITH_VERSION>
+
+// For CL_PLATFORM_VERSION:
+//
+// name = Int32 = CL_PLATFORM_VERSION (macro)
+// object_ = cl_platform_id = Arg0
+// param = T = param_traits<cl_platform_info, CL_PLATFORM_VERSION>::string
+//
+// detail::getInfo(&::clGetPlatformInfo, object_, name, param),
+// getInfo({ clGetPlatformInfo, object_ }, name, param)
+// getInfoHelper({ clGetPlatformInfo, object_ }, name, param, 0)
+//
+// getInfo(clGetPlatformInfo, object_, CL_PLATFORM_VERSION, inout String)
+// getInfoHelper({ clGetPlatformInfo, object_ }, CL_PLATFORM_VERSION, inout String, type object)
+
+
+// Specialized GetInfoHelper for string params
+template <typename Func>
+inline cl_int getInfoHelper(Func f, cl_uint name, string* param, long)
+{
+    size_type required;
+    cl_int err = f(name, 0, NULL, &required);
+    if (err != CL_SUCCESS) {
+        return err;
+    }
+
+    // std::string has a constant data member
+    // a char vector does not
+    if (required > 0) {
+        vector<char> value(required);
+        err = f(name, required, value.data(), NULL);
+        if (err != CL_SUCCESS) {
+            return err;
+        }
+        if (param) {
+            param->assign(begin(value), prev(end(value)));
+        }
+    }
+    else if (param) {
+        param->assign("");
+    }
+    return CL_SUCCESS;
+}
+
+
+
+
+protocol GetInfoFunctor {
+  func callAsFunction(
+    _ param: UInt32, _ size: Int, _ value: UnsafeMutableRawPointer?,
+    _ size_ret: UnsafeMutablePointer<Int>?
+  ) -> Int32
+}
+
+struct GetInfoFunctor0<Arg0>: GetInfoFunctor {
+  var f_: /*@convention(c)*/ (
+    UnsafeMutablePointer<Arg0>, UInt32, Int, UnsafeMutableRawPointer?,
+    UnsafeMutablePointer<Int>?) -> Int32
+  var arg0_: UnsafeMutablePointer<Arg0>
+  
+  func callAsFunction(
+    _ param: UInt32, _ size: Int, _ value: UnsafeMutableRawPointer?,
+    _ size_ret: UnsafeMutablePointer<Int>?
+  ) -> Int32 {
+    return f_(arg0_, param, size, value, size_ret)
+  }
+}
+
+struct GetInfoFunctor1<Arg0, Arg1>: GetInfoFunctor {
+  var f_: /*@convention(c)*/ (
+    UnsafeMutablePointer<Arg0>, UnsafeMutablePointer<Arg1>, UInt32, Int,
+    UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> Int32
+  var arg0_: UnsafeMutablePointer<Arg0>
+  var arg1_: UnsafeMutablePointer<Arg1>
+  
+  func callAsFunction(
+    _ param: UInt32, _ size: Int, _ value: UnsafeMutableRawPointer?,
+    _ size_ret: UnsafeMutablePointer<Int>?
+  ) -> Int32 {
+    return f_(arg0_, arg1_, param, size, value, size_ret)
+  }
+}
+
+
+// for CL_PLATFORM_VERSION
+func getInfoHelper(
+  _ f: GetInfoFunctor,
+  _ name: UInt32,
+  _ param: inout String
+) -> Int32 {
+  var required: Int
+  var err = f(name, 0, nil, &required)
+  if err != CL_SUCCESS {
+    return err
+  }
+  
+  if required > 0 {
+    var value = malloc(required)!
+    err = f(name, required, &value, nil)
+    if err != CL_SUCCESS {
+      free(value)
+      return err
+    }
+    param = String(
+      bytesNoCopy: value, length: required, encoding: .utf8,
+      freeWhenDone: true)!
+  } else {
+    param = ""
+  }
+  return CL_SUCCESS
+}
+
+// Specialized GetInfoHelper for clsize_t params
+func getInfoHelper(
+  _ f: GetInfoFunctor,
+  _ name: UInt32,
+  _ param: inout [Int],
+  _ N: Int
+) -> Int32 {
+  var required: Int
+  var err = f(name, 0, nil, &required)
+  if err != CL_SUCCESS {
+    return err
+  }
+  
+  var elements = required / MemoryLayout<Int>.stride
+  let value = UnsafeMutablePointer<Int>.allocate(capacity: elements)
+  defer { value.deallocate() }
+  err = f(name, required, value, nil)
+  if err != CL_SUCCESS {
+    return err
+  }
+  
+  if elements > N {
+    elements = N
+  }
+  param = .init(
+    unsafeUninitializedCapacity: elements,
+    initializingWith: { buffer, initializedCount in
+      for i in 0..<elements {
+        buffer[i] = value[i]
+      }
+      initializedCount = elements
+    })
+  return CL_SUCCESS
+}
+
+
 
 
 /*
