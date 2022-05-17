@@ -306,6 +306,16 @@ func getInfoHelper(
   return CL_SUCCESS
 }
 
+// For CL objects
+func getInfoHelper(
+  _ f: GetInfoFunctor,
+  _ name: UInt32,
+  _ param: inout OpaquePointer
+) -> Int32 {
+  var value: OpaquePointer? = nil
+  var err = f(name, MemoryLayout.stride(ofValue: value), &value, nil)
+}
+
 
 
 
