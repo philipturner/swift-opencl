@@ -11,10 +11,10 @@ public class CLPlatform {
   var object_: cl_platform_id? = nil
   
   private static var default_initialized_ = false
-  private static var default_: CLPlatform?
+  private static var default_ = CLPlatform()
   private static var default_error_: Int32 = 0
   
-  private static func makeDefault() throws {
+  private static func makeDefault() {
     var n: UInt32 = 0
     var err = clGetPlatformIDs(0, nil, &n)
     guard err == CL_SUCCESS else {
@@ -46,24 +46,24 @@ public class CLPlatform {
   
   init() {}
   
-  init(_ platform: cl_platform_id?) throws {
+  init(_ platform: cl_platform_id?, retainObject: Bool = false) throws {
     self.object_ = platform
   }
   
   static func getDefault(
     _ errResult: UnsafeMutablePointer<Int32>? = nil
-  ) throws -> CLPlatform? {
-    if !default_initialized_ {
-      try makeDefault()
-      default_initialized_ = true
-    }
+  ) throws -> CLPlatform {
+    callOnce(&default_initialized_, makeDefault())
+    try CLError.handleCode(default_error_)
     if let errResult = errResult {
       errResult.pointee = default_error_
     }
     return default_
   }
   
-  static func setDefault(_ default_platform: CLPlatform) {
-    
+  static func setDefault(_ default_platform: CLPlatform) throws -> CLPlatform {
+    callOnce(&default_initialized_, makeDefaultProvided(default_platform))
+    try CLError.handleCode(default_error_)
+    return default_
   }
 }
