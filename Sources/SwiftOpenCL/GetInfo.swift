@@ -242,14 +242,78 @@ struct GetInfoFunctor1<Arg0, Arg1>: GetInfoFunctor {
   }
 }
 
+// Specialized for getInfo<CL_PROGRAM_BINARIES>
+// Assumes that the output vector was correctly resized on the way in
+func getInfoHelper(
+  _ f: GetInfoFunctor,
+  _ name: UInt32,
+  _ param: UnsafeMutablePointer<[[UInt8]]>
+) -> Int32 {
+  if name != CL_PROGRAM_BINARIES {
+    return CL_INVALID_VALUE
+  }
+  let numBinaries = param.pointee.count
+  let binariesPointers = [UnsafeMutablePointer<UInt8>](
+    unsafeUninitializedCapacity: numBinaries, initializingWith: {
+      buffer, initializedCount in
+      for i in 0..<numBinaries {
+        // Is this safe?
+        let ptr = param.pointee[i].withUnsafeBufferPointer {
+          $0.baseAddress!
+        }
+        buffer[i] = UnsafeMutablePointer(mutating: ptr)
+      }
+      initializedCount = numBinaries
+    })
+  defer {
+    binariesPointers.forEach { $0.deallocate() }
+  }
+  
+  let ptr = binariesPointers.withUnsafeBufferPointer {
+    $0.baseAddress!
+  }
+  let err = f(name, numBinaries * MemoryLayout<UInt8>.stride, UnsafeMutablePointer(mutating: ptr), nil)
+  if err != CL_SUCCESS {
+    return err
+  }
+  
+  return CL_SUCCESS
+}
 
-// for CL_PLATFORM_VERSION
+// Specialized getInfoHelper for vector params
+func getInfoHelper<T>(
+  _ f: GetInfoFunctor,
+  _ name: UInt32,
+  _ param: inout [T]
+) -> Int32 {
+  var required: Int
+  var err = f(name, 0, nil, &required)
+  if err != CL_SUCCESS {
+    return err
+  }
+  let elements = required / MemoryLayout<T>.stride
+  
+  var localData = Array<T>(
+    unsafeUninitializedCapacity: elements,
+    initializingWith: { buffer, initializedCount in
+      err = f(name, required, buffer.baseAddress!, nil)
+      initializedCount = elements
+    })
+  if err != CL_SUCCESS {
+    return err
+  }
+  param = localData
+  
+  return CL_SUCCESS
+}
+
+// Specialized GetInfoHelper for string params
 func getInfoHelper(
   _ f: GetInfoFunctor,
   _ name: UInt32,
   _ param: inout String
 ) -> Int32 {
-  var required: Int
+  var required: Int // why is this allowed to not be initialized?
   var err = f(name, 0, nil, &required)
   if err != CL_SUCCESS {
     return err
@@ -310,10 +374,22 @@ func getInfoHelper(
 func getInfoHelper(
   _ f: GetInfoFunctor,
   _ name: UInt32,
-  _ param: inout OpaquePointer
+  _ param: inout OpaquePointer?
 ) -> Int32 {
   var value: OpaquePointer? = nil
-  var err = f(name, MemoryLayout.stride(ofValue: value), &value, nil)
+  let err = f(name, MemoryLayout.stride(ofValue: value), &value, nil)
+  if err != CL_SUCCESS {
+    return err
+  }
+  
+  param = value
+  if value != nil {
+    /* err = param->retain(); */
+    if err != CL_SUCCESS {
+      return err
+    }
+  }
+  return CL_SUCCESS
 }
 
 
