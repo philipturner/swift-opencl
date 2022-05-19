@@ -9,10 +9,11 @@ import COpenCL
 
 public struct CLPlatform: CLReferenceCountable {
   var wrapper: CLReferenceWrapper<Self>
-  public var id: cl_platform_id { wrapper.object }
+  public var platformID: cl_platform_id { wrapper.object }
   
-  public init?(id: cl_platform_id, retain: Bool = false) {
-    guard let wrapper = CLReferenceWrapper<Self>(id, retain) else {
+  // Document that it never actually retains in DocC.
+  public init?(platformID: cl_platform_id, retain: Bool = false) {
+    guard let wrapper = CLReferenceWrapper<Self>(platformID, retain) else {
       return nil
     }
     self.wrapper = wrapper
@@ -39,7 +40,7 @@ public struct CLPlatform: CLReferenceCountable {
       return nil
     }
     
-    return CLPlatform(id: ids[0]!)
+    return CLPlatform(platformID: ids[0]!)
   }()
   
   var profile: String? {
@@ -71,4 +72,9 @@ public struct CLPlatform: CLReferenceCountable {
       clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
     }
   }
+  
+  // TODO: change `CL_PLATFORM_EXTENSIONS`, etc. to its hard-coded number and
+  // add additional macros not available on macOS, checking the OpenCL version
+  // before accessing them if it doesn't cause a crash. Also note the OpenCL
+  // version that supports each one in the DocC documentation
 }

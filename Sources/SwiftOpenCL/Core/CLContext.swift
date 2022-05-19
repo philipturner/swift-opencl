@@ -7,59 +7,22 @@
 
 import COpenCL
 
-public class CLContext {
-  private static var default_initialized: Bool = false
-  private static var default_: CLContext? = nil
-  private static var default_error_: Int32 = 0
-  
-  private static func makeDefault() {
-    fatalError("Not implemented")
-  }
-  
-  private static func makeDefaultProvided(_ c: CLContext) {
-    default_ = c
-  }
-}
+public struct CLContext: CLReferenceCountable {
+  var wrapper: CLReferenceWrapper<Self>
+  public var context: cl_context { wrapper.object }
 
-// TODO: Refactor this into protocol-oriented programming.
-class CLContextWrapper<T> {
-  var object_: T?
-  
-  init() {}
-  
-  init(_ obj: T, retainObject: Bool) {
-    if (retainObject) {
-      // retain
+  public init?(context: cl_context, retain: Bool = false) {
+    guard let wrapper = CLReferenceWrapper<Self>(context, retain) else {
+      return nil
     }
+    self.wrapper = wrapper
   }
-  
-  deinit {
-    if object_ != nil {
-      // release
-    }
+
+  static func retain(_ object: OpaquePointer) -> Int32 {
+    clRetainContext(object)
   }
-  
-  func get() -> T? {
-    return object_
-  }
-  
-  // func getInfoHelper
-  
-  func retain() -> Int32 {
-    if object_ != nil {
-      // retain
-      fatalError()
-    } else {
-      return CL_SUCCESS
-    }
-  }
-  
-  func release() -> Int32 {
-    if object_ != nil {
-      // release
-      fatalError()
-    } else {
-      return CL_SUCCESS
-    }
-  }
+
+  static func release(_ object: OpaquePointer) -> Int32 {
+    clReleaseContext(object)
+  }  
 }
