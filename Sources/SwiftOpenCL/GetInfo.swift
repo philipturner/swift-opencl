@@ -207,6 +207,34 @@ inline cl_int getInfoHelper(Func f, cl_uint name, string* param, long)
 
 
 
+typealias GetInfoClosure = (
+  UInt32, Int, UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> Int32
+
+func getInfo_String(name: Int32, callGetInfo: GetInfoClosure) -> String? {
+  var required = 0
+  var err = callGetInfo(UInt32(name), 0, nil, &required)
+  guard CLError.handleCode(err) else {
+    return nil
+  }
+  
+  if required > 0 {
+    var value = malloc(required)!
+    err = callGetInfo(UInt32(name), required, &value, nil)
+    guard CLError.handleCode(err) else {
+      free(value)
+      return nil
+    }
+    return String(
+      bytesNoCopy: value, length: required, encoding: .utf8,
+      freeWhenDone: true)!
+  } else {
+    return ""
+  }
+}
+
+
+
+
 protocol GetInfoFunctor {
   func callAsFunction(
     _ param: UInt32, _ size: Int, _ value: UnsafeMutableRawPointer?,

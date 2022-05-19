@@ -8,14 +8,24 @@
 import Foundation
 import COpenCL
 
-struct CLError: LocalizedError {
-  var code: Int32
-  var message: String?
-  var errorDescription: String? { message }
+public struct CLError: LocalizedError {
+  public var code: Int32
+  public var message: String?
   
-  static func handleCode(_ code: Int32, _ message: String? = nil) throws {
+  public init(code: Int32, message: String?) {
+    self.code = code
+    self.message = message
+  }
+  
+  public static var latest: CLError? = nil
+  
+  @discardableResult
+  static func handleCode(_ code: Int32, _ message: String? = nil) -> Bool {
     if code != CL_SUCCESS {
-      throw CLError(code: code, message: message)
+      latest = CLError(code: code, message: message)
+      return false
+    } else {
+      return true
     }
   }
 }

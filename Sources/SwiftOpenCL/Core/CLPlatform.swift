@@ -7,113 +7,68 @@
 
 import COpenCL
 
-enum CLPlatformInfo: UInt32 {
-  case profile
-  case version
-  case name
-  case vendor
-  case extensions
-//  case hostTimerResolution
-//  case numericVersionKHR
-//  case extensionsWithVersionKHR
-//  case numericVersion
-//  case extensionsWithVersion
+public struct CLPlatform: CLReferenceCountable {
+  var wrapper: CLReferenceWrapper<Self>
+  public var id: cl_platform_id { wrapper.object }
   
-  var rawValue: UInt32 {
-    var output: Int32
-    switch self {
-    case .profile: output = CL_PLATFORM_PROFILE
-    case .version: output = CL_PLATFORM_VERSION
-    case .name: output = CL_PLATFORM_NAME
-    case .vendor: output = CL_PLATFORM_VENDOR
-    case .extensions: output = CL_PLATFORM_EXTENSIONS
+  public init?(id: cl_platform_id, retain: Bool = false) {
+    guard let wrapper = CLReferenceWrapper<Self>(id, retain) else {
+      return nil
     }
-    return UInt32(output)
+    self.wrapper = wrapper
   }
   
-  enum ReturnValue {
-    case profile(String)
-    case version(String)
-    case name(String)
-    case vendor(String)
-    case extensions(String)
-  }
-}
-
-public class CLPlatform {
-  var object_: cl_platform_id? = nil
+  static func retain(_ object: OpaquePointer) -> Int32 { CL_SUCCESS }
+  static func release(_ object: OpaquePointer) -> Int32 { CL_SUCCESS }
   
-  private static var default_initialized_ = false
-  private static var default_ = CLPlatform()
-  private static var default_error_: Int32 = 0
-  
-  private static func makeDefault() {
+  static var defaultPlatform: CLPlatform? = {
     var n: UInt32 = 0
     var err = clGetPlatformIDs(0, nil, &n)
-    guard err == CL_SUCCESS else {
-      default_error_ = err
-      return
+    guard CLError.handleCode(err) else {
+      return nil
     }
-    guard n > 0 else {
-      default_error_ = CL_INVALID_PLATFORM
-      return
-    }
-    
-    var ids: [cl_platform_id?] = .init(repeating: nil, count: Int(n))
-    err = clGetPlatformIDs(n, &ids, nil)
-    guard err == CL_SUCCESS else {
-      default_error_ = err
-      return
+    if n == 0 {
+      CLError.handleCode(CL_INVALID_PLATFORM)
+      return nil
     }
     
-    do {
-      default_ = try CLPlatform(ids[0])
-    } catch {
-      default_error_ = (error as! CLError).code
+    var ids: UnsafeMutablePointer<cl_platform_id?> = .allocate(capacity: Int(n))
+    defer { free(ids) }
+    err = clGetPlatformIDs(n, ids, nil)
+    guard CLError.handleCode(err) else {
+      return nil
+    }
+    
+    return CLPlatform(id: ids[0]!)
+  }()
+  
+  var profile: String? {
+    getInfo_String(name: CL_PLATFORM_PROFILE) {
+      clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
     }
   }
   
-  private static func makeDefaultProvided(_ p: CLPlatform) {
-    default_ = p
-  }
-  
-  init() {}
-  
-  init(_ platform: cl_platform_id?, retainObject: Bool = false) throws {
-    self.object_ = platform
-  }
-  
-  static func getDefault(
-    _ errResult: UnsafeMutablePointer<Int32>? = nil
-  ) throws -> CLPlatform {
-    callOnce(&default_initialized_, makeDefault())
-    try CLError.handleCode(default_error_)
-    if let errResult = errResult {
-      errResult.pointee = default_error_
+  var version: String? {
+    getInfo_String(name: CL_PLATFORM_VERSION) {
+      clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
     }
-    return default_
   }
   
-  static func setDefault(_ default_platform: CLPlatform) throws -> CLPlatform {
-    callOnce(&default_initialized_, makeDefaultProvided(default_platform))
-    try CLError.handleCode(default_error_)
-    return default_
-  }
-  
-  func getInfo(_ name: CLPlatformInfo) throws -> CLPlatformInfo.ReturnValue {
-    let f = GetInfoFunctor0(f_: clGetPlatformInfo, arg0_: object_)
-    var param: String?
-    let err = getInfoHelper(f, name.rawValue, &param)
-    try CLError.handleCode(err)
-    guard let param = param else {
-      fatalError("This should never happen.")
+  var name: String? {
+    getInfo_String(name: CL_PLATFORM_NAME) {
+      clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
     }
-    switch name {
-    case .profile: return .profile(param)
-    case .version: return .version(param)
-    case .name: return .name(param)
-    case .vendor: return .vendor(param)
-    case .extensions: return .extensions(param)
+  }
+  
+  var vendor: String? {
+    getInfo_String(name: CL_PLATFORM_VENDOR) {
+      clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
+    }
+  }
+  
+  var extensions: String? {
+    getInfo_String(name: CL_PLATFORM_EXTENSIONS) {
+      clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
     }
   }
 }
