@@ -7,6 +7,39 @@
 
 import COpenCL
 
+enum CLPlatformInfo: UInt32 {
+  case profile
+  case version
+  case name
+  case vendor
+  case extensions
+//  case hostTimerResolution
+//  case numericVersionKHR
+//  case extensionsWithVersionKHR
+//  case numericVersion
+//  case extensionsWithVersion
+  
+  var rawValue: UInt32 {
+    var output: Int32
+    switch self {
+    case .profile: output = CL_PLATFORM_PROFILE
+    case .version: output = CL_PLATFORM_VERSION
+    case .name: output = CL_PLATFORM_NAME
+    case .vendor: output = CL_PLATFORM_VENDOR
+    case .extensions: output = CL_PLATFORM_EXTENSIONS
+    }
+    return UInt32(output)
+  }
+  
+  enum ReturnValue {
+    case profile(String)
+    case version(String)
+    case name(String)
+    case vendor(String)
+    case extensions(String)
+  }
+}
+
 public class CLPlatform {
   var object_: cl_platform_id? = nil
   
@@ -65,5 +98,22 @@ public class CLPlatform {
     callOnce(&default_initialized_, makeDefaultProvided(default_platform))
     try CLError.handleCode(default_error_)
     return default_
+  }
+  
+  func getInfo(_ name: CLPlatformInfo) throws -> CLPlatformInfo.ReturnValue {
+    let f = GetInfoFunctor0(f_: clGetPlatformInfo, arg0_: object_)
+    var param: String?
+    let err = getInfoHelper(f, name.rawValue, &param)
+    try CLError.handleCode(err)
+    guard let param = param else {
+      fatalError("This should never happen.")
+    }
+    switch name {
+    case .profile: return .profile(param)
+    case .version: return .version(param)
+    case .name: return .name(param)
+    case .vendor: return .vendor(param)
+    case .extensions: return .extensions(param)
+    }
   }
 }

@@ -9,6 +9,7 @@ import Foundation
 import COpenCL
 
 /*
+/*
 //! \brief Wrapper for clGetPlatformInfo().
 template <typename T>
 cl_int getInfo(cl_platform_info name, T* param) const
@@ -202,7 +203,7 @@ inline cl_int getInfoHelper(Func f, cl_uint name, string* param, long)
     }
     return CL_SUCCESS;
 }
-
+*/
 
 
 
@@ -213,11 +214,11 @@ protocol GetInfoFunctor {
   ) -> Int32
 }
 
-struct GetInfoFunctor0<Arg0>: GetInfoFunctor {
-  var f_: /*@convention(c)*/ (
-    UnsafeMutablePointer<Arg0>, UInt32, Int, UnsafeMutableRawPointer?,
+struct GetInfoFunctor0: GetInfoFunctor {
+  var f_: @convention(c) (
+    OpaquePointer?, UInt32, Int, UnsafeMutableRawPointer?,
     UnsafeMutablePointer<Int>?) -> Int32
-  var arg0_: UnsafeMutablePointer<Arg0>
+  var arg0_: OpaquePointer?
   
   func callAsFunction(
     _ param: UInt32, _ size: Int, _ value: UnsafeMutableRawPointer?,
@@ -228,11 +229,11 @@ struct GetInfoFunctor0<Arg0>: GetInfoFunctor {
 }
 
 struct GetInfoFunctor1<Arg0, Arg1>: GetInfoFunctor {
-  var f_: /*@convention(c)*/ (
-    UnsafeMutablePointer<Arg0>, UnsafeMutablePointer<Arg1>, UInt32, Int,
+  var f_: @convention(c) (
+    OpaquePointer?, OpaquePointer?, UInt32, Int,
     UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> Int32
-  var arg0_: UnsafeMutablePointer<Arg0>
-  var arg1_: UnsafeMutablePointer<Arg1>
+  var arg0_: OpaquePointer?
+  var arg1_: OpaquePointer?
   
   func callAsFunction(
     _ param: UInt32, _ size: Int, _ value: UnsafeMutableRawPointer?,
@@ -247,34 +248,36 @@ struct GetInfoFunctor1<Arg0, Arg1>: GetInfoFunctor {
 func getInfoHelper(
   _ f: GetInfoFunctor,
   _ name: UInt32,
-  _ param: UnsafeMutablePointer<[[UInt8]]>
+  _ param: [[UInt8]]?
 ) -> Int32 {
   if name != CL_PROGRAM_BINARIES {
     return CL_INVALID_VALUE
   }
-  let numBinaries = param.pointee.count
-  let binariesPointers = [UnsafeMutablePointer<UInt8>](
-    unsafeUninitializedCapacity: numBinaries, initializingWith: {
-      buffer, initializedCount in
-      for i in 0..<numBinaries {
-        // Is this safe?
-        let ptr = param.pointee[i].withUnsafeBufferPointer {
-          $0.baseAddress!
+    if let param = param {
+    let numBinaries = param.count
+    let binariesPointers = [UnsafeMutablePointer<UInt8>](
+      unsafeUninitializedCapacity: numBinaries, initializingWith: {
+        buffer, initializedCount in
+        for i in 0..<numBinaries {
+          // Is this safe?
+          let ptr = param[i].withUnsafeBufferPointer {
+            $0.baseAddress!
+          }
+          buffer[i] = UnsafeMutablePointer(mutating: ptr)
         }
-        buffer[i] = UnsafeMutablePointer(mutating: ptr)
-      }
-      initializedCount = numBinaries
-    })
-  defer {
-    binariesPointers.forEach { $0.deallocate() }
-  }
-  
-  let ptr = binariesPointers.withUnsafeBufferPointer {
-    $0.baseAddress!
-  }
-  let err = f(name, numBinaries * MemoryLayout<UInt8>.stride, UnsafeMutablePointer(mutating: ptr), nil)
-  if err != CL_SUCCESS {
-    return err
+        initializedCount = numBinaries
+      })
+    defer {
+      binariesPointers.forEach { $0.deallocate() }
+    }
+    
+    let ptr = binariesPointers.withUnsafeBufferPointer {
+      $0.baseAddress!
+    }
+    let err = f(name, numBinaries * MemoryLayout<UInt8>.stride, UnsafeMutablePointer(mutating: ptr), nil)
+    if err != CL_SUCCESS {
+      return err
+    }
   }
   
   return CL_SUCCESS
@@ -286,14 +289,14 @@ func getInfoHelper<T>(
   _ name: UInt32,
   _ param: inout [T]
 ) -> Int32 {
-  var required: Int
+  var required: Int = 0
   var err = f(name, 0, nil, &required)
   if err != CL_SUCCESS {
     return err
   }
   let elements = required / MemoryLayout<T>.stride
   
-  var localData = Array<T>(
+  let localData = Array<T>(
     unsafeUninitializedCapacity: elements,
     initializingWith: { buffer, initializedCount in
       err = f(name, required, buffer.baseAddress!, nil)
@@ -307,13 +310,21 @@ func getInfoHelper<T>(
   return CL_SUCCESS
 }
 
+/* Specialization for reference-counted types. This depends on the
+ * existence of Wrapper<T>::cl_type, and none of the other types having the
+ * cl_type member. Note that simplify specifying the parameter as Wrapper<T>
+ * does not work, because when using a derived type (e.g. Context) the generic
+ * template will provide a better match.
+ */
+// TODO
+
 // Specialized GetInfoHelper for string params
 func getInfoHelper(
   _ f: GetInfoFunctor,
   _ name: UInt32,
-  _ param: inout String
+  _ param: inout String?
 ) -> Int32 {
-  var required: Int // why is this allowed to not be initialized?
+  var required = 0
   var err = f(name, 0, nil, &required)
   if err != CL_SUCCESS {
     return err
@@ -339,10 +350,10 @@ func getInfoHelper(
 func getInfoHelper(
   _ f: GetInfoFunctor,
   _ name: UInt32,
-  _ param: inout [Int],
+  _ param: inout [Int]?,
   _ N: Int
 ) -> Int32 {
-  var required: Int
+  var required = 0
   var err = f(name, 0, nil, &required)
   if err != CL_SUCCESS {
     return err
