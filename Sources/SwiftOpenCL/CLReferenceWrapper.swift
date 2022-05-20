@@ -28,6 +28,7 @@ class CLReferenceWrapper<T: CLReferenceCountable> {
   var object: OpaquePointer
   var shouldRetain: Bool
   
+  // Force-inline this.
   init?(_ object: OpaquePointer, _ shouldRetain: Bool) {
     self.object = object
     self.shouldRetain = shouldRetain

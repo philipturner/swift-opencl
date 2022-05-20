@@ -8,7 +8,9 @@
 import Foundation
 import COpenCL
 
-public struct CLError: LocalizedError {
+// `class` instead of `struct` to improve memory safety if SwiftOpenCL ever
+// writes to `CLError.latest` from two threads simultaneously.
+public class CLError: LocalizedError {
   public var code: Int32
   public var message: String?
   
@@ -19,6 +21,7 @@ public struct CLError: LocalizedError {
   
   public static var latest: CLError? = nil
   
+  // Force-inline this.
   @discardableResult
   static func handleCode(_ code: Int32, _ message: String? = nil) -> Bool {
     if code != CL_SUCCESS {
