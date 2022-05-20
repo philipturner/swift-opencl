@@ -295,9 +295,29 @@ extension CLDevice {
     }
   }
   
-//  public var driverVersion: String? {
-//    getInfo_String(name: CL_DRIVER_VERSION) {
-//      clGetDeviceInfo(wrapper.object, $0, $1, $2, $3)
-//    }
-//  }
+  public var profile: String? {
+    getInfo_String(name: CL_DEVICE_PROFILE) {
+      clGetDeviceInfo(wrapper.object, $0, $1, $2, $3)
+    }
+  }
+  
+  public var version: String? {
+    getInfo_String(name: CL_DEVICE_VERSION) {
+      clGetDeviceInfo(wrapper.object, $0, $1, $2, $3)
+    }
+  }
+  
+  public var extensions: String? {
+    getInfo_String(name: CL_DEVICE_EXTENSIONS) {
+      clGetDeviceInfo(wrapper.object, $0, $1, $2, $3)
+    }
+  }
+  
+  // OpenCL 1.1
+  
+  public var openclCVersion: String? {
+    getInfo_String(name: CL_DEVICE_OPENCL_C_VERSION) {
+      clGetDeviceInfo(wrapper.object, $0, $1, $2, $3)
+    }
+  }
 }
