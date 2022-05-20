@@ -12,7 +12,7 @@ public struct CLPlatform: CLReferenceCountable {
   public var platformID: cl_platform_id { wrapper.object }
   
   // Document that it never actually retains in DocC.
-  public init?(platformID: cl_platform_id, retain: Bool = false) {
+  public init?(_ platformID: cl_platform_id, retain: Bool = false) {
     guard let wrapper = CLReferenceWrapper<Self>(platformID, retain) else {
       return nil
     }
@@ -22,7 +22,7 @@ public struct CLPlatform: CLReferenceCountable {
   static func retain(_ object: OpaquePointer) -> Int32 { CL_SUCCESS }
   static func release(_ object: OpaquePointer) -> Int32 { CL_SUCCESS }
   
-  static var defaultPlatform: CLPlatform? = {
+  public static var defaultPlatform: CLPlatform? = {
     var n: UInt32 = 0
     var err = clGetPlatformIDs(0, nil, &n)
     guard CLError.handleCode(err) else {
@@ -40,34 +40,34 @@ public struct CLPlatform: CLReferenceCountable {
       return nil
     }
     
-    return CLPlatform(platformID: ids[0]!)
+    return CLPlatform(ids[0]!)
   }()
   
-  var profile: String? {
+  public var profile: String? {
     getInfo_String(name: CL_PLATFORM_PROFILE) {
       clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
     }
   }
   
-  var version: String? {
+  public var version: String? {
     getInfo_String(name: CL_PLATFORM_VERSION) {
       clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
     }
   }
   
-  var name: String? {
+  public var name: String? {
     getInfo_String(name: CL_PLATFORM_NAME) {
       clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
     }
   }
   
-  var vendor: String? {
+  public var vendor: String? {
     getInfo_String(name: CL_PLATFORM_VENDOR) {
       clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
     }
   }
   
-  var extensions: String? {
+  public var extensions: String? {
     getInfo_String(name: CL_PLATFORM_EXTENSIONS) {
       clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
     }

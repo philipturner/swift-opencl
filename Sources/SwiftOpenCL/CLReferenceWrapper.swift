@@ -7,19 +7,8 @@
 
 import COpenCL
 
-// replace this with every wrapped type having a class it surrounds with zero
-// cost
-
-// a parameter called `retainObject`.
-// For `CLDevice`, set that parameter beforehand based on the OpenCL version
-
-//let version = getVersion(device: device)
-//// Needs OpenCL 1.2 or higher
-//if version.0 > 1 || version.1 >= 2 {
-//  retainObject = true
-//}
-
 protocol CLReferenceCountable {
+  init?(_: OpaquePointer, retain: Bool)
   static func retain(_ object: OpaquePointer) -> Int32
   static func release(_ object: OpaquePointer) -> Int32
 }

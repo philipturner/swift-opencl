@@ -7,6 +7,7 @@
 
 import Foundation
 import COpenCL
+import CoreLocation
 
 /*
 /*
@@ -232,6 +233,80 @@ func getInfo_String(name: Int32, callGetInfo: GetInfoClosure) -> String? {
   }
 }
 
+// Force-inline this.
+func getInfo_Int<T: BinaryInteger>(
+  name: Int32, callGetInfo: GetInfoClosure
+) -> T? {
+  var output: T = 0
+  let err = callGetInfo(UInt32(name), MemoryLayout<T>.stride, &output, nil)
+  guard CLError.handleCode(err) else {
+    return nil
+  }
+  return output
+}
+
+func getInfo_Array<T>(name: Int32, callGetInfo: GetInfoClosure) -> [T]? {
+  var required = 0
+  var err = callGetInfo(UInt32(name), 0, nil, &required)
+  guard CLError.handleCode(err) else {
+    return nil
+  }
+  let elements = required / MemoryLayout<T>.stride
+  
+  let localData = [T](
+    unsafeUninitializedCapacity: elements,
+    initializingWith: { buffer, initializedCount in
+      initializedCount = elements
+      err = callGetInfo(UInt32(name), required, buffer.baseAddress, nil)
+    })
+  guard CLError.handleCode(err) else {
+    return nil
+  }
+  return localData
+}
+
+func getInfo_ArrayReferenceCountable<T: CLReferenceCountable>(
+  name: Int32, callGetInfo: GetInfoClosure
+) -> [T]? {
+  var required = 0
+  var err = callGetInfo(UInt32(name), 0, nil, &required)
+  guard CLError.handleCode(err) else {
+    return nil
+  }
+  let elements = required / MemoryLayout<OpaquePointer>.stride
+  
+  let value: UnsafeMutablePointer<OpaquePointer> = .allocate(capacity: elements)
+  defer { value.deallocate() }
+  err = callGetInfo(UInt32(name), required, value, nil)
+  guard CLError.handleCode(err) else {
+    return nil
+  }
+  
+  var shouldReturnEarly = false
+  let output = [T](
+    unsafeUninitializedCapacity: elements,
+    initializingWith: { buffer, initializedCount in
+      for i in 0..<elements {
+        guard let element = T(value[i], retain: true) else {
+          shouldReturnEarly = true
+          initializedCount = i
+          return
+        }
+        buffer[i] = element
+      }
+      initializedCount = elements
+    })
+  if shouldReturnEarly {
+    return nil
+  } else {
+    return output
+  }
+}
+
+// getInfo_ArrayInt
+// Specialized GetInfoHelper for clsize_t params
+// NOT for all integer types that are in an array
+
 
 
 
@@ -286,6 +361,7 @@ func getInfoHelper(
     let binariesPointers = [UnsafeMutablePointer<UInt8>](
       unsafeUninitializedCapacity: numBinaries, initializingWith: {
         buffer, initializedCount in
+        initializedCount = numBinaries
         for i in 0..<numBinaries {
           // Is this safe?
           let ptr = param[i].withUnsafeBufferPointer {
@@ -293,7 +369,6 @@ func getInfoHelper(
           }
           buffer[i] = UnsafeMutablePointer(mutating: ptr)
         }
-        initializedCount = numBinaries
       })
     defer {
       binariesPointers.forEach { $0.deallocate() }
@@ -302,7 +377,9 @@ func getInfoHelper(
     let ptr = binariesPointers.withUnsafeBufferPointer {
       $0.baseAddress!
     }
-    let err = f(name, numBinaries * MemoryLayout<UInt8>.stride, UnsafeMutablePointer(mutating: ptr), nil)
+    let err = f(
+      name, numBinaries * MemoryLayout<UInt8>.stride,
+      UnsafeMutablePointer(mutating: ptr), nil)
     if err != CL_SUCCESS {
       return err
     }
@@ -327,8 +404,8 @@ func getInfoHelper<T>(
   let localData = Array<T>(
     unsafeUninitializedCapacity: elements,
     initializingWith: { buffer, initializedCount in
-      err = f(name, required, buffer.baseAddress!, nil)
       initializedCount = elements
+      err = f(name, required, buffer.baseAddress!, nil)
     })
   if err != CL_SUCCESS {
     return err
@@ -401,10 +478,10 @@ func getInfoHelper(
   param = .init(
     unsafeUninitializedCapacity: elements,
     initializingWith: { buffer, initializedCount in
+      initializedCount = elements
       for i in 0..<elements {
         buffer[i] = value[i]
       }
-      initializedCount = elements
     })
   return CL_SUCCESS
 }

@@ -11,8 +11,8 @@ public struct CLContext: CLReferenceCountable {
   var wrapper: CLReferenceWrapper<Self>
   public var context: cl_context { wrapper.object }
 
-  // Force-inline this.
-  public init?(context: cl_context, retain: Bool = false) {
+  // Force-inline this internally, but not externally.
+  public init?(_ context: cl_context, retain: Bool = false) {
     guard let wrapper = CLReferenceWrapper<Self>(context, retain) else {
       return nil
     }
@@ -27,7 +27,7 @@ public struct CLContext: CLReferenceCountable {
     clReleaseContext(object)
   }
   
-  static var defaultContext: CLContext? = {
+  public static var defaultContext: CLContext? = {
     #if !canImport(Darwin)
     guard let p = CLPlatform.defaultPlatform else {
       return nil
@@ -67,7 +67,7 @@ public struct CLContext: CLReferenceCountable {
     guard CLError.handleCode(error), let object_ = object_ else {
       return nil
     }
-    self.init(context: object_)
+    self.init(object_)
   }
   
   public init?(
@@ -86,11 +86,11 @@ public struct CLContext: CLReferenceCountable {
     guard CLError.handleCode(error), let object_ = object_ else {
       return nil
     }
-    self.init(context: object_)
+    self.init(object_)
   }
   
   public init?(
-    type: cl_device_type,
+    type: cl_device_type, // Convert this to an Int32 argument.
     properties: UnsafeMutablePointer<cl_context_properties>? = nil,
     notifyFptr: (@convention(c) (
       UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
@@ -101,5 +101,27 @@ public struct CLContext: CLReferenceCountable {
     fatalError()
   }
   
-  // use the C++ tiny generic function for cl_uint properties?
+  public var referenceCount: UInt32? {
+    getInfo_Int(name: CL_CONTEXT_REFERENCE_COUNT) {
+      clGetContextInfo(wrapper.object, $0, $1, $2, $3)
+    }
+  }
+  
+  public var devices: [CLDevice]? {
+    getInfo_ArrayReferenceCountable(name: CL_CONTEXT_DEVICES) {
+      clGetContextInfo(wrapper.object, $0, $1, $2, $3)
+    }
+  }
+  
+  public var properties: [cl_context_properties]? {
+    getInfo_Array(name: CL_CONTEXT_PROPERTIES) {
+      clGetContextInfo(wrapper.object, $0, $1, $2, $3)
+    }
+  }
+  
+  public var numDevices: UInt32? {
+    getInfo_Int(name: CL_CONTEXT_NUM_DEVICES) {
+      clGetContextInfo(wrapper.object, $0, $1, $2, $3)
+    }
+  }
 }
