@@ -101,6 +101,8 @@ public struct CLContext: CLReferenceCountable {
     fatalError()
   }
   
+  // OpenCL 1.0
+  
   public var referenceCount: UInt32? {
     getInfo_Int(name: CL_CONTEXT_REFERENCE_COUNT) {
       clGetContextInfo(wrapper.object, $0, $1, $2, $3)
@@ -108,7 +110,7 @@ public struct CLContext: CLReferenceCountable {
   }
   
   public var devices: [CLDevice]? {
-    getInfo_ArrayReferenceCountable(name: CL_CONTEXT_DEVICES) {
+    getInfo_ArrayOfReferenceCountable(name: CL_CONTEXT_DEVICES) {
       clGetContextInfo(wrapper.object, $0, $1, $2, $3)
     }
   }
@@ -118,6 +120,8 @@ public struct CLContext: CLReferenceCountable {
       clGetContextInfo(wrapper.object, $0, $1, $2, $3)
     }
   }
+  
+  // OpenCL 1.1
   
   public var numDevices: UInt32? {
     getInfo_Int(name: CL_CONTEXT_NUM_DEVICES) {

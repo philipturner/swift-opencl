@@ -234,6 +234,16 @@ func getInfo_String(name: Int32, callGetInfo: GetInfoClosure) -> String? {
 }
 
 // Force-inline this.
+func getInfo_Bool(name: Int32, callGetInfo: GetInfoClosure) -> Bool? {
+  var output = false
+  let err = callGetInfo(UInt32(name), MemoryLayout<Bool>.stride, &output, nil)
+  guard CLError.handleCode(err) else {
+    return nil
+  }
+  return output
+}
+
+// Force-inline this.
 func getInfo_Int<T: BinaryInteger>(
   name: Int32, callGetInfo: GetInfoClosure
 ) -> T? {
@@ -265,7 +275,7 @@ func getInfo_Array<T>(name: Int32, callGetInfo: GetInfoClosure) -> [T]? {
   return localData
 }
 
-func getInfo_ArrayReferenceCountable<T: CLReferenceCountable>(
+func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
   name: Int32, callGetInfo: GetInfoClosure
 ) -> [T]? {
   var required = 0
@@ -303,9 +313,24 @@ func getInfo_ArrayReferenceCountable<T: CLReferenceCountable>(
   }
 }
 
-// getInfo_ArrayInt
+func getInfo_ReferenceCountable<T: CLReferenceCountable>(
+  name: Int32, callGetInfo: GetInfoClosure
+) -> T? {
+  var value: OpaquePointer? = nil
+  let err = callGetInfo(
+    UInt32(name), MemoryLayout<OpaquePointer>.stride, &value, nil)
+  guard CLError.handleCode(err) else {
+    return nil
+  }
+  
+  guard let value = value else {
+    fatalError("This should never happen.")
+  }
+  return T(value, retain: true)
+}
+
+// REMOVE:
 // Specialized GetInfoHelper for clsize_t params
-// NOT for all integer types that are in an array
 
 
 

@@ -37,21 +37,5 @@ public struct CLDevice: CLReferenceCountable {
   
   // to make `defaultDevice`, I need to first create CLContext.
   
-  public var type: cl_device_type? {
-    getInfo_Int(name: CL_DEVICE_TYPE) {
-      clGetDeviceInfo(wrapper.object, $0, $1, $2, $3)
-    }
-  }
   
-  public var vendorID: UInt32? {
-    getInfo_Int(name: CL_DEVICE_VENDOR_ID) {
-      clGetDeviceInfo(wrapper.object, $0, $1, $2, $3)
-    }
-  }
-  
-  public var maxComputeUnits: UInt32? {
-    getInfo_Int(name: CL_DEVICE_MAX_COMPUTE_UNITS) {
-      clGetDeviceInfo(wrapper.object, $0, $1, $2, $3)
-    }
-  }
 }

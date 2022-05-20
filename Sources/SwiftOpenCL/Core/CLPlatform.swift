@@ -43,6 +43,8 @@ public struct CLPlatform: CLReferenceCountable {
     return CLPlatform(ids[0]!)
   }()
   
+  // OpenCL 1.0
+  
   public var profile: String? {
     getInfo_String(name: CL_PLATFORM_PROFILE) {
       clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
