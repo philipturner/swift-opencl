@@ -7,7 +7,6 @@
 
 import Foundation
 import COpenCL
-import CoreLocation
 
 /*
 /*
