@@ -9,9 +9,9 @@ let package = Package(
     .library(
       name: "CL",
       targets: ["CL"]),
-//    .library(
-//      name: "OpenGL",
-//      targets: ["OpenGL"])
+    .library(
+      name: "OpenGL",
+      targets: ["OpenGL"])
   ],
   dependencies: [
 
@@ -23,9 +23,9 @@ let package = Package(
     .target(
       name: "CL",
       dependencies: ["COpenCL"]),
-//    .target(
-//      name: "OpenGL",
-//      dependencies: ["CL"]),
+    .target(
+      name: "OpenGL",
+      dependencies: ["CL"]),
     .testTarget(
       name: "CLTests",
       dependencies: ["CL"]),
