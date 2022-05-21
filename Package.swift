@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-  name: "swift-opencl",
+  name: "SwiftOpenCL",
   products: [
     .library(
       name: "SwiftOpenCL",

@@ -6,9 +6,7 @@
 //
 
 #if __APPLE__
-#include <OpenCL/cl.h>
-#include <OpenCL/cl_ext.h>
-#include <OpenCL/cl_platform.h>
+#include <OpenCL/opencl.h>
 #else
 #include <CL/opencl.h>
 #endif
