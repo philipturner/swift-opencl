@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
   name: "OpenCL",
   platforms: [
-    .macOS(.v10_15),
+    .macOS(.v10_10),
   ],
   products: [
     .library(
