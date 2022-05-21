@@ -4,10 +4,13 @@
 import PackageDescription
 
 let package = Package(
-  name: "SwiftOpenCL",
+  name: "OpenCL",
+  platforms: [
+    .macOS(.v12),
+  ],
   products: [
     .library(
-      name: "SwiftOpenCL",
+      name: "OpenCL",
       targets: ["SwiftOpenCL"]),
   ],
   dependencies: [
@@ -19,7 +22,8 @@ let package = Package(
       dependencies: []),
     .target(
       name: "SwiftOpenCL",
-      dependencies: ["COpenCL"]),
+      dependencies: ["COpenCL"],
+      path: "Sources/OpenCL"),
     .testTarget(
       name: "SwiftOpenCLTests",
       dependencies: ["SwiftOpenCL"]),
