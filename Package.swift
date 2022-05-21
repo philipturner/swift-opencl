@@ -9,6 +9,9 @@ let package = Package(
     .library(
       name: "CL",
       targets: ["CL"]),
+    .library(
+      name: "CL2",
+      targets: ["CL2"])
   ],
   dependencies: [
 
@@ -20,6 +23,9 @@ let package = Package(
     .target(
       name: "CL",
       dependencies: ["COpenCL"]),
+    .target(
+      name: "CL2",
+      dependencies: ["CL"]),
     .testTarget(
       name: "CLTests",
       dependencies: ["CL"]),
