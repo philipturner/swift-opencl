@@ -7,11 +7,8 @@ let package = Package(
   name: "swift-opencl",
   products: [
     .library(
-      name: "CL",
-      targets: ["CL"]),
-    .library(
-      name: "OpenGL",
-      targets: ["OpenGL"])
+      name: "SwiftOpenCL",
+      targets: ["SwiftOpenCL"])
   ],
   dependencies: [
 
@@ -21,13 +18,10 @@ let package = Package(
       name: "COpenCL",
       dependencies: []),
     .target(
-      name: "CL",
+      name: "SwiftOpenCL",
       dependencies: ["COpenCL"]),
-    .target(
-      name: "OpenGL",
-      dependencies: ["CL"]),
     .testTarget(
-      name: "CLTests",
-      dependencies: ["CL"]),
+      name: "SwiftOpenCLTests",
+      dependencies: ["SwiftOpenCL"]),
   ]
 )
