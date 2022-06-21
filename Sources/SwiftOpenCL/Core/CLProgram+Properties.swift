@@ -43,17 +43,28 @@ extension CLProgram {
     guard let sizes = binarySizes else {
       return nil
     }
+    let numBinaries = sizes.count
     var output: [Data] = []
-    output.reserveCapacity(sizes.count)
+    output.reserveCapacity(numBinaries)
     let binariesPointers: UnsafeMutablePointer<UnsafeMutablePointer<Int8>> =
-      .allocate(capacity: sizes.count)
+      .allocate(capacity: numBinaries)
+    defer { binariesPointers.deallocate() }
     
-    for i in 0..<sizes.count {
+    for i in 0..<numBinaries {
       let size = sizes[i]
-      
+      let binaryPointer: UnsafeMutablePointer<Int8> = .allocate(capacity: size)
+      output.append(
+        Data(bytesNoCopy: binaryPointer, count: size, deallocator: .free))
+      binariesPointers[i] = binaryPointer
     }
-    
-    return nil
+    let err = clGetProgramInfo(
+      wrapper.object, UInt32(CL_PROGRAM_BINARIES),
+      numBinaries * MemoryLayout<UnsafeMutablePointer<Int8>>.stride,
+      binariesPointers, nil)
+    guard CLError.handleCode(err, "__GET_PROGRAM_INFO_ERR") else {
+      return nil
+    }
+    return output
   }
   
 }

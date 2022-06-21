@@ -288,10 +288,6 @@ func getInfo_ProgramBinaries2(
   return CL_SUCCESS
 }
 
-//func getInfo_ProgramBinaries(_ getInfoClosure: GetInfoClosure) -> [Data]? {
-//  
-//}
-
 func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
   var required = 0
   var err = getInfo(UInt32(name), 0, nil, &required)
