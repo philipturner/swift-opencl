@@ -43,36 +43,35 @@ public struct CLPlatform: CLReferenceCountable {
     return CLPlatform(ids[0]!)
   }()
   
+}
+
+extension CLPlatform {
+  
+  @inline(__always)
+  private var callGetInfo: GetInfoClosure {
+    { clGetPlatformInfo(wrapper.object, $0, $1, $2, $3) }
+  }
+  
   // OpenCL 1.0
   
   public var profile: String? {
-    getInfo_String(name: CL_PLATFORM_PROFILE) {
-      clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
-    }
+    getInfo_String(CL_PLATFORM_PROFILE, callGetInfo)
   }
   
   public var version: String? {
-    getInfo_String(name: CL_PLATFORM_VERSION) {
-      clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
-    }
+    getInfo_String(CL_PLATFORM_VERSION, callGetInfo)
   }
   
   public var name: String? {
-    getInfo_String(name: CL_PLATFORM_NAME) {
-      clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
-    }
+    getInfo_String(CL_PLATFORM_NAME, callGetInfo)
   }
   
   public var vendor: String? {
-    getInfo_String(name: CL_PLATFORM_VENDOR) {
-      clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
-    }
+    getInfo_String(CL_PLATFORM_VENDOR, callGetInfo)
   }
   
   public var extensions: String? {
-    getInfo_String(name: CL_PLATFORM_EXTENSIONS) {
-      clGetPlatformInfo(wrapper.object, $0, $1, $2, $3)
-    }
+    getInfo_String(CL_PLATFORM_EXTENSIONS, callGetInfo)
   }
   
   // TODO: change `CL_PLATFORM_EXTENSIONS`, etc. to its hard-coded number and

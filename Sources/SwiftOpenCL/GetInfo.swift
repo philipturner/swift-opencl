@@ -210,7 +210,7 @@ inline cl_int getInfoHelper(Func f, cl_uint name, string* param, long)
 typealias GetInfoClosure = (
   UInt32, Int, UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> Int32
 
-func getInfo_String(name: Int32, callGetInfo: GetInfoClosure) -> String? {
+func getInfo_String(_ name: Int32, _ callGetInfo: GetInfoClosure) -> String? {
   var required = 0
   var err = callGetInfo(UInt32(name), 0, nil, &required)
   guard CLError.handleCode(err) else {
@@ -233,7 +233,7 @@ func getInfo_String(name: Int32, callGetInfo: GetInfoClosure) -> String? {
 }
 
 // Force-inline this.
-func getInfo_Bool(name: Int32, callGetInfo: GetInfoClosure) -> Bool? {
+func getInfo_Bool(_ name: Int32, _ callGetInfo: GetInfoClosure) -> Bool? {
   var output = false
   let err = callGetInfo(UInt32(name), MemoryLayout<Bool>.stride, &output, nil)
   guard CLError.handleCode(err) else {
@@ -244,7 +244,7 @@ func getInfo_Bool(name: Int32, callGetInfo: GetInfoClosure) -> Bool? {
 
 // Force-inline this.
 func getInfo_Int<T: BinaryInteger>(
-  name: Int32, callGetInfo: GetInfoClosure
+  _ name: Int32, _ callGetInfo: GetInfoClosure
 ) -> T? {
   var output: T = 0
   let err = callGetInfo(UInt32(name), MemoryLayout<T>.stride, &output, nil)
@@ -254,7 +254,7 @@ func getInfo_Int<T: BinaryInteger>(
   return output
 }
 
-func getInfo_Array<T>(name: Int32, callGetInfo: GetInfoClosure) -> [T]? {
+func getInfo_Array<T>(_ name: Int32, _ callGetInfo: GetInfoClosure) -> [T]? {
   var required = 0
   var err = callGetInfo(UInt32(name), 0, nil, &required)
   guard CLError.handleCode(err) else {
@@ -275,7 +275,7 @@ func getInfo_Array<T>(name: Int32, callGetInfo: GetInfoClosure) -> [T]? {
 }
 
 func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
-  name: Int32, callGetInfo: GetInfoClosure
+  _ name: Int32, _ callGetInfo: GetInfoClosure
 ) -> [T]? {
   var required = 0
   var err = callGetInfo(UInt32(name), 0, nil, &required)
@@ -313,7 +313,7 @@ func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
 }
 
 func getInfo_ReferenceCountable<T: CLReferenceCountable>(
-  name: Int32, callGetInfo: GetInfoClosure
+  _ name: Int32, _ callGetInfo: GetInfoClosure
 ) -> T? {
   var value: OpaquePointer? = nil
   let err = callGetInfo(
