@@ -1,5 +1,5 @@
 //
-//  GetInfo.swift
+//  Info.swift
 //  
 //
 //  Created by Philip Turner on 5/16/22.
