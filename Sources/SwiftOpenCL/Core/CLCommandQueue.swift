@@ -22,7 +22,7 @@ public struct CLCommandQueue: CLReferenceCountable {
   static func retain(_ object: OpaquePointer) -> Int32 {
     clRetainCommandQueue(object)
   }
-
+  
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseCommandQueue(object)
   }
