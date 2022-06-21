@@ -6,6 +6,7 @@
 //
 
 import COpenCL
+import Foundation
 
 public struct CLProgram: CLReferenceCountable {
   var wrapper: CLReferenceWrapper<Self>
@@ -85,6 +86,77 @@ public struct CLProgram: CLReferenceCountable {
       return nil
     }
     self.init(object_)
+  }
+  
+  // make an overload of this initializer that doesn't have the `binaryStatus` parameter
+  
+  @usableFromInline
+  internal init?(
+    context: CLContext,
+    devices: [CLDevice],
+    binaries: [Data],
+    binaryStatus: inout [Int32]?,
+    usingBinaryStatus: Bool
+  ) {
+    var error: Int32 = 0
+    let numDevices = devices.count
+    if binaries.count != devices.count {
+      CLError.handleCode(CL_INVALID_VALUE, "__CREATE_PROGRAM_WITH_BINARY_ERR")
+      return nil
+    }
+    
+    var lengths: [Int] = []
+    lengths.reserveCapacity(numDevices)
+    var images: [UnsafePointer<UInt8>?] = []
+    images.reserveCapacity(numDevices)
+    var deviceIDs: [cl_device_id?] = []
+    deviceIDs.reserveCapacity(numDevices)
+    
+    for i in 0..<numDevices {
+      let binary = binaries[i]
+      binary.withUnsafeBytes { bufferPointer in
+        lengths.append(bufferPointer.count)
+        images.append(
+          bufferPointer.baseAddress!.assumingMemoryBound(to: UInt8.self))
+      }
+      deviceIDs.append(devices[i].deviceID)
+    }
+    
+    var object_: cl_program?
+    if usingBinaryStatus {
+      binaryStatus = Array(repeating: 0, count: numDevices)
+      object_ = clCreateProgramWithBinary(context.context, UInt32(numDevices), &deviceIDs, &lengths, &images, &binaryStatus!, &error)
+    } else {
+      object_ = clCreateProgramWithBinary(context.context, UInt32(numDevices), &deviceIDs, &lengths, &images, nil, &error)
+    }
+    
+    guard CLError.handleCode(error, "__CREATE_PROGRAM_WITH_BINARY_ERR"),
+          let object_ = object_ else {
+      return nil
+    }
+    self.init(object_)
+  }
+  
+  public init?(
+    context: CLContext,
+    devices: [CLDevice],
+    binaries: [Data]
+  ) {
+    var ignoredBinaryStatus: [Int32]?
+    self.init(
+      context: context, devices: devices, binaries: binaries,
+      binaryStatus: &ignoredBinaryStatus, usingBinaryStatus: false)
+  }
+  
+  public init?(
+    context: CLContext,
+    devices: [CLDevice],
+    binaries: [Data],
+    binaryStatus: inout [Int32]?
+  ) {
+    self.init(
+      context: context, devices: devices, binaries: binaries,
+      binaryStatus: &binaryStatus, usingBinaryStatus: true)
   }
   
 }
