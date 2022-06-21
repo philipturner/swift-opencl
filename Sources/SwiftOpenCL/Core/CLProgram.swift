@@ -39,29 +39,3 @@ public struct CLProgram: CLReferenceCountable {
   }
   
 }
-
-extension CLProgram {
-  
-  @inline(__always)
-  private var getInfo: GetInfoClosure {
-    { clGetProgramInfo(wrapper.object, $0, $1, $2, $3) }
-  }
-  
-}
-
-// Too complex to implement at the moment.
-
-extension CLProgram {
-  
-  @inline(__always)
-  private func getBuildInfoClosure(device: CLDevice) -> GetInfoClosure {
-    { clGetProgramBuildInfo(wrapper.object, device.deviceID, $0, $1, $2, $3) }
-  }
-  
-  
-  
-//  private var getBuildInfo: GetInfoClosure {
-//    2
-//  }
-
-}

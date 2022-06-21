@@ -210,28 +210,6 @@ inline cl_int getInfoHelper(Func f, cl_uint name, string* param, long)
 typealias GetInfoClosure = (
   UInt32, Int, UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> Int32
 
-func getInfo_String(_ name: Int32, _ callGetInfo: GetInfoClosure) -> String? {
-  var required = 0
-  var err = callGetInfo(UInt32(name), 0, nil, &required)
-  guard CLError.handleCode(err) else {
-    return nil
-  }
-  
-  if required > 0 {
-    var value = malloc(required)!
-    err = callGetInfo(UInt32(name), required, &value, nil)
-    guard CLError.handleCode(err) else {
-      free(value)
-      return nil
-    }
-    return String(
-      bytesNoCopy: value, length: required, encoding: .utf8,
-      freeWhenDone: true)!
-  } else {
-    return ""
-  }
-}
-
 // Force-inline this.
 func getInfo_Bool(_ name: Int32, _ callGetInfo: GetInfoClosure) -> Bool? {
   var output = false
@@ -244,19 +222,79 @@ func getInfo_Bool(_ name: Int32, _ callGetInfo: GetInfoClosure) -> Bool? {
 
 // Force-inline this.
 func getInfo_Int<T: BinaryInteger>(
-  _ name: Int32, _ callGetInfo: GetInfoClosure
+  _ name: Int32, _ getInfo: GetInfoClosure
 ) -> T? {
   var output: T = 0
-  let err = callGetInfo(UInt32(name), MemoryLayout<T>.stride, &output, nil)
+  let err = getInfo(UInt32(name), MemoryLayout<T>.stride, &output, nil)
   guard CLError.handleCode(err) else {
     return nil
   }
   return output
 }
 
-func getInfo_Array<T>(_ name: Int32, _ callGetInfo: GetInfoClosure) -> [T]? {
+func getInfo_ReferenceCountable<T: CLReferenceCountable>(
+  _ name: Int32, _ getInfo: GetInfoClosure
+) -> T? {
+  var value: OpaquePointer? = nil
+  let err = getInfo(
+    UInt32(name), MemoryLayout<OpaquePointer>.stride, &value, nil)
+  guard CLError.handleCode(err) else {
+    return nil
+  }
+  
+  guard let value = value else {
+    fatalError("This should never happen.")
+  }
+  return T(value, retain: true)
+}
+
+func getInfo_ProgramBinaries2(
+  _ f: GetInfoFunctor,
+  _ name: UInt32,
+  _ param: [[UInt8]]?
+) -> Int32 {
+  if name != CL_PROGRAM_BINARIES {
+    return CL_INVALID_VALUE
+  }
+    if let param = param {
+    let numBinaries = param.count
+    let binariesPointers = [UnsafeMutablePointer<UInt8>](
+      unsafeUninitializedCapacity: numBinaries, initializingWith: {
+        buffer, initializedCount in
+        initializedCount = numBinaries
+        for i in 0..<numBinaries {
+          // Is this safe?
+          let ptr = param[i].withUnsafeBufferPointer {
+            $0.baseAddress!
+          }
+          buffer[i] = UnsafeMutablePointer(mutating: ptr)
+        }
+      })
+    defer {
+      binariesPointers.forEach { $0.deallocate() }
+    }
+    
+    let ptr = binariesPointers.withUnsafeBufferPointer {
+      $0.baseAddress!
+    }
+    let err = f(
+      name, numBinaries * MemoryLayout<UInt8>.stride,
+      UnsafeMutablePointer(mutating: ptr), nil)
+    if err != CL_SUCCESS {
+      return err
+    }
+  }
+  
+  return CL_SUCCESS
+}
+
+//func getInfo_ProgramBinaries(_ getInfoClosure: GetInfoClosure) -> [Data]? {
+//  
+//}
+
+func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
   var required = 0
-  var err = callGetInfo(UInt32(name), 0, nil, &required)
+  var err = getInfo(UInt32(name), 0, nil, &required)
   guard CLError.handleCode(err) else {
     return nil
   }
@@ -266,7 +304,7 @@ func getInfo_Array<T>(_ name: Int32, _ callGetInfo: GetInfoClosure) -> [T]? {
     unsafeUninitializedCapacity: elements,
     initializingWith: { buffer, initializedCount in
       initializedCount = elements
-      err = callGetInfo(UInt32(name), required, buffer.baseAddress, nil)
+      err = getInfo(UInt32(name), required, buffer.baseAddress, nil)
     })
   guard CLError.handleCode(err) else {
     return nil
@@ -275,10 +313,10 @@ func getInfo_Array<T>(_ name: Int32, _ callGetInfo: GetInfoClosure) -> [T]? {
 }
 
 func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
-  _ name: Int32, _ callGetInfo: GetInfoClosure
+  _ name: Int32, _ getInfo: GetInfoClosure
 ) -> [T]? {
   var required = 0
-  var err = callGetInfo(UInt32(name), 0, nil, &required)
+  var err = getInfo(UInt32(name), 0, nil, &required)
   guard CLError.handleCode(err) else {
     return nil
   }
@@ -286,7 +324,7 @@ func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
   
   let value: UnsafeMutablePointer<OpaquePointer> = .allocate(capacity: elements)
   defer { value.deallocate() }
-  err = callGetInfo(UInt32(name), required, value, nil)
+  err = getInfo(UInt32(name), required, value, nil)
   guard CLError.handleCode(err) else {
     return nil
   }
@@ -312,24 +350,27 @@ func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
   }
 }
 
-func getInfo_ReferenceCountable<T: CLReferenceCountable>(
-  _ name: Int32, _ callGetInfo: GetInfoClosure
-) -> T? {
-  var value: OpaquePointer? = nil
-  let err = callGetInfo(
-    UInt32(name), MemoryLayout<OpaquePointer>.stride, &value, nil)
+func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {
+  var required = 0
+  var err = getInfo(UInt32(name), 0, nil, &required)
   guard CLError.handleCode(err) else {
     return nil
   }
   
-  guard let value = value else {
-    fatalError("This should never happen.")
+  if required > 0 {
+    var value = malloc(required)!
+    err = getInfo(UInt32(name), required, &value, nil)
+    guard CLError.handleCode(err) else {
+      free(value)
+      return nil
+    }
+    return String(
+      bytesNoCopy: value, length: required, encoding: .utf8,
+      freeWhenDone: true)!
+  } else {
+    return ""
   }
-  return T(value, retain: true)
 }
-
-// REMOVE:
-// Specialized GetInfoHelper for clsize_t params
 
 
 
