@@ -15,6 +15,8 @@ extension CLProgram {
     { clGetProgramInfo(wrapper.object, $0, $1, $2, $3) }
   }
   
+  // OpenCL 1.0
+  
   public var referenceCount: UInt32? {
     getInfo_Int(CL_PROGRAM_REFERENCE_COUNT, getInfo)
   }
@@ -67,6 +69,16 @@ extension CLProgram {
     return output
   }
   
+  // OpenCL 1.2
+  
+  public var numKernels: Int? {
+    getInfo_Int(CL_PROGRAM_NUM_KERNELS, getInfo)
+  }
+  
+  public var kernelNames: String? {
+    getInfo_String(CL_PROGRAM_KERNEL_NAMES, getInfo)
+  }
+  
 }
 
 extension CLProgram {
@@ -96,12 +108,16 @@ extension CLProgram {
     getInfo_Int(CL_PROGRAM_BINARY_TYPE, getBuildInfo(device: device))
   }
   
-}
-
-extension CLProgram {
-  
-  //  private var getBuildInfo: GetInfoClosure {
-  //    2
-  //  }
+  func buildLogHasError() -> Bool {
+    guard let devices = devices else {
+      return false
+    }
+    for device in devices {
+      if buildLog(device: device) == nil {
+        return false
+      }
+    }
+    return true
+  }
   
 }
