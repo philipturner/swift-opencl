@@ -33,7 +33,7 @@ public struct CLEvent: CLReferenceCountable {
 extension CLEvent {
   
   @inline(__always)
-  private var callGetEventInfo: GetInfoClosure {
+  private var getInfo_Event: GetInfoClosure {
     { clGetEventInfo(wrapper.object, $0, $1, $2, $3) }
   }
   
@@ -44,21 +44,21 @@ extension CLEvent {
 //  }
   
   public var commandType: cl_command_type? {
-    getInfo_Int(CL_EVENT_COMMAND_TYPE, callGetEventInfo)
+    getInfo_Int(CL_EVENT_COMMAND_TYPE, getInfo_Event)
   }
   
   public var referenceCount: UInt32? {
-    getInfo_Int(CL_EVENT_REFERENCE_COUNT, callGetEventInfo)
+    getInfo_Int(CL_EVENT_REFERENCE_COUNT, getInfo_Event)
   }
   
   public var commandExecutionStatus: Int32? {
-    getInfo_Int(CL_EVENT_COMMAND_EXECUTION_STATUS, callGetEventInfo)
+    getInfo_Int(CL_EVENT_COMMAND_EXECUTION_STATUS, getInfo_Event)
   }
   
   // OpenCL 1.1
   
   public var context: CLContext? {
-    getInfo_ReferenceCountable(CL_EVENT_CONTEXT, callGetEventInfo)
+    getInfo_ReferenceCountable(CL_EVENT_CONTEXT, getInfo_Event)
   }
   
 }
@@ -66,26 +66,26 @@ extension CLEvent {
 extension CLEvent {
   
   @inline(__always)
-  private var callGetProfilingInfo: GetInfoClosure {
+  private var getInfo_Profiling: GetInfoClosure {
     { clGetEventProfilingInfo(wrapper.object, $0, $1, $2, $3) }
   }
   
   // OpenCL 1.0
   
   public var commandQueued: UInt64? {
-    getInfo_Int(CL_PROFILING_COMMAND_QUEUED, callGetProfilingInfo)
+    getInfo_Int(CL_PROFILING_COMMAND_QUEUED, getInfo_Profiling)
   }
   
   public var commandSubmit: UInt64? {
-    getInfo_Int(CL_PROFILING_COMMAND_SUBMIT, callGetProfilingInfo)
+    getInfo_Int(CL_PROFILING_COMMAND_SUBMIT, getInfo_Profiling)
   }
   
   public var commandStart: UInt64? {
-    getInfo_Int(CL_PROFILING_COMMAND_START, callGetProfilingInfo)
+    getInfo_Int(CL_PROFILING_COMMAND_START, getInfo_Profiling)
   }
   
   public var commandEnd: UInt64? {
-    getInfo_Int(CL_PROFILING_COMMAND_END, callGetProfilingInfo)
+    getInfo_Int(CL_PROFILING_COMMAND_END, getInfo_Profiling)
   }
   
 }

@@ -27,6 +27,11 @@ public struct CLCommandQueue: CLReferenceCountable {
     clReleaseCommandQueue(object)
   }
   
+  public static var defaultCommandQueue: CLCommandQueue? = {
+    // Implementation requires one of the more complex initializers.
+    nil
+  }()
+  
   // TODO: make a way to not duplicate this massive chunk of code that has
   // `withUnsafeTemporaryAllocation`. Then, finish the rest of the initializers.
   
@@ -98,6 +103,33 @@ public struct CLCommandQueue: CLReferenceCountable {
       return nil
     }
     self.init(object_)
+  }
+  
+}
+
+extension CLCommandQueue {
+  
+  @inline(__always)
+  private var getInfo: GetInfoClosure {
+    { clGetCommandQueueInfo(wrapper.object, $0, $1, $2, $3) }
+  }
+  
+  // OpenCL 1.0
+  
+  public var context: CLContext? {
+    getInfo_ReferenceCountable(CL_QUEUE_CONTEXT, getInfo)
+  }
+  
+  public var device: CLDevice? {
+    getInfo_ReferenceCountable(CL_QUEUE_DEVICE, getInfo)
+  }
+  
+  public var referenceCount: UInt32? {
+    getInfo_Int(CL_QUEUE_REFERENCE_COUNT, getInfo)
+  }
+  
+  public var properties: cl_command_queue_properties? {
+    getInfo_Int(CL_QUEUE_PROPERTIES, getInfo)
   }
   
 }

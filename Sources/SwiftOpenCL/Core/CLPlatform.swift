@@ -48,30 +48,30 @@ public struct CLPlatform: CLReferenceCountable {
 extension CLPlatform {
   
   @inline(__always)
-  private var callGetInfo: GetInfoClosure {
+  private var getInfo: GetInfoClosure {
     { clGetPlatformInfo(wrapper.object, $0, $1, $2, $3) }
   }
   
   // OpenCL 1.0
   
   public var profile: String? {
-    getInfo_String(CL_PLATFORM_PROFILE, callGetInfo)
+    getInfo_String(CL_PLATFORM_PROFILE, getInfo)
   }
   
   public var version: String? {
-    getInfo_String(CL_PLATFORM_VERSION, callGetInfo)
+    getInfo_String(CL_PLATFORM_VERSION, getInfo)
   }
   
   public var name: String? {
-    getInfo_String(CL_PLATFORM_NAME, callGetInfo)
+    getInfo_String(CL_PLATFORM_NAME, getInfo)
   }
   
   public var vendor: String? {
-    getInfo_String(CL_PLATFORM_VENDOR, callGetInfo)
+    getInfo_String(CL_PLATFORM_VENDOR, getInfo)
   }
   
   public var extensions: String? {
-    getInfo_String(CL_PLATFORM_EXTENSIONS, callGetInfo)
+    getInfo_String(CL_PLATFORM_EXTENSIONS, getInfo)
   }
   
   // TODO: change `CL_PLATFORM_EXTENSIONS`, etc. to its hard-coded number and

@@ -106,28 +106,28 @@ public struct CLContext: CLReferenceCountable {
 extension CLContext {
   
   @inline(__always)
-  private var callGetInfo: GetInfoClosure {
+  private var getInfo: GetInfoClosure {
     { clGetContextInfo(wrapper.object, $0, $1, $2, $3) }
   }
   
   // OpenCL 1.0
   
   public var referenceCount: UInt32? {
-    getInfo_Int(CL_CONTEXT_REFERENCE_COUNT, callGetInfo)
+    getInfo_Int(CL_CONTEXT_REFERENCE_COUNT, getInfo)
   }
   
   public var devices: [CLDevice]? {
-    getInfo_ArrayOfReferenceCountable(CL_CONTEXT_DEVICES, callGetInfo)
+    getInfo_ArrayOfReferenceCountable(CL_CONTEXT_DEVICES, getInfo)
   }
   
   public var properties: [cl_context_properties]? {
-    getInfo_Array(CL_CONTEXT_PROPERTIES, callGetInfo)
+    getInfo_Array(CL_CONTEXT_PROPERTIES, getInfo)
   }
   
   // OpenCL 1.1
   
   public var numDevices: UInt32? {
-    getInfo_Int(CL_CONTEXT_NUM_DEVICES, callGetInfo)
+    getInfo_Int(CL_CONTEXT_NUM_DEVICES, getInfo)
   }
   
 }
