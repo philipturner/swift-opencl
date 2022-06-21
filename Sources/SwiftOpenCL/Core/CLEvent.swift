@@ -23,7 +23,7 @@ public struct CLEvent: CLReferenceCountable {
   }
   
   static func release(_ object: OpaquePointer) -> Int32 {
-    clRetainContext(object)
+    clReleaseContext(object)
   }
   
   
