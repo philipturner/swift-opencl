@@ -110,14 +110,14 @@ extension CLProgram {
   
   func buildLogHasError() -> Bool {
     guard let devices = devices else {
-      return false
+      return true
     }
     for device in devices {
       if buildLog(device: device) == nil {
-        return false
+        return true
       }
     }
-    return true
+    return false
   }
   
 }
