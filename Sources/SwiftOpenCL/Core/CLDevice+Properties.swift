@@ -201,7 +201,7 @@ extension CLDevice {
   }
   
   // Add to DocC documentation: The C macro "CL_DRIVER_VERSION" does not include
-  // the word "DEVICE"
+  // the word "DEVICE".
   public var driverVersion: String? {
     getInfo_String(CL_DRIVER_VERSION, callGetInfo)
   }
@@ -220,11 +220,90 @@ extension CLDevice {
   
   // OpenCL 1.1
   
+  public var preferredVectorWidthHalf: UInt32? {
+    getInfo_Int(CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF, callGetInfo)
+  }
+  
   public var nativeVectorWidthChar: UInt32? {
     getInfo_Int(CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR, callGetInfo)
+  }
+  
+  public var nativeVectorWidthShort: UInt32? {
+    getInfo_Int(CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT, callGetInfo)
+  }
+  
+  public var nativeVectorWidthInt: UInt32? {
+    getInfo_Int(CL_DEVICE_NATIVE_VECTOR_WIDTH_INT, callGetInfo)
+  }
+  
+  public var nativeVectorWidthLong: UInt32? {
+    getInfo_Int(CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG, callGetInfo)
+  }
+  
+  public var nativeVectorWidthFloat: UInt32? {
+    getInfo_Int(CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT, callGetInfo)
+  }
+  
+  public var nativeVectorWidthDouble: UInt32? {
+    getInfo_Int(CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE, callGetInfo)
+  }
+  
+  public var nativeVectorWidthHalf: UInt32? {
+    getInfo_Int(CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF, callGetInfo)
   }
   
   public var openclCVersion: String? {
     getInfo_String(CL_DEVICE_OPENCL_C_VERSION, callGetInfo)
   }
+  
+  // OpenCL 1.2
+  
+  public var linkerAvailable: Bool? {
+    getInfo_Bool(CL_DEVICE_LINKER_AVAILABLE, callGetInfo)
+  }
+  
+  public var imageMaxBufferSize: Int? {
+    getInfo_Int(CL_DEVICE_IMAGE_MAX_BUFFER_SIZE, callGetInfo)
+  }
+  
+  public var imageMaxArraySize: Int? {
+    getInfo_Int(CL_DEVICE_IMAGE_MAX_ARRAY_SIZE, callGetInfo)
+  }
+  
+  public var parentDevice: CLDevice? {
+    getInfo_ReferenceCountable(CL_DEVICE_PARENT_DEVICE, callGetInfo)
+  }
+  
+  public var partitionMaxSubDevices: UInt32? {
+    getInfo_Int(CL_DEVICE_PARTITION_MAX_SUB_DEVICES, callGetInfo)
+  }
+  
+  public var partitionProperties: [cl_device_partition_property]? {
+    getInfo_Array(CL_DEVICE_PARTITION_PROPERTIES, callGetInfo)
+  }
+  
+  public var partitionType: [cl_device_partition_property]? {
+    getInfo_Array(CL_DEVICE_PARTITION_TYPE, callGetInfo)
+  }
+  
+  public var referenceCount: UInt32? {
+    getInfo_Int(CL_DEVICE_REFERENCE_COUNT, callGetInfo)
+  }
+  
+  public var preferredInteropUserSync: Bool? {
+    getInfo_Bool(CL_DEVICE_PREFERRED_INTEROP_USER_SYNC, callGetInfo)
+  }
+  
+  public var partitionAffinityDomain: cl_device_affinity_domain? {
+    getInfo_Int(CL_DEVICE_PARTITION_AFFINITY_DOMAIN, callGetInfo)
+  }
+  
+  public var builtInKernels: String? {
+    getInfo_String(CL_DEVICE_BUILT_IN_KERNELS, callGetInfo)
+  }
+  
+  public var printfBufferSize: Int? {
+    getInfo_Int(CL_DEVICE_PRINTF_BUFFER_SIZE, callGetInfo)
+  }
+  
 }
