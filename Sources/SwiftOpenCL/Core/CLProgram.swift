@@ -51,10 +51,8 @@ public struct CLProgram: CLReferenceCountable {
     
     if build {
       error = clBuildProgram(object_, 0, nil, "-cl-std=CL2.0", nil, nil)
-      guard CLError.handleCode(error, "__BUILD_PROGRAM_ERR"),
-            buildLogIsErrorFree() else {
-        return nil
-      }
+      CLError.handleCode(error, "__BUILD_PROGRAM_ERR")
+      checkBuildLogErrors()
     }
   }
   
@@ -87,8 +85,6 @@ public struct CLProgram: CLReferenceCountable {
     }
     self.init(object_)
   }
-  
-  // make an overload of this initializer that doesn't have the `binaryStatus` parameter
   
   @usableFromInline
   internal init?(
@@ -181,73 +177,90 @@ extension CLProgram {
   
   public func build(
     devices: [CLDevice],
-    options: UnsafePointer<Int8>,
+    options: UnsafePointer<Int8>? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
     data: UnsafeMutableRawPointer? = nil
-  ) throws {
+  ) {
     let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
     let buildError = clBuildProgram(
       wrapper.object, UInt32(devices.count), deviceIDs, options, notifyFptr,
       data)
-    guard CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR"),
-          buildLogIsErrorFree() else {
-      throw CLError.latest!
-    }
+    CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR")
+    checkBuildLogErrors()
   }
   
   public func build(
     device: CLDevice,
-    options: UnsafePointer<Int8>,
+    options: UnsafePointer<Int8>? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
     data: UnsafeMutableRawPointer? = nil
-  ) throws {
+  ) {
     var deviceID = Optional(device.deviceID)
     let buildError = clBuildProgram(
       wrapper.object, 1, &deviceID, options, notifyFptr, data)
-    guard CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR"),
-          buildLogIsErrorFree() else {
-      throw CLError.latest!
-    }
+    CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR")
+    checkBuildLogErrors()
   }
   
   public func build(
-    options: UnsafePointer<Int8>,
+    options: UnsafePointer<Int8>? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
     data: UnsafeMutableRawPointer? = nil
-  ) throws {
+  ) {
     let buildError = clBuildProgram(
       wrapper.object, 0, nil, options, notifyFptr, data)
-    guard CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR"),
-          buildLogIsErrorFree() else {
-      throw CLError.latest!
-    }
+    CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR")
+    checkBuildLogErrors()
   }
   
   public func compile(
-    options: UnsafePointer<Int8>,
+    options: UnsafePointer<Int8>? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
     data: UnsafeMutableRawPointer? = nil
-  ) throws {
+  ) {
     let buildError = clCompileProgram(
       wrapper.object, 0, nil, options, 0, nil, nil, notifyFptr, data)
-    guard CLError.handleCode(buildError, "__COMPILE_PROGRAM_ERR"),
-          buildLogIsErrorFree() else {
-      throw CLError.latest!
-    }
+    CLError.handleCode(buildError, "__COMPILE_PROGRAM_ERR")
+    checkBuildLogErrors()
   }
   
+  // public func createKernels(...) throws
+  
+  #if !canImport(Darwin)
   public func setSpecializationConstant<T>(
     _ value: UnsafePointer<T>, index: UInt32
-  ) throws {
-//    let e
+  ) {
+    let error = clSetProgramSpecializationConstant(
+      wrapper.object, index, MemoryLayout<T>.stride, value)
+    CLError.handleCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   
+  public func setSpecializationConstant(
+    _ value: UnsafePointer, size: Int, index: UInt32
+  ) {
+    let error = clSetProgramSpecializationConstant(
+      wrapper.object, index, size, value)
+    CLError.handleCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
+  }
+  #endif
+  
+  public static func link(
+    _ input1: CLProgram,
+    _ input2: CLProgram,
+    ptions: UnsafePointer<Int8>? = nil,
+    notifyFptr: (@convention(c) (
+      cl_program?, UnsafeMutableRawPointer?
+    ) -> Void)? = nil,
+    data: UnsafeMutableRawPointer? = nil
+  ) {
+    
+  }
 }

@@ -108,7 +108,8 @@ extension CLProgram {
     getInfo_Int(CL_PROGRAM_BINARY_TYPE, getBuildInfo(device: device))
   }
   
-  func buildLogIsErrorFree() -> Bool {
+  @discardableResult
+  func checkBuildLogErrors() -> Bool {
     guard let devices = devices else {
       return false
     }
