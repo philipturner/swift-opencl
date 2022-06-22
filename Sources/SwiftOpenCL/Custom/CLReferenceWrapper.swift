@@ -22,20 +22,31 @@ class CLReferenceWrapper<T: CLReferenceCountable> {
   @usableFromInline
   var shouldRetain: Bool
   
-  // Force-inline this.
+  @usableFromInline @inline(never)
+  internal func retainReturningSuccess() -> Bool {
+    CLError.setCode(T.retain(object), "__RETAIN_ERR")
+  }
+  
+  @inlinable @inline(__always)
   init?(_ object: OpaquePointer, _ shouldRetain: Bool) {
     self.object = object
     self.shouldRetain = shouldRetain
     if shouldRetain {
-      guard CLError.setCode(T.retain(object), "__RETAIN_ERR") else {
+      guard retainReturningSuccess() else {
         return nil
       }
     }
   }
   
+  @usableFromInline @inline(never)
+  internal func release() {
+    CLError.setCode(T.release(object), "__RELEASE_ERR")
+  }
+  
+  @inlinable @inline(__always)
   deinit {
     if shouldRetain {
-      CLError.setCode(T.release(object), "__RELEASE")
+      release()
     }
   }
 }

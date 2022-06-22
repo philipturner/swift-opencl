@@ -24,7 +24,7 @@ public struct CLError: LocalizedError {
   private var storage: Storage
   
   @inline(never)
-  public init(code: Int32, message: String?) {
+  init(code: Int32, message: String?) {
     storage = Storage(code: code, message: message)
   }
   
@@ -40,12 +40,6 @@ public struct CLError: LocalizedError {
   // MARK: - Static Members
   
   public static var latest: CLError? = nil
-  
-//  // You must manually check `CLError.latest` after every function call if you want to enable error propagation. If every OpenCL function was marked with `throws`, `try!` would lose its semantic meaning and litter your code. As a more ergonomic alternative, `CLError.crashOnError` makes functions crash automatically. You can disable it and manually check `CLError.latest` instead. For properties, initializers, and (most) functions with return values, errors instead propagate via optionals.
-//
-//  // An alternative to both making every single function `throws` and forcing
-//  // the user to fetch `CLError.latest` after every function is called.
-//  public static var crashOnError: Bool = true
   
   // TODO: add #file and #line to allow reconstruction of the stack trace
   @inline(__always)
@@ -66,20 +60,4 @@ public struct CLError: LocalizedError {
       throw latest!
     }
   }
-  
-//  @inlinable @inline(__always)
-//  public static func crashIfErrorExists() {
-//    if crashOnError && CLError.latest != nil {
-//      crash()
-//    }
-//  }
-//
-//  @usableFromInline
-//  internal static func crash() -> Never {
-//    let error = CLError.latest!
-//    fatalError("""
-//      Automatically crashing on `CLError`: \(error.localizedDescription)
-//      To disable automatic crashing, turn off `CLError.crashOnError`.
-//      """)
-//  }
 }
