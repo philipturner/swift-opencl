@@ -36,6 +36,4 @@ public struct CLDevice: CLReferenceCountable {
   }
   
   // to make `defaultDevice`, I need to first create CLContext.
-  
-  
 }

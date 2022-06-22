@@ -172,11 +172,9 @@ public struct CLProgram: CLReferenceCountable {
     }
     self.init(object_)
   }
-  
 }
 
 extension CLProgram {
-  
   private func throwBuildCode(_ code: Int32, _ message: String) throws {
     guard CLError.setCode(code, message),
           buildLogHasNoErrors() else {
@@ -325,5 +323,4 @@ extension CLProgram {
     }
     return CLProgram(prog)
   }
-  
 }

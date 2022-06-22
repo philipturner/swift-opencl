@@ -9,7 +9,6 @@ import COpenCL
 import Foundation
 
 extension CLProgram {
-  
   @inline(__always)
   private var getInfo: GetInfoClosure {
     { clGetProgramInfo(wrapper.object, $0, $1, $2, $3) }
@@ -78,11 +77,9 @@ extension CLProgram {
   public var kernelNames: String? {
     getInfo_String(CL_PROGRAM_KERNEL_NAMES, getInfo)
   }
-  
 }
 
 extension CLProgram {
-  
   @inline(__always)
   fileprivate func getBuildInfo(device: CLDevice) -> GetInfoClosure {
     { clGetProgramBuildInfo(wrapper.object, device.deviceID, $0, $1, $2, $3) }
@@ -119,5 +116,4 @@ extension CLProgram {
     }
     return true
   }
-  
 }

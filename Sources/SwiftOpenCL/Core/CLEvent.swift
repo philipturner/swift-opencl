@@ -32,9 +32,18 @@ public struct CLEvent: CLReferenceCountable {
     try CLError.throwCode(error, "__WAIT_FOR_EVENTS_ERR")
   }
   
+  public func setCallback(
+    type: Int32,
+    userData: UnsafeMutableRawPointer? = nil,
+    notifyFptr: (@convention(c) (
+      cl_event?, Int32, UnsafeMutableRawPointer?
+    ) -> Void)
+  ) throws {
+    let error = clSetEventCallback(wrapper.object, type, notifyFptr, userData)
+    try CLError.throwCode(error, "__SET_EVENT_CALLBACK_ERR")
+  }
   
-  
-  public func waitForEvents(_ events: [CLEvent]) throws {
+  public static func waitForEvents(_ events: [CLEvent]) throws {
     var error: Int32
     if events.count > 0 {
       let clEvents: [cl_event?] = events.map(\.event)
@@ -44,11 +53,9 @@ public struct CLEvent: CLReferenceCountable {
     }
     try CLError.throwCode(error, "__WAIT_FOR_EVENTS_ERR")
   }
-  
 }
 
 extension CLEvent {
-  
   @inline(__always)
   private var getInfo: GetInfoClosure {
     { clGetEventInfo(wrapper.object, $0, $1, $2, $3) }
@@ -77,11 +84,9 @@ extension CLEvent {
   public var context: CLContext? {
     getInfo_ReferenceCountable(CL_EVENT_CONTEXT, getInfo)
   }
-  
 }
 
 extension CLEvent {
-  
   @inline(__always)
   private var getProfilingInfo: GetInfoClosure {
     { clGetEventProfilingInfo(wrapper.object, $0, $1, $2, $3) }
@@ -104,5 +109,4 @@ extension CLEvent {
   public var commandEnd: UInt64? {
     getInfo_Int(CL_PROFILING_COMMAND_END, getProfilingInfo)
   }
-  
 }

@@ -100,11 +100,9 @@ public struct CLContext: CLReferenceCountable {
     // requires CLPlatform.getDevices()
     fatalError()
   }
-  
 }
 
 extension CLContext {
-  
   @inline(__always)
   private var getInfo: GetInfoClosure {
     { clGetContextInfo(wrapper.object, $0, $1, $2, $3) }
@@ -129,5 +127,4 @@ extension CLContext {
   public var numDevices: UInt32? {
     getInfo_Int(CL_CONTEXT_NUM_DEVICES, getInfo)
   }
-  
 }

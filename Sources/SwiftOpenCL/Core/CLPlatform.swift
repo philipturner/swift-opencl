@@ -42,11 +42,9 @@ public struct CLPlatform: CLReferenceCountable {
     
     return CLPlatform(ids[0]!)
   }()
-  
 }
 
 extension CLPlatform {
-  
   @inline(__always)
   private var getInfo: GetInfoClosure {
     { clGetPlatformInfo(wrapper.object, $0, $1, $2, $3) }

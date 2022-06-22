@@ -25,5 +25,4 @@ public struct CLKernel: CLReferenceCountable {
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseKernel(object)
   }
-  
 }

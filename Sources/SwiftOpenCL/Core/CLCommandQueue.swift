@@ -114,11 +114,9 @@ public struct CLCommandQueue: CLReferenceCountable {
     let error = clFinish(wrapper.object)
     try CLError.throwCode(error, "__FLUSH_ERR")
   }
-  
 }
 
 extension CLCommandQueue {
-  
   @inline(__always)
   private var getInfo: GetInfoClosure {
     { clGetCommandQueueInfo(wrapper.object, $0, $1, $2, $3) }
@@ -141,5 +139,4 @@ extension CLCommandQueue {
   public var properties: cl_command_queue_properties? {
     getInfo_Int(CL_QUEUE_PROPERTIES, getInfo)
   }
-  
 }

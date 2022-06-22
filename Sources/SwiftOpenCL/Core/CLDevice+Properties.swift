@@ -8,7 +8,6 @@
 import COpenCL
 
 extension CLDevice {
-  
   @inline(__always)
   private var getInfo: GetInfoClosure {
     { clGetDeviceInfo(wrapper.object, $0, $1, $2, $3) }
@@ -305,5 +304,4 @@ extension CLDevice {
   public var printfBufferSize: Int? {
     getInfo_Int(CL_DEVICE_PRINTF_BUFFER_SIZE, getInfo)
   }
-  
 }
