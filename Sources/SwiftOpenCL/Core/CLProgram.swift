@@ -322,5 +322,4 @@ extension CLProgram {
     return CLProgram(prog)
   }
   
-  
 }
