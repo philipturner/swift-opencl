@@ -2,7 +2,7 @@
 
 > Note: This is a work in progress. Do not use it for any project except contributing to the development of this repository.
 
-A native Swift API for OpenCL, which works on every platform. This is similar to the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). To start off, I will only add support for OpenCL 1.2, the version that runs on macOS.
+A native Swift API for OpenCL, based on he [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). SwiftOpenCL runs on every platform that supports OpenCL - Linux, Windows, macOS, and Android. It currently supports up to OpenCL 1.2, with more functionality planned for the future.
 
 ## Tips
 
