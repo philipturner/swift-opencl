@@ -6,7 +6,7 @@ A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/Kh
 
 > \*On macOS, OpenCL is implemented as a layer on top of Metal. Apple views OpenCL as deprecated, so it prohibits use of OpenCL on iOS. Metal runs faster than OpenCL in some situations (especially ML), similar to CUDA's optimizations on NVIDIA devices. If you can use SwiftOpenCL, learning Metal to run GPGPU algorithms on iOS devices should not be a major hurdle. 
 >
-> SwiftOpenCL may evolve into a wrapper for Metal, letting cross-platform GPU benchmarks run on iOS. This would enable OpenCL 3.0 functionality on Apple platforms, which are eternally stuck on v1.2. If GPU shaders do not translate from OpenCL to Metal via SPIR-V, then Apple's [Metal developer tools for Windows](developer.apple.com/metal) may become necessary.
+> SwiftOpenCL may evolve into a wrapper for Metal, letting cross-platform GPU benchmarks run on iOS. This would enable OpenCL 3.0 functionality on Apple platforms, which are eternally stuck on v1.2. If SPIR-V cannot translate OpenCL C into MSL, then Apple's [Metal developer tools for Windows](developer.apple.com/metal) may become necessary.
 
 ## Tips
 

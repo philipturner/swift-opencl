@@ -120,3 +120,24 @@ extension CLKernel {
     getInfo_CLSize(CL_KERNEL_GLOBAL_WORK_SIZE, getWorkGroupInfo(device: device))
   }
 }
+
+extension CLKernel {
+  private func getSubGroupInfo(
+    device: CLDevice,
+    range: CLRange
+  ) -> GetInfoClosure {
+    { name, valueSize, value, returnValue in
+      // `withUnsafeBytes` uses a raw pointer instead of a pointer to `Int`,
+      // meaning `bufferPointer.count` equals the memory block's size in bytes.
+      return range.withUnsafeBytes { bufferPointer -> Int32 in
+        #if !canImport(Darwin)
+        clGetKernelSubGroupInfo(
+          wrapper.object, device.deviceID, name, bufferPointer.count,
+          bufferPointer.baseAddress, valueSize, value, returnValue)
+        #else
+        fatalError("Apple platforms do not support OpenCL 2.1.")
+        #endif
+      }
+    }
+  }
+}

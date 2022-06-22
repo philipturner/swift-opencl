@@ -8,7 +8,10 @@
 import COpenCL
 
 typealias GetInfoClosure = (
-  UInt32, Int, UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> Int32
+  /*param_name=*/UInt32,
+  /*param_value_size=*/Int,
+  /*param_value=*/UnsafeMutableRawPointer?,
+  /*param_value_size_ret=*/UnsafeMutablePointer<Int>?) -> Int32
 
 // Force-inline this.
 func getInfo_Bool(_ name: Int32, _ callGetInfo: GetInfoClosure) -> Bool? {

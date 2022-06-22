@@ -52,7 +52,7 @@ public struct CLRange {
   }
   
   @inlinable
-  public mutating func withUnsafeBytes<R>(
+  public func withUnsafeBytes<R>(
     _ body: (UnsafeRawBufferPointer) throws -> R
   ) rethrows -> R {
     return try withUnsafePointer(to: self) { pointer in
