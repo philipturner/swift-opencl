@@ -151,7 +151,7 @@ public struct CLMemFlags: CLMacro {
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public struct CLSVMMemFlags: CLMacro {
-  public let rawValue: cl_mem_flags
+  public let rawValue: cl_svm_mem_flags
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
   }
@@ -169,4 +169,102 @@ public struct CLSVMMemFlags: CLMacro {
   public static let fineGrainBuffer = Self(1 << 10)
   public static let atomics = Self(1 << 11)
   public static let kernelReadAndWrite = Self(1 << 12)
+}
+
+public struct CLMemMigrationFlags: CLMacro {
+  public let rawValue: cl_mem_migration_flags
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let objectHost = Self(CL_MIGRATE_MEM_OBJECT_HOST)
+  public static let objectContentUndefined =
+    Self(CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED)
+}
+
+public struct CLChannelOrder: CLMacro {
+  public let rawValue: cl_channel_order
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let r = Self(CL_R)
+  public static let a = Self(CL_A)
+  public static let rg = Self(CL_RG)
+  public static let ra = Self(CL_RA)
+  public static let rgb = Self(CL_RGB)
+  public static let rgba = Self(CL_RGBA)
+  public static let bgra = Self(CL_BGRA)
+  public static let argb = Self(CL_ARGB)
+  public static let intensity = Self(CL_INTENSITY)
+  public static let luminance = Self(CL_LUMINANCE)
+  public static let rx = Self(CL_Rx)
+  public static let rgx = Self(CL_RGx)
+  public static let rgbx = Self(CL_RGBx)
+  public static let depth = Self(CL_DEPTH)
+  public static let depthStencil = Self(CL_DEPTH_STENCIL)
+  
+  // Making all characters lowercase. This looks like it violates the naming
+  // convention used elsewhere, but it doesn't. `sRGB` is one word, similar to
+  // how `ReLU` and `OpenCL` are all one word. It looks wierd to put `reLU` and
+  // `openCL`, so it's better to make them `relu` and `opencl`. Regarding
+  // "OpenCL C", another part of this API translated it `openclC`. This clearly
+  // shows "opencl" came from one word and "C" came from another. The
+  // alternative, `openCLC`, looks like something called "CLC" was very open.
+  // I'd love to learn about the "CLC" programming language; please show me the
+  // docs!
+  //
+  // Even worse, when translating "DirectX 12" to Swift, you could do
+  // `directX12` instead of the lowercase `directx12`. Emphasis on the surprise
+  // "X!". Imagine the fun Microsoft would have with that in an irreversible,
+  // backwards-compatible API. Meanwhile, "Metal 3" becomes the beautiful
+  // `metal3` no matter what we do. This favoring of Apple's graphics libraries
+  // would sabotage our already finite efforts to make Swift something taken
+  // seriously on Windows. Excellent work!
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let srgb = Self(0x10BF)
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let srgbx = Self(0x10C0)
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let srgba = Self(0x10C1)
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let sbgra = Self(0x10C2)
+  
+  // Part of OpenCL 2.0, but also part of an extension Apple made to earlier
+  // versions. Not including it yet because I haven't decided on the naming
+  // semantics.
+//  #if canImport(Darwin)
+//  public static let abgr = Self(CL_ABGR_APPLE)
+//  #else
+//  public static let abgr = Self(CL_ABGR)
+//  #endif
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let abgr = Self(0x10C2)
+}
+
+public struct CLChannelType: CLMacro {
+  public let rawValue: cl_channel_order
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let snormInt8 = Self(CL_SNORM_INT8)
+  public static let snormInt16 = Self(CL_SNORM_INT16)
+  public static let unormInt8 = Self(CL_UNORM_INT8)
+  public static let unormInt16 = Self(CL_UNORM_INT16)
+  public static let unormShort565 = Self(CL_UNORM_SHORT_565)
+  public static let unormShort555 = Self(CL_UNORM_SHORT_555)
+  public static let unormInt101010 = Self(CL_UNORM_INT_101010)
+  public static let signedInt8 = Self(CL_SIGNED_INT8)
+  public static let signedInt16 = Self(CL_SIGNED_INT16)
+  public static let signedInt32 = Self(CL_SIGNED_INT32)
+  public static let unsignedInt8 = Self(CL_UNSIGNED_INT8)
+  public static let unsignedInt16 = Self(CL_UNSIGNED_INT16)
+  public static let unsignedInt32 = Self(CL_UNSIGNED_INT32)
+  public static let halfFloat = Self(CL_HALF_FLOAT)
+  public static let float = Self(CL_FLOAT)
+  public static let unormInt24 = Self(CL_UNORM_INT24)
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
+  public static let unormInt1010102 = Self(0x10E0)
 }
