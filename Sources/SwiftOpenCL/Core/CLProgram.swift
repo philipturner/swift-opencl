@@ -9,7 +9,10 @@ import COpenCL
 import Foundation
 
 public struct CLProgram: CLReferenceCountable {
+  @usableFromInline
   var wrapper: CLReferenceWrapper<Self>
+  
+  @_transparent
   public var program: cl_program { wrapper.object }
   
   public init?(_ program: cl_program, retain: Bool = false) {
@@ -37,13 +40,13 @@ public struct CLProgram: CLReferenceCountable {
   }
   
   public init?(context: CLContext, source: String, build: Bool = false) {
-    var error: Int32 = 0
+    var error: Int32 = CL_SUCCESS
     var object_: cl_program?
     source.utf8CString.withUnsafeBufferPointer { bufferPointer in
       var string = bufferPointer.baseAddress
       var length = bufferPointer.count
       object_ = clCreateProgramWithSource(
-        context.context, UInt32(1), &string, &length, &error)
+        context.context, 1, &string, &length, &error)
     }
     guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_SOURCE_ERR"),
           let object_ = object_ else {
@@ -68,7 +71,7 @@ public struct CLProgram: CLReferenceCountable {
   }
   
   public init?(context: CLContext, sources: [String]) {
-    var error: Int32 = 0
+    var error: Int32 = CL_SUCCESS
     let n = sources.count
     var lengths: [Int] = []
     lengths.reserveCapacity(n)
@@ -98,7 +101,7 @@ public struct CLProgram: CLReferenceCountable {
     binaryStatus: inout [Int32]?,
     usingBinaryStatus: Bool
   ) {
-    var error: Int32 = 0
+    var error: Int32 = CL_SUCCESS
     let numDevices = devices.count
     if binaries.count != devices.count {
       CLError.setCode(CL_INVALID_VALUE, "__CREATE_PROGRAM_WITH_BINARY_ERR")
@@ -162,7 +165,7 @@ public struct CLProgram: CLReferenceCountable {
   }
   
   public init?(context: CLContext, devices: [CLDevice], kernelNames: String) {
-    var error: Int32 = 0
+    var error: Int32 = CL_SUCCESS
     let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
     let object_ = clCreateProgramWithBuiltInKernels(
       context.context, UInt32(devices.count), deviceIDs, kernelNames, &error)
@@ -275,7 +278,7 @@ extension CLProgram {
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil
   ) -> CLProgram? {
-    var error: Int32 = 0
+    var error: Int32 = CL_SUCCESS
     guard let ctx = input1.context else {
       CLError.latest!.message = "__LINK_PROGRAM_ERR"
       return nil
@@ -305,7 +308,7 @@ extension CLProgram {
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil
   ) -> CLProgram? {
-    var error: Int32 = 0
+    var error: Int32 = CL_SUCCESS
     let programs: [cl_program?] = inputPrograms.map(\.program)
     var context: cl_context?
     if inputPrograms.count > 0 {

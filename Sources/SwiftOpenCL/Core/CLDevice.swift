@@ -8,7 +8,10 @@
 import COpenCL
 
 public struct CLDevice: CLReferenceCountable {
+  @usableFromInline
   var wrapper: CLReferenceWrapper<Self>
+  
+  @_transparent
   public var deviceID: cl_device_id { wrapper.object }
   
   // Document what OpenCL version supports `retain` in DocC.

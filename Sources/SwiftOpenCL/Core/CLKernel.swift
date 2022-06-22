@@ -8,7 +8,10 @@
 import COpenCL
 
 public struct CLKernel: CLReferenceCountable {
+  @usableFromInline
   var wrapper: CLReferenceWrapper<Self>
+  
+  @_transparent
   public var kernel: cl_kernel { wrapper.object }
   
   public init?(_ kernel: cl_kernel, retain: Bool = false) {

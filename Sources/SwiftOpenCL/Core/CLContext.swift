@@ -63,7 +63,7 @@ public struct CLContext: CLReferenceCountable {
       UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
     ) -> Void)? = nil
   ) {
-    var error: Int32 = 0
+    var error: Int32 = CL_SUCCESS
     let numDevices = devices.count
     let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
     
@@ -83,7 +83,7 @@ public struct CLContext: CLReferenceCountable {
       UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
     ) -> Void)? = nil
   ) {
-    var error: Int32 = 0
+    var error: Int32 = CL_SUCCESS
     var deviceID: cl_device_id? = device.deviceID
     
     let object_ = clCreateContext(

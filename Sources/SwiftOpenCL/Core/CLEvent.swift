@@ -8,7 +8,10 @@
 import COpenCL
 
 public struct CLEvent: CLReferenceCountable {
+  @usableFromInline
   var wrapper: CLReferenceWrapper<Self>
+  
+  @_transparent
   public var event: cl_event { wrapper.object }
   
   public init?(_ event: cl_event, retain: Bool = false) {
@@ -67,7 +70,7 @@ public struct CLUserEvent {
   }
   
   public init?(context: CLContext) {
-    var error: Int32 = 0
+    var error: Int32 = CL_SUCCESS
     let object_ = clCreateUserEvent(context.context, &error)
     guard CLError.setCode(error, "__CREATE_USER_EVENT_ERR"),
           let object_ = object_,

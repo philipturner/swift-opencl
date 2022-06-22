@@ -43,7 +43,7 @@ public struct CLCommandQueue: CLReferenceCountable {
   public init?(
     properties: cl_command_queue_properties
   ) {
-    var error: Int32 = 0
+    var error: Int32 = CL_SUCCESS
     guard let context = CLContext.defaultContext else {
       return nil
     }

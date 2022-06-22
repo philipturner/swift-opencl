@@ -31,16 +31,63 @@ public struct CLRange {
   @_transparent
   public var dimensions: Int { storage.w }
   
-  subscript(index: Int) -> Int {
-    @_transparent
-    get {
-      storage[index]
+  public subscript(index: Int) -> Int {
+    @_transparent get { storage[index] }
+    @_transparent set { storage[index] = newValue }
+  }
+  
+  @inlinable
+  public mutating func withUnsafeMutableBytes<R>(
+    _ body: (UnsafeMutableRawBufferPointer) throws -> R
+  ) rethrows -> R {
+    var copy = self
+    let output = try withUnsafeMutablePointer(to: &copy) { pointer in
+      let buffer = UnsafeMutableRawBufferPointer(
+        start: UnsafeMutableRawPointer(pointer),
+        count: dimensions)
+      return try body(buffer)
     }
-    @_transparent
-    set {
-      storage[index] = newValue
+    self = copy
+    return output
+  }
+  
+  @inlinable
+  public mutating func withUnsafeBytes<R>(
+    _ body: (UnsafeRawBufferPointer) throws -> R
+  ) rethrows -> R {
+    return try withUnsafePointer(to: self) { pointer in
+      let buffer = UnsafeRawBufferPointer(
+        start: UnsafeRawPointer(pointer),
+        count: dimensions)
+      return try body(buffer)
     }
   }
   
-  // overloads to withUnsafePointer and withUnsafeBytes
+  @inlinable
+  public mutating func withUnsafeMutableBufferPointer<R>(
+    _ body: (inout UnsafeMutableBufferPointer<Int>) throws -> R
+  ) rethrows -> R {
+    var copy = self
+    let output = try withUnsafeMutablePointer(to: &copy) { pointer in
+      let baseAddress = UnsafeMutableRawPointer(mutating: pointer)
+      var buffer = UnsafeMutableBufferPointer<Int>(
+        start: baseAddress.assumingMemoryBound(to: Int.self),
+        count: dimensions)
+      return try body(&buffer)
+    }
+    self = copy
+    return output
+  }
+  
+  @inlinable
+  public func withUnsafeBufferPointer<R>(
+    _ body: (UnsafeBufferPointer<Int>) throws -> R
+  ) rethrows -> R {
+    return try withUnsafePointer(to: self) { pointer in
+      let buffer = UnsafeBufferPointer<Int>(
+        start: UnsafeRawPointer(pointer).assumingMemoryBound(to: Int.self),
+        count: dimensions)
+      return try body(buffer)
+    }
+  }
 }

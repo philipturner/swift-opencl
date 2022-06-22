@@ -8,7 +8,10 @@
 import COpenCL
 
 public struct CLPlatform: CLReferenceCountable {
+  @usableFromInline
   var wrapper: CLReferenceWrapper<Self>
+  
+  @_transparent
   public var platformID: cl_platform_id { wrapper.object }
   
   // Document that it never actually retains in DocC.
@@ -21,12 +24,12 @@ public struct CLPlatform: CLReferenceCountable {
   
   @usableFromInline
   static func retain(_ object: OpaquePointer) -> Int32 {
-    return 0 // TODO: change all instances of `0` to `CL_SUCCESS`
+    return CL_SUCCESS
   }
   
   @usableFromInline
   static func release(_ object: OpaquePointer) -> Int32 {
-    return 0
+    return CL_SUCCESS
   }
   
   public static var defaultPlatform: CLPlatform? = {
