@@ -8,7 +8,10 @@
 import COpenCL
 
 public struct CLCommandQueue: CLReferenceCountable {
+  @usableFromInline
   var wrapper: CLReferenceWrapper<Self>
+  
+  @_transparent
   public var commandQueue: cl_command_queue { wrapper.object }
   
   // Force-inline this internally, but not externally.
@@ -19,10 +22,12 @@ public struct CLCommandQueue: CLReferenceCountable {
     self.wrapper = wrapper
   }
   
+  @usableFromInline
   static func retain(_ object: OpaquePointer) -> Int32 {
     clRetainCommandQueue(object)
   }
   
+  @usableFromInline
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseCommandQueue(object)
   }

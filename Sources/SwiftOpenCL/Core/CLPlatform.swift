@@ -19,8 +19,15 @@ public struct CLPlatform: CLReferenceCountable {
     self.wrapper = wrapper
   }
   
-  static func retain(_ object: OpaquePointer) -> Int32 { CL_SUCCESS }
-  static func release(_ object: OpaquePointer) -> Int32 { CL_SUCCESS }
+  @usableFromInline
+  static func retain(_ object: OpaquePointer) -> Int32 {
+    return 0 // TODO: change all instances of `0` to `CL_SUCCESS`
+  }
+  
+  @usableFromInline
+  static func release(_ object: OpaquePointer) -> Int32 {
+    return 0
+  }
   
   public static var defaultPlatform: CLPlatform? = {
     var n: UInt32 = 0

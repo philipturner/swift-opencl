@@ -18,10 +18,12 @@ public struct CLEvent: CLReferenceCountable {
     self.wrapper = wrapper
   }
   
+  @usableFromInline
   static func retain(_ object: OpaquePointer) -> Int32 {
     clRetainContext(object)
   }
   
+  @usableFromInline
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseContext(object)
   }

@@ -85,4 +85,8 @@ extension CLKernel {
     // `kernel` instead of `wrapper.object` to prevent exceeding 80 spaces.
     { clGetKernelWorkGroupInfo(kernel, device.deviceID, $0, $1, $2, $3) }
   }
+  
+  public func workGroupSize(device: CLDevice) -> Int? {
+    getInfo_Int(CL_KERNEL_WORK_GROUP_SIZE, getWorkGroupInfo(device: device))
+  }
 }

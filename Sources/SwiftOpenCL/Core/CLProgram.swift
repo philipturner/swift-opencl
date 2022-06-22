@@ -19,10 +19,12 @@ public struct CLProgram: CLReferenceCountable {
     self.wrapper = wrapper
   }
   
+  @usableFromInline
   static func retain(_ object: OpaquePointer) -> Int32 {
     clRetainProgram(object)
   }
 
+  @usableFromInline
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseProgram(object)
   }

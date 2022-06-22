@@ -7,14 +7,19 @@
 
 import COpenCL
 
+@usableFromInline
 protocol CLReferenceCountable {
   init?(_: OpaquePointer, retain: Bool)
   static func retain(_ object: OpaquePointer) -> Int32
   static func release(_ object: OpaquePointer) -> Int32
 }
 
+@usableFromInline
 class CLReferenceWrapper<T: CLReferenceCountable> {
+  @usableFromInline
   var object: OpaquePointer
+  
+  @usableFromInline
   var shouldRetain: Bool
   
   // Force-inline this.

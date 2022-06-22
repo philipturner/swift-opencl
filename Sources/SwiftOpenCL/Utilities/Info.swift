@@ -68,6 +68,28 @@ func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
   return localData
 }
 
+func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {
+  var required = 0
+  var err = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(err) else {
+    return nil
+  }
+  
+  if required > 0 {
+    var value = malloc(required)!
+    err = getInfo(UInt32(name), required, &value, nil)
+    guard CLError.setCode(err) else {
+      free(value)
+      return nil
+    }
+    return String(
+      bytesNoCopy: value, length: required, encoding: .utf8,
+      freeWhenDone: true)!
+  } else {
+    return ""
+  }
+}
+
 func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> [T]? {
@@ -103,27 +125,5 @@ func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
     return nil
   } else {
     return output
-  }
-}
-
-func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {
-  var required = 0
-  var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.setCode(err) else {
-    return nil
-  }
-  
-  if required > 0 {
-    var value = malloc(required)!
-    err = getInfo(UInt32(name), required, &value, nil)
-    guard CLError.setCode(err) else {
-      free(value)
-      return nil
-    }
-    return String(
-      bytesNoCopy: value, length: required, encoding: .utf8,
-      freeWhenDone: true)!
-  } else {
-    return ""
   }
 }

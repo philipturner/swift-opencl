@@ -18,10 +18,12 @@ public struct CLKernel: CLReferenceCountable {
     self.wrapper = wrapper
   }
   
+  @usableFromInline
   static func retain(_ object: OpaquePointer) -> Int32 {
     clRetainKernel(object)
   }
   
+  @usableFromInline
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseKernel(object)
   }
