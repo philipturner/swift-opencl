@@ -116,5 +116,7 @@ extension CLKernel {
   
   // OpenCL 1.2
   
-//  public func globalWorkSize(device: CLDevice) ->
+  public func globalWorkSize(device: CLDevice) -> CLSize? {
+    getInfo_CLSize(CL_KERNEL_GLOBAL_WORK_SIZE, getWorkGroupInfo(device: device))
+  }
 }
