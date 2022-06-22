@@ -81,9 +81,4 @@ extension CLPlatform {
   public var extensions: String? {
     getInfo_String(CL_PLATFORM_EXTENSIONS, getInfo)
   }
-  
-  // TODO: change `CL_PLATFORM_EXTENSIONS`, etc. to its hard-coded number and
-  // add additional macros not available on macOS, checking the OpenCL version
-  // before accessing them if it doesn't cause a crash. Also note the OpenCL
-  // version that supports each one in the DocC documentation
 }

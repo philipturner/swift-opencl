@@ -82,6 +82,8 @@ extension CLKernel {
 }
 
 extension CLKernel {
+  // TODO: Go through man.opencl.org and see what parameters are ignored.
+  
   @inline(__always)
   private func getWorkGroupInfo(device: CLDevice) -> GetInfoClosure {
     // `kernel` instead of `wrapper.object` to prevent exceeding 80 spaces.
@@ -139,5 +141,48 @@ extension CLKernel {
         #endif
       }
     }
+  }
+  
+  // OpenCL 2.1
+  
+  public func maxSubGroupSize(device: CLDevice, range: CLRange) -> Int? {
+    #if canImport(Darwin)
+    let CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE: Int32 = 0x2033
+    #endif
+    let getInfo = getSubGroupInfo(device: device, range: range)
+    return getInfo_Int(CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE, getInfo)
+  }
+  
+  public func subGroupCount(device: CLDevice, range: CLRange) -> Int? {
+    #if canImport(Darwin)
+    let CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE: Int32 = 0x2034
+    #endif
+    let getInfo = getSubGroupInfo(device: device, range: range)
+    return getInfo_Int(CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE, getInfo)
+  }
+  
+  public func localSize(device: CLDevice, subGroupCount: Int) -> CLSize? {
+    #if canImport(Darwin)
+    let CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT: Int32 = 0x11B8
+    #endif
+    let range = CLRange(width: subGroupCount)
+    let getInfo = getSubGroupInfo(device: device, range: range)
+    return getInfo_CLSize(CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT, getInfo)
+  }
+  
+  public func maxNumSubGroups(device: CLDevice) -> Int? {
+    #if canImport(Darwin)
+    let CL_KERNEL_MAX_NUM_SUB_GROUPS: Int32 = 0x11B9
+    #endif
+    let getInfo = getSubGroupInfo(device: device, range: .zero)
+    return getInfo_Int(CL_KERNEL_MAX_NUM_SUB_GROUPS, getInfo)
+  }
+  
+  public func compileNumSubGroups(device: CLDevice) -> Int? {
+    #if canImport(Darwin)
+    let CL_KERNEL_COMPILE_NUM_SUB_GROUPS: Int32 = 0x11BA
+    #endif
+    let getInfo = getSubGroupInfo(device: device, range: .zero)
+    return getInfo_Int(CL_KERNEL_COMPILE_NUM_SUB_GROUPS, getInfo)
   }
 }

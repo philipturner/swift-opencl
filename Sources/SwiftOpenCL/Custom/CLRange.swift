@@ -13,6 +13,16 @@ public struct CLRange {
   @usableFromInline
   var storage: SIMD4<Int>
   
+  @usableFromInline
+  @_transparent
+  internal init() {
+    storage = SIMD4(0, 0, 0, 0)
+  }
+  
+  /// Initialized with zero dimensions.
+  @_transparent
+  public static var zero: Self { .init() }
+  
   @_transparent
   public init(width: Int) {
     storage = SIMD4(width, 1, 1, 1)
