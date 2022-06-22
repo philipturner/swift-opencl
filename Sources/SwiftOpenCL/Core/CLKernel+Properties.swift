@@ -147,33 +147,48 @@ extension CLKernel {
   // OpenCL 2.1
   
   public func maxSubGroupSize(device: CLDevice, range: CLRange) -> Int? {
-    let CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE: Int32 = 0x2033
+    let name: Int32 = 0x2033
+    #if !canImport(Darwin)
+    assert(CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE == name)
+    #endif
     let getInfo = getSubGroupInfo(device: device, range: range)
-    return getInfo_Int(CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE, getInfo)
+    return getInfo_Int(name, getInfo)
   }
   
   public func subGroupCount(device: CLDevice, range: CLRange) -> Int? {
-    let CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE: Int32 = 0x2034
+    let name: Int32 = 0x2034
+    #if !canImport(Darwin)
+    assert(CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE == name)
+    #endif
     let getInfo = getSubGroupInfo(device: device, range: range)
-    return getInfo_Int(CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE, getInfo)
+    return getInfo_Int(name, getInfo)
   }
   
   public func localSize(device: CLDevice, subGroupCount: Int) -> CLSize? {
-    let CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT: Int32 = 0x11B8
+    let name: Int32 = 0x11B8
+    #if !canImport(Darwin)
+    assert(CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT == name)
+    #endif
     let range = CLRange(width: subGroupCount)
     let getInfo = getSubGroupInfo(device: device, range: range)
-    return getInfo_CLSize(CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT, getInfo)
+    return getInfo_CLSize(name, getInfo)
   }
   
   public func maxNumSubGroups(device: CLDevice) -> Int? {
-    let CL_KERNEL_MAX_NUM_SUB_GROUPS: Int32 = 0x11B9
+    let name: Int32 = 0x11B9
+    #if !canImport(Darwin)
+    assert(CL_KERNEL_MAX_NUM_SUB_GROUPS == name)
+    #endif
     let getInfo = getSubGroupInfo(device: device, range: .zero)
-    return getInfo_Int(CL_KERNEL_MAX_NUM_SUB_GROUPS, getInfo)
+    return getInfo_Int(name, getInfo)
   }
   
   public func compileNumSubGroups(device: CLDevice) -> Int? {
-    let CL_KERNEL_COMPILE_NUM_SUB_GROUPS: Int32 = 0x11BA
+    let name: Int32 = 0x11BA
+    #if !canImport(Darwin)
+    assert(CL_KERNEL_COMPILE_NUM_SUB_GROUPS == name)
+    #endif
     let getInfo = getSubGroupInfo(device: device, range: .zero)
-    return getInfo_Int(CL_KERNEL_COMPILE_NUM_SUB_GROUPS, getInfo)
+    return getInfo_Int(name, getInfo)
   }
 }

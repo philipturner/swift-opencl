@@ -310,7 +310,40 @@ extension CLDevice {
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 extension CLDevice {
+  public var queueOnHostProperties: cl_command_queue_properties? {
+    let CL_DEVICE_QUEUE_ON_HOST_PROPERTIES: Int32 = 0x102A
+    return getInfo_Int(CL_DEVICE_QUEUE_ON_HOST_PROPERTIES, getInfo)
+  }
   
+  public var queueOnDeviceProperties: cl_command_queue_properties? {
+    let CL_DEVICE_QUEUE_ON_DEVICE_PROPERTIES: Int32 = 0x104E
+    return getInfo_Int(CL_DEVICE_QUEUE_ON_DEVICE_PROPERTIES, getInfo)
+  }
+  
+  public var queueOnDevicePreferredSize: UInt32? {
+    let CL_DEVICE_QUEUE_ON_DEVICE_PREFERRED_SIZE: Int32 = 0x104F
+    return getInfo_Int(CL_DEVICE_QUEUE_ON_DEVICE_PREFERRED_SIZE, getInfo)
+  }
+  
+  public var queueOnDeviceMaxSize: UInt32? {
+    let CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE: Int32 = 0x1050
+    return getInfo_Int(CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE, getInfo)
+  }
+  
+  public var maxOnDeviceQueues: UInt32? {
+    let CL_DEVICE_MAX_ON_DEVICE_QUEUES: Int32 = 0x1051
+    return getInfo_Int(CL_DEVICE_MAX_ON_DEVICE_QUEUES, getInfo)
+  }
+  
+  public var maxOnDeviceEvents: UInt32? {
+    let CL_DEVICE_MAX_ON_DEVICE_EVENTS: Int32 = 0x1052
+    return getInfo_Int(CL_DEVICE_MAX_ON_DEVICE_EVENTS, getInfo)
+  }
+  
+  public var maxPipeArgs: UInt32? {
+    let CL_DEVICE_MAX_PIPE_ARGS: Int32 = 0x1055
+    return getInfo_Int(CL_DEVICE_MAX_PIPE_ARGS, getInfo)
+  }
 }
 
 // OpenCL 2.1
