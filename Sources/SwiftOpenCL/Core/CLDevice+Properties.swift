@@ -305,3 +305,24 @@ extension CLDevice {
     getInfo_Int(CL_DEVICE_PRINTF_BUFFER_SIZE, getInfo)
   }
 }
+
+// OpenCL 2.0
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+extension CLDevice {
+  
+}
+
+// OpenCL 2.1
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
+extension CLDevice {
+  
+}
+
+// OpenCL 3.0
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+extension CLDevice {
+  
+}

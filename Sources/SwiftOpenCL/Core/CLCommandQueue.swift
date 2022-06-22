@@ -64,8 +64,8 @@ public struct CLCommandQueue: CLReferenceCountable {
     
     var object_: cl_command_queue?
     if useWithProperties {
-      // On Apple platforms, `cl_queue_properties` is `Int`. Everywhere else, it
-      // is `UInt64`.
+      // On macOS, `cl_queue_properties` is `Int`. Everywhere else, it is
+      // `UInt64`.
       #if canImport(Darwin)
       typealias cl_queue_properties = cl_queue_properties_APPLE
       #endif
