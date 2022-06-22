@@ -52,7 +52,7 @@ public struct CLProgram: CLReferenceCountable {
     if build {
       error = clBuildProgram(object_, 0, nil, "-cl-std=CL2.0", nil, nil)
       guard CLError.handleCode(error, "__BUILD_PROGRAM_ERR"),
-            !buildLogHasError() else {
+            buildLogIsErrorFree() else {
         return nil
       }
     }
@@ -125,9 +125,9 @@ public struct CLProgram: CLReferenceCountable {
     var object_: cl_program?
     if usingBinaryStatus {
       binaryStatus = Array(repeating: 0, count: numDevices)
-      object_ = clCreateProgramWithBinary(context.context, UInt32(numDevices), &deviceIDs, &lengths, &images, &binaryStatus!, &error)
+      object_ = clCreateProgramWithBinary(context.context, UInt32(numDevices), deviceIDs, lengths, &images, &binaryStatus!, &error)
     } else {
-      object_ = clCreateProgramWithBinary(context.context, UInt32(numDevices), &deviceIDs, &lengths, &images, nil, &error)
+      object_ = clCreateProgramWithBinary(context.context, UInt32(numDevices), deviceIDs, lengths, &images, nil, &error)
     }
     
     guard CLError.handleCode(error, "__CREATE_PROGRAM_WITH_BINARY_ERR"),
@@ -163,9 +163,9 @@ public struct CLProgram: CLReferenceCountable {
   
   public init?(context: CLContext, devices: [CLDevice], kernelNames: String) {
     var error: Int32 = 0
-    var deviceIDs = devices.map { Optional($0.deviceID) }
+    let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
     let object_ = clCreateProgramWithBuiltInKernels(
-      context.context, UInt32(devices.count), &deviceIDs, kernelNames, &error)
+      context.context, UInt32(devices.count), deviceIDs, kernelNames, &error)
     
     let message = "__CREATE_PROGRAM_WITH_BUILT_IN_KERNELS_ERR"
     guard CLError.handleCode(error, message),
@@ -173,6 +173,81 @@ public struct CLProgram: CLReferenceCountable {
       return nil
     }
     self.init(object_)
+  }
+  
+}
+
+extension CLProgram {
+  
+  public func build(
+    devices: [CLDevice],
+    options: UnsafePointer<Int8>,
+    notifyFptr: (@convention(c) (
+      cl_program?, UnsafeMutableRawPointer?
+    ) -> Void)? = nil,
+    data: UnsafeMutableRawPointer? = nil
+  ) throws {
+    let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
+    let buildError = clBuildProgram(
+      wrapper.object, UInt32(devices.count), deviceIDs, options, notifyFptr,
+      data)
+    guard CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR"),
+          buildLogIsErrorFree() else {
+      throw CLError.latest!
+    }
+  }
+  
+  public func build(
+    device: CLDevice,
+    options: UnsafePointer<Int8>,
+    notifyFptr: (@convention(c) (
+      cl_program?, UnsafeMutableRawPointer?
+    ) -> Void)? = nil,
+    data: UnsafeMutableRawPointer? = nil
+  ) throws {
+    var deviceID = Optional(device.deviceID)
+    let buildError = clBuildProgram(
+      wrapper.object, 1, &deviceID, options, notifyFptr, data)
+    guard CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR"),
+          buildLogIsErrorFree() else {
+      throw CLError.latest!
+    }
+  }
+  
+  public func build(
+    options: UnsafePointer<Int8>,
+    notifyFptr: (@convention(c) (
+      cl_program?, UnsafeMutableRawPointer?
+    ) -> Void)? = nil,
+    data: UnsafeMutableRawPointer? = nil
+  ) throws {
+    let buildError = clBuildProgram(
+      wrapper.object, 0, nil, options, notifyFptr, data)
+    guard CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR"),
+          buildLogIsErrorFree() else {
+      throw CLError.latest!
+    }
+  }
+  
+  public func compile(
+    options: UnsafePointer<Int8>,
+    notifyFptr: (@convention(c) (
+      cl_program?, UnsafeMutableRawPointer?
+    ) -> Void)? = nil,
+    data: UnsafeMutableRawPointer? = nil
+  ) throws {
+    let buildError = clCompileProgram(
+      wrapper.object, 0, nil, options, 0, nil, nil, notifyFptr, data)
+    guard CLError.handleCode(buildError, "__COMPILE_PROGRAM_ERR"),
+          buildLogIsErrorFree() else {
+      throw CLError.latest!
+    }
+  }
+  
+  public func setSpecializationConstant<T>(
+    _ value: UnsafePointer<T>, index: UInt32
+  ) throws {
+//    let e
   }
   
 }

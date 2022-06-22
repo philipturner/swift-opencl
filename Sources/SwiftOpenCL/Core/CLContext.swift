@@ -52,7 +52,7 @@ public struct CLContext: CLReferenceCountable {
   
   public init?(
     devices: [CLDevice],
-    properties: UnsafeMutablePointer<cl_context_properties>? = nil,
+    properties: UnsafePointer<cl_context_properties>? = nil,
     notifyFptr: (@convention(c) (
       UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
@@ -60,10 +60,10 @@ public struct CLContext: CLReferenceCountable {
   ) {
     var error: Int32 = 0
     let numDevices = devices.count
-    var deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
+    let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
     
     let object_ = clCreateContext(
-      properties, UInt32(numDevices), &deviceIDs, notifyFptr, data, &error)
+      properties, UInt32(numDevices), deviceIDs, notifyFptr, data, &error)
     guard CLError.handleCode(error), let object_ = object_ else {
       return nil
     }
@@ -72,7 +72,7 @@ public struct CLContext: CLReferenceCountable {
   
   public init?(
     device: CLDevice,
-    properties: UnsafeMutablePointer<cl_context_properties>? = nil,
+    properties: UnsafePointer<cl_context_properties>? = nil,
     notifyFptr: (@convention(c) (
       UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
@@ -91,7 +91,7 @@ public struct CLContext: CLReferenceCountable {
   
   public init?(
     type: cl_device_type, // Convert this to an Int32 argument.
-    properties: UnsafeMutablePointer<cl_context_properties>? = nil,
+    properties: UnsafePointer<cl_context_properties>? = nil,
     notifyFptr: (@convention(c) (
       UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
     ) -> Void)? = nil,

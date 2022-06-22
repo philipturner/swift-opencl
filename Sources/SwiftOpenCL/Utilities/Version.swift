@@ -7,7 +7,7 @@
 
 import COpenCL
 
-func getVersion(info versionInfo: UnsafePointer<CChar>) -> (Int, Int) {
+func getVersion(info versionInfo: UnsafePointer<Int8>) -> (Int, Int) {
   var highVersion = 0
   var lowVersion = 0
   var index = 7
@@ -30,7 +30,7 @@ func getVersion(platform: OpaquePointer) -> (Int, Int) {
   var size = 0
   clGetPlatformInfo(platform, UInt32(CL_PLATFORM_VERSION), 0, nil, &size)
   
-  let versionInfo: UnsafeMutablePointer<CChar> = .allocate(capacity: size)
+  let versionInfo: UnsafeMutablePointer<Int8> = .allocate(capacity: size)
   defer { versionInfo.deallocate() }
   clGetPlatformInfo(platform, UInt32(CL_PLATFORM_VERSION), size, versionInfo,
     &size)
