@@ -16,7 +16,8 @@ typealias GetInfoClosure = (
 // Force-inline this.
 func getInfo_Bool(_ name: Int32, _ callGetInfo: GetInfoClosure) -> Bool? {
   var output = false
-  let err = callGetInfo(UInt32(name), MemoryLayout<Bool>.stride, &output, nil)
+  // cl_bool is a typealias of `UInt32`, which is 4 bytes.
+  let err = callGetInfo(UInt32(name), MemoryLayout<cl_bool>.stride, &output, nil)
   guard CLError.setCode(err) else {
     return nil
   }
@@ -66,6 +67,47 @@ func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
     return nil
   }
   return localData
+}
+
+func getInfo_ArrayOfCLNameVersion(
+  _ name: Int32, _ getInfo: GetInfoClosure
+) -> [(cl_version, String)]? {
+  var required = 0
+  var err = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(err) else {
+    return nil
+  }
+  let elementStride = MemoryLayout<cl_version>.stride + 64
+  let elements = required / elementStride
+  precondition(required % elementStride == 0,
+    "`required` was not a multiple of \(elementStride).")
+  
+  // Leave one more byte for manually null-terminating.
+  let value: UnsafeMutableRawPointer = malloc(required + 1)!
+  defer { value.deallocate() }
+  err = getInfo(UInt32(name), required, value, nil)
+  guard CLError.setCode(err) else {
+    return nil
+  }
+  
+  var output: [(cl_version, String)] = []
+  output.reserveCapacity(elements)
+  var byteStream = value.assumingMemoryBound(to: Int8.self)
+  for _ in 0..<elements {
+    // Ensure C-style string is null-terminated.
+    let overwrittenChar = byteStream[64]
+    defer {
+      byteStream[64] = overwrittenChar
+      byteStream += 64
+    }
+    byteStream[64] = 0
+    
+    let version = UnsafeRawPointer(byteStream)
+      .assumingMemoryBound(to: cl_version.self).pointee
+    let name = String(cString: byteStream + 4 /* cl_version is UInt32 */)
+    output.append((version, name))
+  }
+  return output
 }
 
 func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {
@@ -131,23 +173,13 @@ func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
     return nil
   }
   
-  var shouldReturnEarly = false
-  let output = [T](
-    unsafeUninitializedCapacity: elements,
-    initializingWith: { buffer, initializedCount in
-      for i in 0..<elements {
-        guard let element = T(value[i], retain: true) else {
-          shouldReturnEarly = true
-          initializedCount = i
-          return
-        }
-        buffer[i] = element
-      }
-      initializedCount = elements
-    })
-  if shouldReturnEarly {
-    return nil
-  } else {
-    return output
+  var output: [T] = []
+  output.reserveCapacity(elements)
+  for i in 0..<elements {
+    guard let element = T(value[i], retain: true) else {
+      return nil
+    }
+    output.append(element)
   }
+  return output
 }
