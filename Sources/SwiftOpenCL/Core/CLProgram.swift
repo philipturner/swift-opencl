@@ -137,6 +137,7 @@ public struct CLProgram: CLReferenceCountable {
     self.init(object_)
   }
   
+  @inlinable @inline(__always)
   public init?(
     context: CLContext,
     devices: [CLDevice],
@@ -148,6 +149,7 @@ public struct CLProgram: CLReferenceCountable {
       binaryStatus: &ignoredBinaryStatus, usingBinaryStatus: false)
   }
   
+  @inlinable @inline(__always)
   public init?(
     context: CLContext,
     devices: [CLDevice],
@@ -157,6 +159,20 @@ public struct CLProgram: CLReferenceCountable {
     self.init(
       context: context, devices: devices, binaries: binaries,
       binaryStatus: &binaryStatus, usingBinaryStatus: true)
+  }
+  
+  public init?(context: CLContext, devices: [CLDevice], kernelNames: String) {
+    var error: Int32 = 0
+    var deviceIDs = devices.map { Optional($0.deviceID) }
+    let object_ = clCreateProgramWithBuiltInKernels(
+      context.context, UInt32(devices.count), &deviceIDs, kernelNames, &error)
+    
+    let message = "__CREATE_PROGRAM_WITH_BUILT_IN_KERNELS_ERR"
+    guard CLError.handleCode(error, message),
+          let object_ = object_ else {
+      return nil
+    }
+    self.init(object_)
   }
   
 }
