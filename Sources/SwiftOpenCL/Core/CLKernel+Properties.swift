@@ -48,6 +48,8 @@ extension CLKernel {
     { clGetKernelArgInfo(wrapper.object, index, $0, $1, $2, $3) }
   }
   
+  // OpenCL 1.2
+  
   public func addressQualifier(
     argumentIndex index: UInt32
   ) -> cl_kernel_arg_address_qualifier? {
@@ -86,7 +88,33 @@ extension CLKernel {
     { clGetKernelWorkGroupInfo(kernel, device.deviceID, $0, $1, $2, $3) }
   }
   
+  // OpenCL 1.0
+  
   public func workGroupSize(device: CLDevice) -> Int? {
     getInfo_Int(CL_KERNEL_WORK_GROUP_SIZE, getWorkGroupInfo(device: device))
   }
+  
+  public func compileWorkGroupSize(device: CLDevice) -> CLSize? {
+    let name = CL_KERNEL_COMPILE_WORK_GROUP_SIZE
+    return getInfo_CLSize(name, getWorkGroupInfo(device: device))
+  }
+  
+  public func localMemSize(device: CLDevice) -> UInt64? {
+    getInfo_Int(CL_KERNEL_LOCAL_MEM_SIZE, getWorkGroupInfo(device: device))
+  }
+  
+  // OpenCL 1.1
+  
+  public func preferredWorkGroupSizeMultiple(device: CLDevice) -> Int? {
+    let name = CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE
+    return getInfo_Int(name, getWorkGroupInfo(device: device))
+  }
+  
+  public func privateMemSize(device: CLDevice) -> UInt64? {
+    getInfo_Int(CL_KERNEL_PRIVATE_MEM_SIZE, getWorkGroupInfo(device: device))
+  }
+  
+  // OpenCL 1.2
+  
+//  public func globalWorkSize(device: CLDevice) ->
 }

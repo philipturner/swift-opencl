@@ -7,7 +7,7 @@
 
 import COpenCL
 
-typealias CLSize = SIMD3<Int>
+public typealias CLSize = SIMD3<Int>
 
 public struct CLRange {
   @usableFromInline
