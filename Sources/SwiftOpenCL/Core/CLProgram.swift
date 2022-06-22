@@ -43,7 +43,7 @@ public struct CLProgram: CLReferenceCountable {
       object_ = clCreateProgramWithSource(
         context.context, UInt32(1), &string, &length, &error)
     }
-    guard CLError.handleCode(error, "__CREATE_PROGRAM_WITH_SOURCE_ERR"),
+    guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_SOURCE_ERR"),
           let object_ = object_ else {
       return nil
     }
@@ -51,7 +51,7 @@ public struct CLProgram: CLReferenceCountable {
     
     if build {
       error = clBuildProgram(object_, 0, nil, "-cl-std=CL2.0", nil, nil)
-      guard CLError.handleCode(error, "__BUILD_PROGRAM_ERR"),
+      guard CLError.setCode(error, "__BUILD_PROGRAM_ERR"),
             buildLogHasNoErrors() else {
         return nil
       }
@@ -81,7 +81,7 @@ public struct CLProgram: CLReferenceCountable {
     }
     let object_ = clCreateProgramWithSource(
       context.context, UInt32(n), &strings, &lengths, &error)
-    guard CLError.handleCode(error, "__CREATE_PROGRAM_WITH_SOURCE_ERR"),
+    guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_SOURCE_ERR"),
           let object_ = object_ else {
       return nil
     }
@@ -99,7 +99,7 @@ public struct CLProgram: CLReferenceCountable {
     var error: Int32 = 0
     let numDevices = devices.count
     if binaries.count != devices.count {
-      CLError.handleCode(CL_INVALID_VALUE, "__CREATE_PROGRAM_WITH_BINARY_ERR")
+      CLError.setCode(CL_INVALID_VALUE, "__CREATE_PROGRAM_WITH_BINARY_ERR")
       return nil
     }
     
@@ -128,7 +128,7 @@ public struct CLProgram: CLReferenceCountable {
       object_ = clCreateProgramWithBinary(context.context, UInt32(numDevices), deviceIDs, lengths, &images, nil, &error)
     }
     
-    guard CLError.handleCode(error, "__CREATE_PROGRAM_WITH_BINARY_ERR"),
+    guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_BINARY_ERR"),
           let object_ = object_ else {
       return nil
     }
@@ -166,7 +166,7 @@ public struct CLProgram: CLReferenceCountable {
       context.context, UInt32(devices.count), deviceIDs, kernelNames, &error)
     
     let message = "__CREATE_PROGRAM_WITH_BUILT_IN_KERNELS_ERR"
-    guard CLError.handleCode(error, message),
+    guard CLError.setCode(error, message),
           let object_ = object_ else {
       return nil
     }
@@ -177,15 +177,9 @@ public struct CLProgram: CLReferenceCountable {
 
 extension CLProgram {
   
-  private func throwBuildError(_ error: Int32, _ message: String) throws {
-    guard CLError.handleCode(error, message),
+  private func throwBuildCode(_ code: Int32, _ message: String) throws {
+    guard CLError.setCode(code, message),
           buildLogHasNoErrors() else {
-      throw CLError.latest!
-    }
-  }
-  
-  private static func throwError(_ error: Int32, _ message: String) throws {
-    guard CLError.handleCode(error, message) else {
       throw CLError.latest!
     }
   }
@@ -193,86 +187,96 @@ extension CLProgram {
   public func build(
     devices: [CLDevice],
     options: UnsafePointer<Int8>? = nil,
+    data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil,
-    data: UnsafeMutableRawPointer? = nil
+    ) -> Void)? = nil
   ) throws {
     let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
     let buildError = clBuildProgram(
       wrapper.object, UInt32(devices.count), deviceIDs, options, notifyFptr,
       data)
-    try throwBuildError(buildError, "__BUILD_PROGRAM_ERR")
+    try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
   }
   
   public func build(
     device: CLDevice,
     options: UnsafePointer<Int8>? = nil,
+    data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil,
-    data: UnsafeMutableRawPointer? = nil
+    ) -> Void)? = nil
   ) throws {
     var deviceID = Optional(device.deviceID)
     let buildError = clBuildProgram(
       wrapper.object, 1, &deviceID, options, notifyFptr, data)
-    try throwBuildError(buildError, "__BUILD_PROGRAM_ERR")
+    try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
   }
   
   public func build(
     options: UnsafePointer<Int8>? = nil,
+    data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil,
-    data: UnsafeMutableRawPointer? = nil
+    ) -> Void)? = nil
   ) throws {
     let buildError = clBuildProgram(
       wrapper.object, 0, nil, options, notifyFptr, data)
-    try throwBuildError(buildError, "__BUILD_PROGRAM_ERR")
+    try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
   }
   
   public func compile(
     options: UnsafePointer<Int8>? = nil,
+    data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil,
-    data: UnsafeMutableRawPointer? = nil
+    ) -> Void)? = nil
   ) throws {
     let buildError = clCompileProgram(
       wrapper.object, 0, nil, options, 0, nil, nil, notifyFptr, data)
-    try throwBuildError(buildError, "__COMPILE_PROGRAM_ERR")
+    try throwBuildCode(buildError, "__COMPILE_PROGRAM_ERR")
   }
   
   // public func createKernels(...) throws
   
   #if !canImport(Darwin)
+  public func setSpecializationConstant(
+    _ value: UnsafePointer<Bool>, index: UInt32
+  ) throws {
+    var ucValue = value.pointee ? UInt8.max : 0
+    let error = clSetProgramSpecializationConstant(
+      wrapper.object, index, MemoryLayout<UInt8>.stride, &ucValue)
+    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
+  }
+  
   public func setSpecializationConstant<T>(
     _ value: UnsafePointer<T>, index: UInt32
   ) throws {
     let error = clSetProgramSpecializationConstant(
       wrapper.object, index, MemoryLayout<T>.stride, value)
-    try throwError(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
+    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   
   public func setSpecializationConstant(
-    _ value: UnsafePointer, size: Int, index: UInt32
+    _ value: UnsafeRawPointer, size: Int, index: UInt32
   ) throws {
     let error = clSetProgramSpecializationConstant(
       wrapper.object, index, size, value)
-    try throwError(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
+    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   #endif
   
-  public func link(
-    with input: CLProgram,
+  public static func link(
+    _ input1: CLProgram,
+    _ input2: CLProgram,
     options: UnsafePointer<Int8>? = nil,
+    data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil,
-    data: UnsafeMutableRawPointer? = nil
+    ) -> Void)? = nil
   ) -> CLProgram? {
     var error: Int32 = 0
-    guard let ctx = self.context else {
+    guard let ctx = input1.context else {
       CLError.latest!.message = "__LINK_PROGRAM_ERR"
       return nil
     }
@@ -280,13 +284,13 @@ extension CLProgram {
     let prog = withUnsafeTemporaryAllocation(
       of: cl_program?.self, capacity: 2
     ) { programs in
-      programs[0] = self.program
-      programs[1] = input.program
+      programs[0] = input1.program
+      programs[1] = input2.program
       return clLinkProgram(
         ctx.context, 0, nil, options, 2, programs.baseAddress!, notifyFptr,
         data, &error)
     }
-    guard CLError.handleCode(error, "__COMPILE_PROGRAM_ERR"),
+    guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
           let prog = prog else {
       return nil
     }
@@ -294,12 +298,12 @@ extension CLProgram {
   }
   
   public static func link(
-    programs inputPrograms: [CLProgram],
+    _ inputPrograms: [CLProgram],
     options: UnsafePointer<Int8>? = nil,
+    data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil,
-    data: UnsafeMutableRawPointer? = nil
+    ) -> Void)? = nil
   ) -> CLProgram? {
     var error: Int32 = 0
     let programs: [cl_program?] = inputPrograms.map(\.program)
@@ -315,7 +319,7 @@ extension CLProgram {
     let prog = clLinkProgram(
       context, 0, nil, options, UInt32(inputPrograms.count), programs,
       notifyFptr, data, &error)
-    guard CLError.handleCode(error, "__COMPILE_PROGRAM_ERR"),
+    guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
           let prog = prog else {
       return nil
     }

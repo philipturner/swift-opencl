@@ -23,6 +23,7 @@ public struct CLError: LocalizedError {
   
   private var storage: Storage
   
+  @inline(never)
   public init(code: Int32, message: String?) {
     storage = Storage(code: code, message: message)
   }
@@ -49,12 +50,20 @@ public struct CLError: LocalizedError {
   // TODO: add #file and #line to allow reconstruction of the stack trace
   @inline(__always)
   @discardableResult
-  static func handleCode(_ code: Int32, _ message: String? = nil) -> Bool {
+  static func setCode(_ code: Int32, _ message: String? = nil) -> Bool {
     if code != CL_SUCCESS {
       latest = CLError(code: code, message: message)
       return false
     } else {
       return true
+    }
+  }
+  
+  @inline(__always)
+  static func throwCode(_ code: Int32, _ message: String? = nil) throws {
+    if code != CL_SUCCESS {
+      latest = CLError(code: code, message: message)
+      throw latest!
     }
   }
   

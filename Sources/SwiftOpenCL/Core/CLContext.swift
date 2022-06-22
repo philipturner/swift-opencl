@@ -41,22 +41,22 @@ public struct CLContext: CLReferenceCountable {
       properties[2] = 0
       return CLContext(
         type: UInt64(CL_DEVICE_TYPE_DEFAULT),
-        properties: properties.baseAddress, notifyFptr: nil, data: nil)
+        properties: properties.baseAddress, data: nil, notifyFptr: nil)
     }
     #else
     return CLContext(
-      type: UInt64(CL_DEVICE_TYPE_DEFAULT), properties: nil, notifyFptr: nil,
-      data: nil)
+      type: UInt64(CL_DEVICE_TYPE_DEFAULT), properties: nil, data: nil,
+      notifyFptr: nil)
     #endif
   }()
   
   public init?(
     devices: [CLDevice],
     properties: UnsafePointer<cl_context_properties>? = nil,
+    data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
       UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
-    ) -> Void)? = nil,
-    data: UnsafeMutableRawPointer? = nil
+    ) -> Void)? = nil
   ) {
     var error: Int32 = 0
     let numDevices = devices.count
@@ -64,7 +64,7 @@ public struct CLContext: CLReferenceCountable {
     
     let object_ = clCreateContext(
       properties, UInt32(numDevices), deviceIDs, notifyFptr, data, &error)
-    guard CLError.handleCode(error), let object_ = object_ else {
+    guard CLError.setCode(error), let object_ = object_ else {
       return nil
     }
     self.init(object_)
@@ -73,17 +73,17 @@ public struct CLContext: CLReferenceCountable {
   public init?(
     device: CLDevice,
     properties: UnsafePointer<cl_context_properties>? = nil,
+    data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
       UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
-    ) -> Void)? = nil,
-    data: UnsafeMutableRawPointer? = nil
+    ) -> Void)? = nil
   ) {
     var error: Int32 = 0
     var deviceID: cl_device_id? = device.deviceID
     
     let object_ = clCreateContext(
       properties, 1, &deviceID, notifyFptr, data, &error)
-    guard CLError.handleCode(error), let object_ = object_ else {
+    guard CLError.setCode(error), let object_ = object_ else {
       return nil
     }
     self.init(object_)
@@ -92,10 +92,10 @@ public struct CLContext: CLReferenceCountable {
   public init?(
     type: cl_device_type, // Convert this to an Int32 argument.
     properties: UnsafePointer<cl_context_properties>? = nil,
+    data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
       UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
-    ) -> Void)? = nil,
-    data: UnsafeMutableRawPointer? = nil
+    ) -> Void)? = nil
   ) {
     // requires CLPlatform.getDevices()
     fatalError()

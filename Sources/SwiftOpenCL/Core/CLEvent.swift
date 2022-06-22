@@ -26,7 +26,24 @@ public struct CLEvent: CLReferenceCountable {
     clReleaseContext(object)
   }
   
+  public func wait() throws {
+    var clEvent: cl_event? = wrapper.object
+    let error = clWaitForEvents(1, &clEvent)
+    try CLError.throwCode(error, "__WAIT_FOR_EVENTS_ERR")
+  }
   
+  
+  
+  public func waitForEvents(_ events: [CLEvent]) throws {
+    var error: Int32
+    if events.count > 0 {
+      let clEvents: [cl_event?] = events.map(\.event)
+      error = clWaitForEvents(cl_uint(events.count), clEvents)
+    } else {
+      error = clWaitForEvents(0, nil)
+    }
+    try CLError.throwCode(error, "__WAIT_FOR_EVENTS_ERR")
+  }
   
 }
 
@@ -39,9 +56,9 @@ extension CLEvent {
   
   // OpenCL 1.0
   
-//  public var commandQueue: CLCommandQueue? {
-//    getInfo_ReferenceCountable(CL_EVENT_COMMAND_QUEUE, callGetEventInfo)
-//  }
+  public var commandQueue: CLCommandQueue? {
+    getInfo_ReferenceCountable(CL_EVENT_COMMAND_QUEUE, getInfo)
+  }
   
   public var commandType: cl_command_type? {
     getInfo_Int(CL_EVENT_COMMAND_TYPE, getInfo)

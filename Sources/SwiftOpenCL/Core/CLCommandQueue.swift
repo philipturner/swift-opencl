@@ -86,7 +86,7 @@ public struct CLCommandQueue: CLReferenceCountable {
         }
       }
       let message = "__CREATE_COMMAND_QUEUE_WITH_PROPERTIES_ERR"
-      guard CLError.handleCode(error, message) else {
+      guard CLError.setCode(error, message) else {
         return nil
       }
     } else {
@@ -94,7 +94,7 @@ public struct CLCommandQueue: CLReferenceCountable {
       object_ = clCreateCommandQueue(
         context.context, device.deviceID, properties, &error)
       let message = "__CREATE_COMMAND_QUEUE_ERR"
-      guard CLError.handleCode(error, message) else {
+      guard CLError.setCode(error, message) else {
         return nil
       }
       #endif
@@ -107,16 +107,12 @@ public struct CLCommandQueue: CLReferenceCountable {
   
   public func flush() throws {
     let error = clFlush(wrapper.object)
-    guard CLError.handleCode(error, "__FLUSH_ERR") else {
-      throw CLError.latest!
-    }
+    try CLError.throwCode(error, "__FLUSH_ERR")
   }
   
   public func finish() throws {
     let error = clFinish(wrapper.object)
-    guard CLError.handleCode(error, "__FINISH_ERR") else {
-      throw CLError.latest!
-    }
+    try CLError.throwCode(error, "__FLUSH_ERR")
   }
   
 }

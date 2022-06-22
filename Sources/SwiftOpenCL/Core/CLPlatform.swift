@@ -25,18 +25,18 @@ public struct CLPlatform: CLReferenceCountable {
   public static var defaultPlatform: CLPlatform? = {
     var n: UInt32 = 0
     var err = clGetPlatformIDs(0, nil, &n)
-    guard CLError.handleCode(err) else {
+    guard CLError.setCode(err) else {
       return nil
     }
     if n == 0 {
-      CLError.handleCode(CL_INVALID_PLATFORM)
+      CLError.setCode(CL_INVALID_PLATFORM)
       return nil
     }
     
     var ids: UnsafeMutablePointer<cl_platform_id?> = .allocate(capacity: Int(n))
     defer { free(ids) }
     err = clGetPlatformIDs(n, ids, nil)
-    guard CLError.handleCode(err) else {
+    guard CLError.setCode(err) else {
       return nil
     }
     

@@ -14,7 +14,7 @@ typealias GetInfoClosure = (
 func getInfo_Bool(_ name: Int32, _ callGetInfo: GetInfoClosure) -> Bool? {
   var output = false
   let err = callGetInfo(UInt32(name), MemoryLayout<Bool>.stride, &output, nil)
-  guard CLError.handleCode(err) else {
+  guard CLError.setCode(err) else {
     return nil
   }
   return output
@@ -26,7 +26,7 @@ func getInfo_Int<T: BinaryInteger>(
 ) -> T? {
   var output: T = 0
   let err = getInfo(UInt32(name), MemoryLayout<T>.stride, &output, nil)
-  guard CLError.handleCode(err) else {
+  guard CLError.setCode(err) else {
     return nil
   }
   return output
@@ -38,7 +38,7 @@ func getInfo_ReferenceCountable<T: CLReferenceCountable>(
   var value: OpaquePointer? = nil
   let err = getInfo(
     UInt32(name), MemoryLayout<OpaquePointer>.stride, &value, nil)
-  guard CLError.handleCode(err) else {
+  guard CLError.setCode(err) else {
     return nil
   }
   
@@ -51,7 +51,7 @@ func getInfo_ReferenceCountable<T: CLReferenceCountable>(
 func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
   var required = 0
   var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.handleCode(err) else {
+  guard CLError.setCode(err) else {
     return nil
   }
   let elements = required / MemoryLayout<T>.stride
@@ -62,7 +62,7 @@ func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
       initializedCount = elements
       err = getInfo(UInt32(name), required, buffer.baseAddress, nil)
     })
-  guard CLError.handleCode(err) else {
+  guard CLError.setCode(err) else {
     return nil
   }
   return localData
@@ -73,7 +73,7 @@ func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
 ) -> [T]? {
   var required = 0
   var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.handleCode(err) else {
+  guard CLError.setCode(err) else {
     return nil
   }
   let elements = required / MemoryLayout<OpaquePointer>.stride
@@ -81,7 +81,7 @@ func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
   let value: UnsafeMutablePointer<OpaquePointer> = .allocate(capacity: elements)
   defer { value.deallocate() }
   err = getInfo(UInt32(name), required, value, nil)
-  guard CLError.handleCode(err) else {
+  guard CLError.setCode(err) else {
     return nil
   }
   
@@ -109,14 +109,14 @@ func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
 func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {
   var required = 0
   var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.handleCode(err) else {
+  guard CLError.setCode(err) else {
     return nil
   }
   
   if required > 0 {
     var value = malloc(required)!
     err = getInfo(UInt32(name), required, &value, nil)
-    guard CLError.handleCode(err) else {
+    guard CLError.setCode(err) else {
       free(value)
       return nil
     }

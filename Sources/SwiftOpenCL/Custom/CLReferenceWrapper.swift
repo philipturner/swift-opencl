@@ -22,7 +22,7 @@ class CLReferenceWrapper<T: CLReferenceCountable> {
     self.object = object
     self.shouldRetain = shouldRetain
     if shouldRetain {
-      guard CLError.handleCode(T.retain(object), "__RETAIN_ERR") else {
+      guard CLError.setCode(T.retain(object), "__RETAIN_ERR") else {
         return nil
       }
     }
@@ -30,7 +30,7 @@ class CLReferenceWrapper<T: CLReferenceCountable> {
   
   deinit {
     if shouldRetain {
-      CLError.handleCode(T.release(object), "__RELEASE")
+      CLError.setCode(T.release(object), "__RELEASE")
     }
   }
 }
