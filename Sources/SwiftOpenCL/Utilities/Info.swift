@@ -38,12 +38,9 @@ func getInfo_ReferenceCountable<T: CLReferenceCountable>(
   var value: OpaquePointer? = nil
   let err = getInfo(
     UInt32(name), MemoryLayout<OpaquePointer>.stride, &value, nil)
-  guard CLError.setCode(err) else {
+  guard CLError.setCode(err),
+        let value = value else {
     return nil
-  }
-  
-  guard let value = value else {
-    fatalError("This should never happen.")
   }
   return T(value, retain: true)
 }
@@ -88,6 +85,30 @@ func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {
   } else {
     return ""
   }
+}
+
+func getInfo_CLSize(_ name: Int32, _ getInfo: GetInfoClosure) -> CLSize? {
+  var required = 0
+  var err = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(err) else {
+    return nil
+  }
+  let elements = required / MemoryLayout<Int>.stride
+  
+  var output = CLSize.zero
+  withUnsafeTemporaryAllocation(
+    of: Int.self, capacity: elements
+  ) { bufferPointer in
+    let pointer = bufferPointer.baseAddress.unsafelyUnwrapped
+    err = getInfo(UInt32(name), required, pointer, nil)
+    for i in 0..<min(elements, 3) {
+      output[i] = pointer[i]
+    }
+  }
+  guard CLError.setCode(err) else {
+    return nil
+  }
+  return output
 }
 
 func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(

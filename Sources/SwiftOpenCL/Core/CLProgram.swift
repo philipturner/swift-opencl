@@ -120,7 +120,8 @@ public struct CLProgram: CLReferenceCountable {
       binary.withUnsafeBytes { bufferPointer in
         lengths.append(bufferPointer.count)
         images.append(
-          bufferPointer.baseAddress!.assumingMemoryBound(to: UInt8.self))
+          bufferPointer.baseAddress.unsafelyUnwrapped
+            .assumingMemoryBound(to: UInt8.self))
       }
       deviceIDs.append(devices[i].deviceID)
     }
@@ -290,8 +291,8 @@ extension CLProgram {
       programs[0] = input1.program
       programs[1] = input2.program
       return clLinkProgram(
-        ctx.context, 0, nil, options, 2, programs.baseAddress!, notifyFptr,
-        data, &error)
+        ctx.context, 0, nil, options, 2, programs.baseAddress, notifyFptr, data,
+        &error)
     }
     guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
           let prog = prog else {

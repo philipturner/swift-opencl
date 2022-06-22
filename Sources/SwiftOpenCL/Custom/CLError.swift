@@ -42,6 +42,7 @@ public struct CLError: LocalizedError {
   public static var latest: CLError? = nil
   
   // TODO: add #file and #line to allow reconstruction of the stack trace
+  // Pass #file and #line into getInfo_XXX as well.
   @inline(__always)
   @discardableResult
   static func setCode(_ code: Int32, _ message: String? = nil) -> Bool {
