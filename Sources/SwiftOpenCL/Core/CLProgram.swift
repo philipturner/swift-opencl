@@ -189,6 +189,7 @@ extension CLProgram {
       data)
     CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR")
     checkBuildLogErrors()
+    CLError.crashIfErrorExists()
   }
   
   public func build(
@@ -204,6 +205,7 @@ extension CLProgram {
       wrapper.object, 1, &deviceID, options, notifyFptr, data)
     CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR")
     checkBuildLogErrors()
+    CLError.crashIfErrorExists()
   }
   
   public func build(
@@ -217,6 +219,7 @@ extension CLProgram {
       wrapper.object, 0, nil, options, notifyFptr, data)
     CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR")
     checkBuildLogErrors()
+    CLError.crashIfErrorExists()
   }
   
   public func compile(
@@ -230,6 +233,7 @@ extension CLProgram {
       wrapper.object, 0, nil, options, 0, nil, nil, notifyFptr, data)
     CLError.handleCode(buildError, "__COMPILE_PROGRAM_ERR")
     checkBuildLogErrors()
+    CLError.crashIfErrorExists()
   }
   
   // public func createKernels(...) throws
@@ -241,6 +245,7 @@ extension CLProgram {
     let error = clSetProgramSpecializationConstant(
       wrapper.object, index, MemoryLayout<T>.stride, value)
     CLError.handleCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
+    CLError.crashIfErrorExists()
   }
   
   public func setSpecializationConstant(
@@ -249,13 +254,14 @@ extension CLProgram {
     let error = clSetProgramSpecializationConstant(
       wrapper.object, index, size, value)
     CLError.handleCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
+    CLError.crashIfErrorExists()
   }
   #endif
   
   public static func link(
     _ input1: CLProgram,
     _ input2: CLProgram,
-    ptions: UnsafePointer<Int8>? = nil,
+    options: UnsafePointer<Int8>? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil,

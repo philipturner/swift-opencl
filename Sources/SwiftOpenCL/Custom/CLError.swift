@@ -21,6 +21,10 @@ public class CLError: LocalizedError {
   
   public static var latest: CLError? = nil
   
+  // An alternative to both making every single function `throws` and forcing
+  // the user to fetch `CLError.latest` after every function is called.
+  public static var crashOnError: Bool = true
+  
   // Force-inline this.
   @discardableResult
   static func handleCode(_ code: Int32, _ message: String? = nil) -> Bool {
@@ -30,5 +34,21 @@ public class CLError: LocalizedError {
     } else {
       return true
     }
+  }
+  
+  @inlinable @inline(__always)
+  public static func crashIfErrorExists() {
+    if crashOnError && CLError.latest != nil {
+      crash()
+    }
+  }
+  
+  @usableFromInline
+  internal static func crash() -> Never {
+    let error = CLError.latest!
+    fatalError("""
+      Automatically crashing on `CLError`: \(error.localizedDescription)
+      To disable automatic crashing, turn off `CLError.crashOnError`.
+      """)
   }
 }
