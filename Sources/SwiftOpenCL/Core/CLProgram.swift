@@ -51,8 +51,10 @@ public struct CLProgram: CLReferenceCountable {
     
     if build {
       error = clBuildProgram(object_, 0, nil, "-cl-std=CL2.0", nil, nil)
-      CLError.handleCode(error, "__BUILD_PROGRAM_ERR")
-      checkBuildLogErrors()
+      guard CLError.handleCode(error, "__BUILD_PROGRAM_ERR"),
+            buildLogHasNoErrors() else {
+        return nil
+      }
     }
   }
   
@@ -175,6 +177,13 @@ public struct CLProgram: CLReferenceCountable {
 
 extension CLProgram {
   
+  private func throwBuildError(_ error: Int32, _ message: String) throws {
+    guard CLError.handleCode(error, "__BUILD_PROGRAM_ERR"),
+          buildLogHasNoErrors() else {
+      throw CLError.latest!
+    }
+  }
+  
   public func build(
     devices: [CLDevice],
     options: UnsafePointer<Int8>? = nil,
@@ -182,14 +191,12 @@ extension CLProgram {
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
     data: UnsafeMutableRawPointer? = nil
-  ) {
+  ) throws {
     let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
     let buildError = clBuildProgram(
       wrapper.object, UInt32(devices.count), deviceIDs, options, notifyFptr,
       data)
-    CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR")
-    checkBuildLogErrors()
-    CLError.crashIfErrorExists()
+    try throwBuildError(buildError, "__BUILD_PROGRAM_ERR")
   }
   
   public func build(
@@ -199,13 +206,11 @@ extension CLProgram {
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
     data: UnsafeMutableRawPointer? = nil
-  ) {
+  ) throws {
     var deviceID = Optional(device.deviceID)
     let buildError = clBuildProgram(
       wrapper.object, 1, &deviceID, options, notifyFptr, data)
-    CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR")
-    checkBuildLogErrors()
-    CLError.crashIfErrorExists()
+    try throwBuildError(buildError, "__BUILD_PROGRAM_ERR")
   }
   
   public func build(
@@ -214,12 +219,10 @@ extension CLProgram {
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
     data: UnsafeMutableRawPointer? = nil
-  ) {
+  ) throws {
     let buildError = clBuildProgram(
       wrapper.object, 0, nil, options, notifyFptr, data)
-    CLError.handleCode(buildError, "__BUILD_PROGRAM_ERR")
-    checkBuildLogErrors()
-    CLError.crashIfErrorExists()
+    try throwBuildError(buildError, "__BUILD_PROGRAM_ERR")
   }
   
   public func compile(
@@ -228,12 +231,10 @@ extension CLProgram {
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
     data: UnsafeMutableRawPointer? = nil
-  ) {
+  ) throws {
     let buildError = clCompileProgram(
       wrapper.object, 0, nil, options, 0, nil, nil, notifyFptr, data)
-    CLError.handleCode(buildError, "__COMPILE_PROGRAM_ERR")
-    checkBuildLogErrors()
-    CLError.crashIfErrorExists()
+    try throwBuildError(buildError, "__COMPILE_PROGRAM_ERR")
   }
   
   // public func createKernels(...) throws
@@ -241,20 +242,18 @@ extension CLProgram {
   #if !canImport(Darwin)
   public func setSpecializationConstant<T>(
     _ value: UnsafePointer<T>, index: UInt32
-  ) {
+  ) throws {
     let error = clSetProgramSpecializationConstant(
       wrapper.object, index, MemoryLayout<T>.stride, value)
-    CLError.handleCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
-    CLError.crashIfErrorExists()
+    try throwBuildError(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   
   public func setSpecializationConstant(
     _ value: UnsafePointer, size: Int, index: UInt32
-  ) {
+  ) throws {
     let error = clSetProgramSpecializationConstant(
       wrapper.object, index, size, value)
-    CLError.handleCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
-    CLError.crashIfErrorExists()
+    try throwBuildError(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   #endif
   
@@ -266,7 +265,11 @@ extension CLProgram {
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil,
     data: UnsafeMutableRawPointer? = nil
-  ) {
-    
+  ) throws {
+    guard let ctx = input1.context else {
+      var error = CLError.latest!
+      error.message = "__LINK_PROGRAM_ERR"
+      throw error
+    }
   }
 }

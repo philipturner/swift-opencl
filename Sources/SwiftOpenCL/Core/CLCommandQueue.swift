@@ -105,16 +105,18 @@ public struct CLCommandQueue: CLReferenceCountable {
     self.init(object_)
   }
   
-  public func flush() {
+  public func flush() throws {
     let error = clFlush(wrapper.object)
-    CLError.handleCode(error, "__FLUSH_ERR")
-    CLError.crashIfErrorExists()
+    guard CLError.handleCode(error, "__FLUSH_ERR") else {
+      throw CLError.latest!
+    }
   }
   
-  public func finish() {
+  public func finish() throws {
     let error = clFinish(wrapper.object)
-    CLError.handleCode(error, "__FINISH_ERR")
-    CLError.crashIfErrorExists()
+    guard CLError.handleCode(error, "__FINISH_ERR") else {
+      throw CLError.latest!
+    }
   }
   
 }
