@@ -139,12 +139,34 @@ public struct CLMemFlags: CLMacro {
   public static let writeOnly = Self(CL_MEM_WRITE_ONLY)
   public static let readOnly = Self(CL_MEM_READ_ONLY)
   public static let useHostPtr = Self(CL_MEM_USE_HOST_PTR)
-  public static let allocHostPtr = Self(CL_MEM_USE_HOST_PTR)
-//  public static let useHostPtr = Self(CL_MEM_USE_HOST_PTR)
+  public static let allocHostPtr = Self(CL_MEM_ALLOC_HOST_PTR)
+  public static let copyHostPtr = Self(CL_MEM_COPY_HOST_PTR)
+  public static let hostWriteOnly = Self(CL_MEM_HOST_WRITE_ONLY)
+  public static let hostReadOnly = Self(CL_MEM_HOST_READ_ONLY)
+  public static let hostNoAccess = Self(CL_MEM_HOST_NO_ACCESS)
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let kernelReadAndWrite = Self(1 << 12)
 }
 
-public extension CLMemFlags {
-  @inlinable public func yo() {
-    _ = Self(rawValue: (2 as Any as! RawValue)) as any OptionSet
+@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+public struct CLSVMMemFlags: CLMacro {
+  public let rawValue: cl_mem_flags
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
   }
+  
+  public static let readWrite = Self(CL_MEM_READ_WRITE)
+  public static let writeOnly = Self(CL_MEM_WRITE_ONLY)
+  public static let readOnly = Self(CL_MEM_READ_ONLY)
+  public static let useHostPtr = Self(CL_MEM_USE_HOST_PTR)
+  public static let allocHostPtr = Self(CL_MEM_ALLOC_HOST_PTR)
+  public static let copyHostPtr = Self(CL_MEM_COPY_HOST_PTR)
+  public static let hostWriteOnly = Self(CL_MEM_HOST_WRITE_ONLY)
+  public static let hostReadOnly = Self(CL_MEM_HOST_READ_ONLY)
+  public static let hostNoAccess = Self(CL_MEM_HOST_NO_ACCESS)
+  
+  public static let fineGrainBuffer = Self(1 << 10)
+  public static let atomics = Self(1 << 11)
+  public static let kernelReadAndWrite = Self(1 << 12)
 }
