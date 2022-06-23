@@ -127,7 +127,7 @@ extension CLKernel {
 extension CLKernel {
   private func getSubGroupInfo(
     device: CLDevice,
-    range: CLRange
+    range: CLNDRange
   ) -> GetInfoClosure {
     { name, valueSize, value, returnValue in
       // `withUnsafeBytes` uses a raw pointer instead of a pointer to `Int`,
@@ -146,7 +146,7 @@ extension CLKernel {
   
   // OpenCL 2.1
   
-  public func maxSubGroupSize(device: CLDevice, range: CLRange) -> Int? {
+  public func maxSubGroupSize(device: CLDevice, range: CLNDRange) -> Int? {
     let name: Int32 = 0x2033
     #if !canImport(Darwin)
     assert(CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE == name)
@@ -155,7 +155,7 @@ extension CLKernel {
     return getInfo_Int(name, getInfo)
   }
   
-  public func subGroupCount(device: CLDevice, range: CLRange) -> Int? {
+  public func subGroupCount(device: CLDevice, range: CLNDRange) -> Int? {
     let name: Int32 = 0x2034
     #if !canImport(Darwin)
     assert(CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE == name)
@@ -169,7 +169,7 @@ extension CLKernel {
     #if !canImport(Darwin)
     assert(CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT == name)
     #endif
-    let range = CLRange(width: subGroupCount)
+    let range = CLNDRange(width: subGroupCount)
     let getInfo = getSubGroupInfo(device: device, range: range)
     return getInfo_CLSize(name, getInfo)
   }

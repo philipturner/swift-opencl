@@ -365,3 +365,75 @@ public struct CLKernelArgumentAccessQualifier: CLMacro {
   public static let readWrite = Self(CL_KERNEL_ARG_ACCESS_READ_WRITE)
   public static let none = Self(CL_KERNEL_ARG_ACCESS_NONE)
 }
+
+public struct CLKernelArgumentTypeQualifier: CLMacro {
+  public let rawValue: cl_kernel_arg_type_qualifier
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let none = Self(CL_KERNEL_ARG_TYPE_NONE)
+  public static let const = Self(CL_KERNEL_ARG_TYPE_CONST)
+  public static let restrict = Self(CL_KERNEL_ARG_TYPE_RESTRICT)
+  public static let volatile = Self(CL_KERNEL_ARG_TYPE_VOLATILE)
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
+  public static let pipe = Self(1 << 3)
+}
+
+public struct CLCommandType: CLMacro {
+  public let rawValue: cl_command_type
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  // Choosing `ndrange` instead of `ndRange` because it's one word, just like
+  // "NDArray". Apple does something similar with
+  // `MPSGraphTensorData.mpsndarray()`.
+  public static let ndrangeKernel = Self(CL_COMMAND_NDRANGE_KERNEL)
+  public static let task = Self(CL_COMMAND_TASK)
+  public static let nativeKernel = Self(CL_COMMAND_NATIVE_KERNEL)
+  public static let readBuffer = Self(CL_COMMAND_READ_BUFFER)
+  public static let writeBuffer = Self(CL_COMMAND_WRITE_BUFFER)
+  public static let copyBuffer = Self(CL_COMMAND_COPY_BUFFER)
+  public static let readImage = Self(CL_COMMAND_READ_IMAGE)
+  public static let writeImage = Self(CL_COMMAND_WRITE_IMAGE)
+  public static let copyImage = Self(CL_COMMAND_COPY_IMAGE)
+  public static let copyImageToBuffer = Self(CL_COMMAND_COPY_IMAGE_TO_BUFFER)
+  public static let copyBufferToImage = Self(CL_COMMAND_COPY_BUFFER_TO_IMAGE)
+  public static let mapBuffer = Self(CL_COMMAND_MAP_BUFFER)
+  public static let mapImage = Self(CL_COMMAND_MAP_IMAGE)
+  public static let unmapMemoryObject = Self(CL_COMMAND_UNMAP_MEM_OBJECT)
+  public static let marker = Self(CL_COMMAND_MARKER)
+  public static let acquireGLObjects = Self(CL_COMMAND_ACQUIRE_GL_OBJECTS)
+  public static let releaseGLObjects = Self(CL_COMMAND_RELEASE_GL_OBJECTS)
+  public static let readBufferRectangularRegion = Self(
+    CL_COMMAND_READ_BUFFER_RECT)
+  public static let writeBufferRectangularRegion = Self(
+    CL_COMMAND_WRITE_BUFFER_RECT)
+  public static let copyBufferRectangularRegion = Self(
+    CL_COMMAND_COPY_BUFFER_RECT)
+  public static let user = Self(CL_COMMAND_USER)
+  public static let barrier = Self(CL_COMMAND_BARRIER)
+  public static let migrateMemoryObjects = Self(CL_COMMAND_MIGRATE_MEM_OBJECTS)
+  public static let fillBuffer = Self(CL_COMMAND_FILL_BUFFER)
+  public static let fillImage = Self(CL_COMMAND_FILL_IMAGE)
+  
+  // Not expanding `memfill` to `memoryFill` because then I must expand
+  // `memcpy` to `memoryCopy`. "memcpy" is a widely known C function, along with
+  // "free". I think the SVM is trying to emulate basic C memory manipulation
+  // here.
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let svmFree = Self(0x1209)
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let svmMemcpy = Self(0x120A)
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let svmMemfill = Self(0x120B)
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let svmMap = Self(0x120C)
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let svmUnmap = Self(0x120D)
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+  public static let svmMigrateMemory = Self(0x120E)
+}

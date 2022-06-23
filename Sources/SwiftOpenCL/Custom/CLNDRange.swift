@@ -1,5 +1,5 @@
 //
-//  CLRange.swift
+//  CLNDRange.swift
 //  
 //
 //  Created by Philip Turner on 6/22/22.
@@ -9,7 +9,7 @@ import COpenCL
 
 public typealias CLSize = SIMD3<Int>
 
-public struct CLRange {
+public struct CLNDRange {
   @usableFromInline
   var storage: SIMD4<Int>
   
