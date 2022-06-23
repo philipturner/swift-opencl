@@ -149,6 +149,9 @@ public struct CLMemFlags: CLMacro {
   public static let kernelReadAndWrite = Self(1 << 12)
 }
 
+// Not all `cl_mem_flags` from "cl.h" are actually SVM mem flags. Only the ones
+// documented in https://man.opencl.org/clSVMAlloc.html are. This is the same as
+// what the OpenCL 3.0 specification says.
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public struct CLSVMMemFlags: CLMacro {
   public let rawValue: cl_svm_mem_flags
@@ -159,16 +162,8 @@ public struct CLSVMMemFlags: CLMacro {
   public static let readWrite = Self(CL_MEM_READ_WRITE)
   public static let writeOnly = Self(CL_MEM_WRITE_ONLY)
   public static let readOnly = Self(CL_MEM_READ_ONLY)
-  public static let useHostPtr = Self(CL_MEM_USE_HOST_PTR)
-  public static let allocHostPtr = Self(CL_MEM_ALLOC_HOST_PTR)
-  public static let copyHostPtr = Self(CL_MEM_COPY_HOST_PTR)
-  public static let hostWriteOnly = Self(CL_MEM_HOST_WRITE_ONLY)
-  public static let hostReadOnly = Self(CL_MEM_HOST_READ_ONLY)
-  public static let hostNoAccess = Self(CL_MEM_HOST_NO_ACCESS)
-  
   public static let fineGrainBuffer = Self(1 << 10)
   public static let atomics = Self(1 << 11)
-  public static let kernelReadAndWrite = Self(1 << 12)
 }
 
 public struct CLMemMigrationFlags: CLMacro {
@@ -177,8 +172,8 @@ public struct CLMemMigrationFlags: CLMacro {
     self.rawValue = rawValue
   }
   
-  public static let objectHost = Self(CL_MIGRATE_MEM_OBJECT_HOST)
-  public static let objectContentUndefined =
+  public static let host = Self(CL_MIGRATE_MEM_OBJECT_HOST)
+  public static let contentUndefined =
     Self(CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED)
 }
 
@@ -243,7 +238,7 @@ public struct CLChannelOrder: CLMacro {
 }
 
 public struct CLChannelType: CLMacro {
-  public let rawValue: cl_channel_order
+  public let rawValue: cl_channel_type
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
   }
@@ -268,3 +263,4 @@ public struct CLChannelType: CLMacro {
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
   public static let unormInt1010102 = Self(0x10E0)
 }
+
