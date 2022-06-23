@@ -19,7 +19,7 @@ extension CLKernel {
     getInfo_String(CL_KERNEL_FUNCTION_NAME, getInfo)
   }
   
-  public var numArgs: UInt32? {
+  public var numArguments: UInt32? {
     getInfo_Int(CL_KERNEL_NUM_ARGS, getInfo)
   }
   

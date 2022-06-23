@@ -71,11 +71,11 @@ extension CLDevice {
     getInfo_Int(CL_DEVICE_ADDRESS_BITS, getInfo)
   }
   
-  public var maxReadImageArgs: UInt32? {
+  public var maxReadImageArguments: UInt32? {
     getInfo_Int(CL_DEVICE_MAX_READ_IMAGE_ARGS, getInfo)
   }
   
-  public var maxWriteImageArgs: UInt32? {
+  public var maxWriteImageArguments: UInt32? {
     getInfo_Int(CL_DEVICE_MAX_WRITE_IMAGE_ARGS, getInfo)
   }
   
@@ -155,7 +155,7 @@ extension CLDevice {
     getInfo_Int(CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE, getInfo)
   }
   
-  public var maxConstantArgs: UInt32? {
+  public var maxConstantArguments: UInt32? {
     getInfo_Int(CL_DEVICE_MAX_CONSTANT_ARGS, getInfo)
   }
   
@@ -358,7 +358,7 @@ extension CLDevice {
     return getInfo_Int(name, getInfo)
   }
   
-  public var maxPipeArgs: UInt32? {
+  public var maxPipeArguments: UInt32? {
     let name: Int32 = 0x1055
     #if !canImport(Darwin)
     assert(CL_DEVICE_MAX_PIPE_ARGS == name)
@@ -430,7 +430,7 @@ extension CLDevice {
     return getInfo_Int(name, getInfo)
   }
   
-  public var maxReadWriteImageArgs: UInt32? {
+  public var maxReadWriteImageArguments: UInt32? {
     let name: Int32 = 0x104C
     #if !canImport(Darwin)
     assert(CL_DEVICE_MAX_READ_WRITE_IMAGE_ARGS == name)

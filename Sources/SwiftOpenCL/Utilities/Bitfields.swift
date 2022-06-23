@@ -330,3 +330,15 @@ public struct CLProgramBinaryType: CLMacro {
   public static let library = Self(CL_PROGRAM_BINARY_TYPE_LIBRARY)
   public static let executable = Self(CL_PROGRAM_BINARY_TYPE_EXECUTABLE)
 }
+
+public struct CLBuildStatus: CLMacro {
+  public let rawValue: cl_build_status
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let success = Self(CL_BUILD_SUCCESS)
+  public static let none = Self(CL_BUILD_NONE)
+  public static let error = Self(CL_BUILD_ERROR)
+  public static let inProgress = Self(CL_BUILD_IN_PROGRESS)
+}
