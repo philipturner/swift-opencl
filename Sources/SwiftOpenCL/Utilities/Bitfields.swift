@@ -437,3 +437,59 @@ public struct CLCommandType: CLMacro {
   @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
   public static let svmMigrateMemory = Self(0x120E)
 }
+
+// No associated C typedef or enumeration in COpenCL. SwiftOpenCL synthesizes
+// this new type for developer ergonomics. Should this declaration be `public`
+// or `internal`?
+public struct CLCommandExecutionStatus: CLMacro {
+  public let rawValue: Int32
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let complete = Self(CL_COMPLETE)
+  public static let running = Self(CL_RUNNING)
+  public static let submitted = Self(CL_SUBMITTED)
+  public static let queued = Self(CL_QUEUED)
+}
+
+public struct CLBufferCreateType: CLMacro {
+  public let rawValue: cl_buffer_create_type
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let region = Self(CL_BUFFER_CREATE_TYPE_REGION)
+}
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+public struct CLDeviceAtomicCapabilities: CLMacro {
+  public let rawValue: cl_device_atomic_capabilities
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  // Renaming atomic memory orderings to match their description in the OpenCL
+  // 3.0 specification.
+  public static let relaxed = Self(1 << 0)
+  public static let acquireRelease = Self(1 << 1)
+  public static let sequentiallyConsistent = Self(1 << 2)
+  public static let scopeWorkItem = Self(1 << 3)
+  public static let scopeWorkGroup = Self(1 << 4)
+  public static let device = Self(1 << 5)
+  public static let allDevices = Self(1 << 6)
+}
+
+// Having the word "Device" twice appears wierd, but it's not a typo. It means
+// "device-side enqueue capabilities of a device". There are several other
+// "capabilities of a device", such as the atomic capabilities defined above.
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+public struct CLDeviceDeviceEnqueueCapabilities: CLMacro {
+  public let rawValue: cl_device_device_enqueue_capabilities
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let supported = Self(1 << 0)
+  public static let replaceableDefault = Self(1 << 1)
+}
