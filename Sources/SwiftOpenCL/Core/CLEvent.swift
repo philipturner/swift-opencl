@@ -40,7 +40,7 @@ public struct CLEvent: CLReferenceCountable {
   public func setCallback(
     type: Int32,
     userData: UnsafeMutableRawPointer? = nil,
-    notifyFptr: (@convention(c) (
+    notifyFptr: @escaping (@convention(c) (
       cl_event?, Int32, UnsafeMutableRawPointer?
     ) -> Void)
   ) throws {

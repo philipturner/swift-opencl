@@ -287,7 +287,7 @@ extension CLProgram {
     
     let prog = withUnsafeTemporaryAllocation(
       of: cl_program?.self, capacity: 2
-    ) { programs in
+    ) { programs -> cl_program? in
       programs[0] = input1.program
       programs[1] = input2.program
       return clLinkProgram(

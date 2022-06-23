@@ -41,7 +41,7 @@ public struct CLCommandQueue: CLReferenceCountable {
   // `withUnsafeTemporaryAllocation`. Then, finish the rest of the initializers.
   
   public init?(
-    properties: cl_command_queue_properties
+    properties: CLCommandQueueProperties
   ) {
     var error: Int32 = CL_SUCCESS
     guard let context = CLContext.defaultContext else {
@@ -73,12 +73,12 @@ public struct CLCommandQueue: CLReferenceCountable {
         of: cl_queue_properties.self, capacity: 3
       ) { queue_properties in
         queue_properties[0] = cl_queue_properties(CL_QUEUE_PROPERTIES)
-        queue_properties[1] = cl_queue_properties(properties)
+        queue_properties[1] = cl_queue_properties(properties.rawValue)
         queue_properties[2] = 0
         #if canImport(Darwin)
         let CL_QUEUE_ON_DEVICE: Int32 = 1 << 2
         #endif
-        if properties & UInt64(CL_QUEUE_ON_DEVICE) == 0 {
+        if properties.rawValue & UInt64(CL_QUEUE_ON_DEVICE) == 0 {
           #if canImport(Darwin)
           let clCreateCommandQueueWithProperties =
             clCreateCommandQueueWithPropertiesAPPLE
@@ -86,6 +86,11 @@ public struct CLCommandQueue: CLReferenceCountable {
           object_ = clCreateCommandQueueWithProperties(
             context.context, device.deviceID, queue_properties.baseAddress,
             &error)
+          // On macOS, `cl_queue_properties` is `Int`. Everywhere else, it is
+          // `UInt64`.
+          #if canImport(Darwin)
+          typealias cl_queue_properties = cl_queue_properties_APPLE
+          #endif
         } else {
           error = CL_INVALID_QUEUE_PROPERTIES
         }

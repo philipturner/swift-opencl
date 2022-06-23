@@ -63,6 +63,7 @@ public struct CLDeviceExecutionCapabilities: CLMacro {
 }
 
 public struct CLCommandQueueProperties: CLMacro {
+  // `cl_command_queue_properties` is not defined until OpenCL 2.0.
   public let rawValue: cl_command_queue_properties
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
@@ -493,3 +494,5 @@ public struct CLDeviceDeviceEnqueueCapabilities: CLMacro {
   public static let supported = Self(1 << 0)
   public static let replaceableDefault = Self(1 << 1)
 }
+
+// TODO: Implement `CL_MAKE_VERSION` and maybe the Swift type `CLVersion`.

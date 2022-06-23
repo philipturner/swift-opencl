@@ -51,7 +51,7 @@ public struct CLNDRange {
     _ body: (UnsafeMutableRawBufferPointer) throws -> R
   ) rethrows -> R {
     var copy = self
-    let output = try withUnsafeMutablePointer(to: &copy) { pointer in
+    let output = try withUnsafeMutablePointer(to: &copy) { pointer -> R in
       let buffer = UnsafeMutableRawBufferPointer(
         start: UnsafeMutableRawPointer(pointer),
         count: dimensions)
@@ -78,7 +78,7 @@ public struct CLNDRange {
     _ body: (inout UnsafeMutableBufferPointer<Int>) throws -> R
   ) rethrows -> R {
     var copy = self
-    let output = try withUnsafeMutablePointer(to: &copy) { pointer in
+    let output = try withUnsafeMutablePointer(to: &copy) { pointer -> R in
       let baseAddress = UnsafeMutableRawPointer(mutating: pointer)
       var buffer = UnsafeMutableBufferPointer<Int>(
         start: baseAddress.assumingMemoryBound(to: Int.self),
