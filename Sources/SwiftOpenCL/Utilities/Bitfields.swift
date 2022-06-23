@@ -27,8 +27,8 @@ public struct CLDeviceFPConfig: CLMacro {
   public static let roundToInf = Self(CL_FP_ROUND_TO_INF)
   public static let fma = Self(CL_FP_FMA)
   public static let softFloat = Self(CL_FP_SOFT_FLOAT)
-  public static let correctlyRoundedDivideSqrt =
-    Self(CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT)
+  public static let correctlyRoundedDivideSqrt = Self(
+    CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT)
 }
 
 public struct CLDeviceMemCacheType: CLMacro {
@@ -69,8 +69,8 @@ public struct CLCommandQueueProperties: CLMacro {
     self.rawValue = rawValue
   }
   
-  public static let outOfOrderExecModeEnable =
-    Self(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
+  public static let outOfOrderExecModeEnable = Self(
+    CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
   public static let profilingEnable = Self(CL_QUEUE_PROFILING_ENABLE)
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
@@ -97,8 +97,10 @@ public struct CLDevicePartitionProperty: CLMacro {
   
   public static let equally = Self(CL_DEVICE_PARTITION_EQUALLY)
   public static let byCounts = Self(CL_DEVICE_PARTITION_BY_COUNTS)
-  public static let byCountsListEnd = Self(CL_DEVICE_PARTITION_BY_COUNTS_LIST_END)
-  public static let byAffinityDomain = Self(CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN)
+  public static let byCountsListEnd = Self(
+    CL_DEVICE_PARTITION_BY_COUNTS_LIST_END)
+  public static let byAffinityDomain = Self(
+    CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN)
 }
 
 public struct CLDeviceAffinityDomain: CLMacro {
@@ -112,8 +114,8 @@ public struct CLDeviceAffinityDomain: CLMacro {
   public static let l3Cache = Self(CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE)
   public static let l2Cache = Self(CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE)
   public static let l1Cache = Self(CL_DEVICE_AFFINITY_DOMAIN_L1_CACHE)
-  public static let nextPartitionable =
-    Self(CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE)
+  public static let nextPartitionable = Self(
+    CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE)
 }
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
@@ -173,8 +175,8 @@ public struct CLMemMigrationFlags: CLMacro {
   }
   
   public static let host = Self(CL_MIGRATE_MEM_OBJECT_HOST)
-  public static let contentUndefined =
-    Self(CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED)
+  public static let contentUndefined = Self(
+    CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED)
 }
 
 public struct CLChannelOrder: CLMacro {
@@ -264,3 +266,67 @@ public struct CLChannelType: CLMacro {
   public static let unormInt1010102 = Self(0x10E0)
 }
 
+public struct CLMemObjectType: CLMacro {
+  public let rawValue: cl_mem_object_type
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let buffer = Self(CL_MEM_OBJECT_BUFFER)
+  public static let image2D = Self(CL_MEM_OBJECT_IMAGE2D)
+  public static let image3D = Self(CL_MEM_OBJECT_IMAGE3D)
+  public static let image2DArray = Self(CL_MEM_OBJECT_IMAGE2D_ARRAY)
+  public static let image1D = Self(CL_MEM_OBJECT_IMAGE1D)
+  public static let image1DArray = Self(CL_MEM_OBJECT_IMAGE1D_ARRAY)
+  public static let image1DBuffer = Self(CL_MEM_OBJECT_IMAGE1D_BUFFER)
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public static let pipe = Self(0x10F7)
+}
+
+public struct CLAddressingMode: CLMacro {
+  public let rawValue: cl_addressing_mode
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let none = Self(CL_ADDRESS_NONE)
+  public static let clampToEdge = Self(CL_ADDRESS_CLAMP_TO_EDGE)
+  public static let clamp = Self(CL_ADDRESS_CLAMP)
+  public static let `repeat` = Self(CL_ADDRESS_REPEAT)
+  public static let mirroredRepeat = Self(CL_ADDRESS_MIRRORED_REPEAT)
+}
+
+public struct CLFilterMode: CLMacro {
+  public let rawValue: cl_filter_mode
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let nearest = Self(CL_FILTER_NEAREST)
+  public static let linear = Self(CL_FILTER_LINEAR)
+}
+
+public struct CLMapFlags: CLMacro {
+  public let rawValue: cl_map_flags
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let read = Self(CL_MAP_READ)
+  public static let write = Self(CL_MAP_WRITE)
+  public static let writeInvalidateRegion = Self(CL_MAP_WRITE_INVALIDATE_REGION)
+}
+
+public struct CLProgramBinaryType: CLMacro {
+  public let rawValue: cl_program_binary_type
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let none = Self(CL_PROGRAM_BINARY_TYPE_NONE)
+  public static let compiledProject = Self(
+    CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT)
+  public static let library = Self(CL_PROGRAM_BINARY_TYPE_LIBRARY)
+  public static let executable = Self(CL_PROGRAM_BINARY_TYPE_EXECUTABLE)
+}
