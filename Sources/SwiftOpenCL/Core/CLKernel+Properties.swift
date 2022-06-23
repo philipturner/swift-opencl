@@ -101,7 +101,7 @@ extension CLKernel {
     return getInfo_CLSize(name, getWorkGroupInfo(device: device))
   }
   
-  public func localMemSize(device: CLDevice) -> UInt64? {
+  public func localMemorySize(device: CLDevice) -> UInt64? {
     getInfo_Int(CL_KERNEL_LOCAL_MEM_SIZE, getWorkGroupInfo(device: device))
   }
   
@@ -112,7 +112,7 @@ extension CLKernel {
     return getInfo_Int(name, getWorkGroupInfo(device: device))
   }
   
-  public func privateMemSize(device: CLDevice) -> UInt64? {
+  public func privateMemorySize(device: CLDevice) -> UInt64? {
     getInfo_Int(CL_KERNEL_PRIVATE_MEM_SIZE, getWorkGroupInfo(device: device))
   }
   

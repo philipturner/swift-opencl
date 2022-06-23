@@ -14,7 +14,7 @@ extension CLMacro {
   }
 }
 
-public struct CLDeviceFPConfig: CLMacro {
+public struct CLDeviceFloatingPointConfig: CLMacro {
   public let rawValue: cl_device_fp_config
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
@@ -31,7 +31,7 @@ public struct CLDeviceFPConfig: CLMacro {
     CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT)
 }
 
-public struct CLDeviceMemCacheType: CLMacro {
+public struct CLDeviceMemoryCacheType: CLMacro {
   public let rawValue: cl_device_mem_cache_type
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
@@ -42,8 +42,7 @@ public struct CLDeviceMemCacheType: CLMacro {
   public static let readWriteCache = Self(CL_READ_WRITE_CACHE)
 }
 
-
-public struct CLDeviceLocalMemType: CLMacro {
+public struct CLDeviceLocalMemoryType: CLMacro {
   public let rawValue: cl_device_local_mem_type
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
@@ -53,7 +52,7 @@ public struct CLDeviceLocalMemType: CLMacro {
   public static let global = Self(CL_GLOBAL)
 }
 
-public struct CLDeviceExecCapabilities: CLMacro {
+public struct CLDeviceExecutionCapabilities: CLMacro {
   public let rawValue: cl_device_exec_capabilities
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
@@ -69,7 +68,7 @@ public struct CLCommandQueueProperties: CLMacro {
     self.rawValue = rawValue
   }
   
-  public static let outOfOrderExecModeEnable = Self(
+  public static let outOfOrderExecutionModeEnable = Self(
     CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
   public static let profilingEnable = Self(CL_QUEUE_PROFILING_ENABLE)
   
@@ -131,7 +130,7 @@ public struct CLDeviceSVMCapabilities: CLMacro {
   public static let atomics = Self(1 << 3)
 }
 
-public struct CLMemFlags: CLMacro {
+public struct CLMemoryFlags: CLMacro {
   public let rawValue: cl_mem_flags
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
@@ -140,9 +139,9 @@ public struct CLMemFlags: CLMacro {
   public static let readWrite = Self(CL_MEM_READ_WRITE)
   public static let writeOnly = Self(CL_MEM_WRITE_ONLY)
   public static let readOnly = Self(CL_MEM_READ_ONLY)
-  public static let useHostPtr = Self(CL_MEM_USE_HOST_PTR)
-  public static let allocHostPtr = Self(CL_MEM_ALLOC_HOST_PTR)
-  public static let copyHostPtr = Self(CL_MEM_COPY_HOST_PTR)
+  public static let useHostPointer = Self(CL_MEM_USE_HOST_PTR)
+  public static let allocateHostPointer = Self(CL_MEM_ALLOC_HOST_PTR)
+  public static let copyHostPointer = Self(CL_MEM_COPY_HOST_PTR)
   public static let hostWriteOnly = Self(CL_MEM_HOST_WRITE_ONLY)
   public static let hostReadOnly = Self(CL_MEM_HOST_READ_ONLY)
   public static let hostNoAccess = Self(CL_MEM_HOST_NO_ACCESS)
@@ -155,7 +154,7 @@ public struct CLMemFlags: CLMacro {
 // documented in https://man.opencl.org/clSVMAlloc.html are. This is the same as
 // what the OpenCL 3.0 specification says.
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-public struct CLSVMMemFlags: CLMacro {
+public struct CLSVMMemoryFlags: CLMacro {
   public let rawValue: cl_svm_mem_flags
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
@@ -168,7 +167,7 @@ public struct CLSVMMemFlags: CLMacro {
   public static let atomics = Self(1 << 11)
 }
 
-public struct CLMemMigrationFlags: CLMacro {
+public struct CLMemoryMigrationFlags: CLMacro {
   public let rawValue: cl_mem_migration_flags
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
@@ -266,7 +265,7 @@ public struct CLChannelType: CLMacro {
   public static let unormInt1010102 = Self(0x10E0)
 }
 
-public struct CLMemObjectType: CLMacro {
+public struct CLMemoryObjectType: CLMacro {
   public let rawValue: cl_mem_object_type
   public init(rawValue: RawValue) {
     self.rawValue = rawValue
@@ -341,4 +340,28 @@ public struct CLBuildStatus: CLMacro {
   public static let none = Self(CL_BUILD_NONE)
   public static let error = Self(CL_BUILD_ERROR)
   public static let inProgress = Self(CL_BUILD_IN_PROGRESS)
+}
+
+public struct CLKernelArgumentAddressQualifier: CLMacro {
+  public let rawValue: cl_kernel_arg_address_qualifier
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let global = Self(CL_KERNEL_ARG_ADDRESS_GLOBAL)
+  public static let local = Self(CL_KERNEL_ARG_ADDRESS_LOCAL)
+  public static let constant = Self(CL_KERNEL_ARG_ADDRESS_CONSTANT)
+  public static let `private` = Self(CL_KERNEL_ARG_ADDRESS_PRIVATE)
+}
+
+public struct CLKernelArgumentAccessQualifier: CLMacro {
+  public let rawValue: cl_kernel_arg_access_qualifier
+  public init(rawValue: RawValue) {
+    self.rawValue = rawValue
+  }
+  
+  public static let readOnly = Self(CL_KERNEL_ARG_ACCESS_READ_ONLY)
+  public static let writeOnly = Self(CL_KERNEL_ARG_ACCESS_WRITE_ONLY)
+  public static let readWrite = Self(CL_KERNEL_ARG_ACCESS_READ_WRITE)
+  public static let none = Self(CL_KERNEL_ARG_ACCESS_NONE)
 }

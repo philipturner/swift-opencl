@@ -79,7 +79,7 @@ extension CLDevice {
     getInfo_Int(CL_DEVICE_MAX_WRITE_IMAGE_ARGS, getInfo)
   }
   
-  public var maxMemAllocSize: UInt64? {
+  public var maxMemoryAllocationSize: UInt64? {
     getInfo_Int(CL_DEVICE_MAX_MEM_ALLOC_SIZE, getInfo)
   }
   
@@ -115,7 +115,7 @@ extension CLDevice {
     getInfo_Int(CL_DEVICE_MAX_SAMPLERS, getInfo)
   }
   
-  public var memBaseAddrAlign: UInt32? {
+  public var memoryBaseAddressAlign: UInt32? {
     getInfo_Int(CL_DEVICE_MEM_BASE_ADDR_ALIGN, getInfo)
   }
   
@@ -123,31 +123,31 @@ extension CLDevice {
     getInfo_Int(CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE, getInfo)
   }
   
-  public var singleFPConfig: cl_device_fp_config? {
+  public var singleFloatingPointConfig: cl_device_fp_config? {
     getInfo_Int(CL_DEVICE_SINGLE_FP_CONFIG, getInfo)
   }
   
-  public var doubleFPConfig: cl_device_fp_config? {
+  public var doubleFloatingPointConfig: cl_device_fp_config? {
     getInfo_Int(CL_DEVICE_DOUBLE_FP_CONFIG, getInfo)
   }
   
-  public var halfFPConfig: cl_device_fp_config? {
+  public var halfFloatingPointConfig: cl_device_fp_config? {
     getInfo_Int(CL_DEVICE_HALF_FP_CONFIG, getInfo)
   }
   
-  public var globalMemCacheType: cl_device_mem_cache_type? {
+  public var globalMemoryCacheType: cl_device_mem_cache_type? {
     getInfo_Int(CL_DEVICE_GLOBAL_MEM_CACHE_TYPE, getInfo)
   }
   
-  public var globalMemCachelineSize: UInt32? {
+  public var globalMemoryCacheLineSize: UInt32? {
     getInfo_Int(CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE, getInfo)
   }
   
-  public var globalMemCacheSize: UInt64? {
+  public var globalMemoryCacheSize: UInt64? {
     getInfo_Int(CL_DEVICE_GLOBAL_MEM_CACHE_SIZE, getInfo)
   }
   
-  public var globalMemSize: UInt64? {
+  public var globalMemorySize: UInt64? {
     getInfo_Int(CL_DEVICE_GLOBAL_MEM_SIZE, getInfo)
   }
   
@@ -159,11 +159,11 @@ extension CLDevice {
     getInfo_Int(CL_DEVICE_MAX_CONSTANT_ARGS, getInfo)
   }
   
-  public var localMemType: cl_device_local_mem_type? {
+  public var localMemoryType: cl_device_local_mem_type? {
     getInfo_Int(CL_DEVICE_LOCAL_MEM_TYPE, getInfo)
   }
   
-  public var localMemSize: UInt64? {
+  public var localMemorySize: UInt64? {
     getInfo_Int(CL_DEVICE_LOCAL_MEM_SIZE, getInfo)
   }
   
