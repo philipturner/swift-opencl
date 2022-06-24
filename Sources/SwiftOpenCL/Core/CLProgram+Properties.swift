@@ -87,8 +87,8 @@ extension CLProgram {
   
   // OpenCL 1.0
   
-  public func buildStatus(device: CLDevice) -> cl_build_status? {
-    getInfo_Int(CL_PROGRAM_BUILD_STATUS, getBuildInfo(device: device))
+  public func buildStatus(device: CLDevice) -> CLBuildStatus? {
+    getInfo_CLMacro(CL_PROGRAM_BUILD_STATUS, getBuildInfo(device: device))
   }
   
   public func buildOptions(device: CLDevice) -> String? {
@@ -101,8 +101,8 @@ extension CLProgram {
   
   // OpenCL 1.2
   
-  public func binaryType(device: CLDevice) -> cl_program_binary_type? {
-    getInfo_Int(CL_PROGRAM_BINARY_TYPE, getBuildInfo(device: device))
+  public func binaryType(device: CLDevice) -> CLProgramBinaryType? {
+    getInfo_CLMacro(CL_PROGRAM_BINARY_TYPE, getBuildInfo(device: device))
   }
   
   func buildLogHasNoErrors() -> Bool {

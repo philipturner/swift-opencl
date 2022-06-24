@@ -13,7 +13,7 @@ typealias GetInfoClosure = (
   /*param_value=*/UnsafeMutableRawPointer?,
   /*param_value_size_ret=*/UnsafeMutablePointer<Int>?) -> Int32
 
-// Force-inline this.
+// Maybe force-inline this.
 func getInfo_Bool(_ name: Int32, _ callGetInfo: GetInfoClosure) -> Bool? {
   // cl_bool is a typealias of `UInt32`, which is 4 bytes.
   var output: cl_bool = 0
@@ -24,7 +24,7 @@ func getInfo_Bool(_ name: Int32, _ callGetInfo: GetInfoClosure) -> Bool? {
   return output != 0
 }
 
-// Force-inline this.
+// Maybe force-inline this.
 func getInfo_Int<T: BinaryInteger>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> T? {
@@ -36,6 +36,7 @@ func getInfo_Int<T: BinaryInteger>(
   return output
 }
 
+@inline(__always)
 func getInfo_CLMacro<T: CLMacro>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> T? {

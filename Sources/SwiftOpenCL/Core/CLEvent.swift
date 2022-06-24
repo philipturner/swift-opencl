@@ -64,7 +64,7 @@ public struct CLUserEvent {
   public var clEvent: CLEvent
   
   /// `CLUserEvent` is a subset of `CLEvent`. The first parameter is unsafe
-  // because it cannot be checked internally to ensure it is a user event.
+  /// because it cannot be checked internally to ensure it is a user event.
   public init(unsafeCLEvent clEvent: CLEvent) {
     self.clEvent = clEvent
   }
@@ -98,8 +98,8 @@ extension CLEvent {
     getInfo_CLReferenceCountable(CL_EVENT_COMMAND_QUEUE, getInfo)
   }
   
-  public var commandType: cl_command_type? {
-    getInfo_Int(CL_EVENT_COMMAND_TYPE, getInfo)
+  public var commandType: CLCommandType? {
+    getInfo_CLMacro(CL_EVENT_COMMAND_TYPE, getInfo)
   }
   
   public var referenceCount: UInt32? {

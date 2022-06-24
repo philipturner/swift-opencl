@@ -52,14 +52,14 @@ extension CLKernel {
   
   public func addressQualifier(
     argumentIndex index: UInt32
-  ) -> cl_kernel_arg_address_qualifier? {
-    getInfo_Int(CL_KERNEL_ARG_ADDRESS_QUALIFIER, getArgInfo(index: index))
+  ) -> CLKernelArgumentAddressQualifier? {
+    getInfo_CLMacro(CL_KERNEL_ARG_ADDRESS_QUALIFIER, getArgInfo(index: index))
   }
   
   public func accessQualifier(
     argumentIndex index: UInt32
-  ) -> cl_kernel_arg_access_qualifier? {
-    getInfo_Int(CL_KERNEL_ARG_ACCESS_QUALIFIER, getArgInfo(index: index))
+  ) -> CLKernelArgumentAccessQualifier? {
+    getInfo_CLMacro(CL_KERNEL_ARG_ACCESS_QUALIFIER, getArgInfo(index: index))
   }
   
   public func typeName(
@@ -76,8 +76,8 @@ extension CLKernel {
   
   public func typeQualifier(
     argumentIndex index: UInt32
-  ) -> cl_kernel_arg_type_qualifier? {
-    getInfo_Int(CL_KERNEL_ARG_TYPE_QUALIFIER, getArgInfo(index: index))
+  ) -> CLKernelArgumentTypeQualifier? {
+    getInfo_CLMacro(CL_KERNEL_ARG_TYPE_QUALIFIER, getArgInfo(index: index))
   }
 }
 

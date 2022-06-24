@@ -14,13 +14,13 @@ public struct CLDevice: CLReferenceCountable {
   @_transparent
   public var deviceID: cl_device_id { wrapper.object }
   
-  // Document what OpenCL version supports `retain` in DocC.
+  // Will only retain if OpenCL version is at least 1.2.
   public init?(_ deviceID: cl_device_id, retain: Bool = false) {
     var shouldRetain = false
     if retain {
       let version = getVersion(device: deviceID)
       // Needs OpenCL 1.2 or higher.
-      if version.0 > 1 || version.1 >= 2 {
+      if version.major > 1 || version.minor >= 2 {
         shouldRetain = true
       }
     }

@@ -82,3 +82,4 @@ extension CLPlatform {
     getInfo_String(CL_PLATFORM_EXTENSIONS, getInfo)
   }
 }
+

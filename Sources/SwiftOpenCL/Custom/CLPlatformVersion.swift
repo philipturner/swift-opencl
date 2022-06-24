@@ -1,5 +1,5 @@
 //
-//  Version.swift
+//  CLPlatformVersion.swift
 //  
 //
 //  Created by Philip Turner on 4/26/22.
@@ -7,7 +7,7 @@
 
 import COpenCL
 
-func getVersion(info versionInfo: UnsafePointer<Int8>) -> (Int, Int) {
+func getVersion(info versionInfo: UnsafePointer<Int8>) -> (major: Int, minor: Int) {
   var highVersion = 0
   var lowVersion = 0
   var index = 7
@@ -26,7 +26,7 @@ func getVersion(info versionInfo: UnsafePointer<Int8>) -> (Int, Int) {
   return (highVersion, lowVersion)
 }
 
-func getVersion(platform: OpaquePointer) -> (Int, Int) {
+func getVersion(platform: OpaquePointer) -> (major: Int, minor: Int) {
   var size = 0
   clGetPlatformInfo(platform, UInt32(CL_PLATFORM_VERSION), 0, nil, &size)
   
@@ -37,24 +37,24 @@ func getVersion(platform: OpaquePointer) -> (Int, Int) {
   return getVersion(info: versionInfo)
 }
 
-func getVersion(device: OpaquePointer) -> (Int, Int) {
+func getVersion(device: OpaquePointer) -> (major: Int, minor: Int) {
   var platform: OpaquePointer?
   clGetDeviceInfo(device, UInt32(CL_DEVICE_PLATFORM), Int.bitWidth, &platform,
     nil)
   return getVersion(platform: platform!)
 }
 
-func getVersion(context: OpaquePointer) -> (Int, Int)? {
+func getVersion(context: OpaquePointer) -> (major: Int, minor: Int) {
   // The platform cannot be queried directly, so we first have to grab a device
   // and obtain its context
   var size = 0
   clGetContextInfo(context, UInt32(CL_CONTEXT_DEVICES), 0, nil, &size)
   if (size == 0) {
-    return nil
+    return (0, 0)
   }
   
-  let devices: UnsafeMutablePointer<OpaquePointer> =
-    .allocate(capacity: size / Int.bitWidth)
+  let devices: UnsafeMutablePointer<OpaquePointer> = .allocate(
+    capacity: size / Int.bitWidth)
   defer { devices.deallocate() }
   clGetContextInfo(context, UInt32(CL_CONTEXT_DEVICES), size, devices, nil)
   return getVersion(device: devices[0])
