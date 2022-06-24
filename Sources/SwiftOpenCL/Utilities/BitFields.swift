@@ -1,5 +1,5 @@
 //
-//  Bitfields.swift
+//  BitFields.swift
 //  
 //
 //  Created by Philip Turner on 6/22/22.
