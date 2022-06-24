@@ -8,12 +8,15 @@
 import COpenCL
 
 public struct CLVersion {
-  public var major: Int
-  public var minor: Int
-  public var patch: Int?
+  // Using `UInt32` instead of `Int` to halve CPU register usage. Also, it's a
+  // standard type to represent things across the OpenCL API. `cl_version` is
+  // even a typealias of `UInt32`.
+  public var major: UInt32
+  public var minor: UInt32
+  public var patch: UInt32?
   
   @_transparent
-  public init(major: Int, minor: Int, patch: Int? = nil) {
+  public init(major: UInt32, minor: UInt32, patch: UInt32? = nil) {
     self.major = major
     self.minor = minor
     self.patch = patch
@@ -57,14 +60,14 @@ extension CLVersion {
       var index = 7
       while versionInfo[index] != 0x2E /* Unicode for '.' */ {
         major *= 10
-        major += Int(versionInfo[index] - 0x30) /* Unicode for '0' */
+        major += UInt32(versionInfo[index] - 0x30) /* Unicode for '0' */
         index += 1
       }
       index += 1
       while versionInfo[index] != 0x20 /* Unicode for ' ' */ &&
             versionInfo[index] != 0x00 /* Unicode for '\0' */ {
         minor *= 10
-        minor += Int(versionInfo[index] - 0x30) /* Unicode for '0' */
+        minor += UInt32(versionInfo[index] - 0x30) /* Unicode for '0' */
         index += 1
       }
     }
@@ -90,6 +93,7 @@ extension CLVersion {
   // `CLContext`. However, I am following the naming convention established in
   // the two functions above.
   public init?(context: cl_context) {
+    var size = 0
     fatalError()
   }
 }

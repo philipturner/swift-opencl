@@ -69,6 +69,7 @@ public struct CLError: LocalizedError {
   
   // TODO: add #file and #line to allow reconstruction of the stack trace
   // Pass #file and #line into getInfo_XXX as well.
+  // Decide whether to make this public after reforming the error mechanism.
   @inline(__always)
   @discardableResult
   static func setCode(_ code: Int32, _ message: String? = nil) -> Bool {
@@ -80,6 +81,7 @@ public struct CLError: LocalizedError {
     }
   }
   
+  // Decide whether to make this public after reforming the error mechanism.
   @inline(__always)
   static func throwCode(_ code: Int32, _ message: String? = nil) throws {
     if code != CL_SUCCESS {

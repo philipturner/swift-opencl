@@ -47,25 +47,28 @@ extension CLProgram {
     let numBinaries = sizes.count
     var output: [Data] = []
     output.reserveCapacity(numBinaries)
-    let binariesPointers: UnsafeMutablePointer<UnsafeMutablePointer<Int8>> =
-      .allocate(capacity: numBinaries)
-    defer { binariesPointers.deallocate() }
     
-    for i in 0..<numBinaries {
-      let size = sizes[i]
-      let binaryPointer: UnsafeMutablePointer<Int8> = .allocate(capacity: size)
-      output.append(
-        Data(bytesNoCopy: binaryPointer, count: size, deallocator: .free))
-      binariesPointers[i] = binaryPointer
+    return withUnsafeTemporaryAllocation(
+      of: UnsafeMutablePointer<Int8>.self, capacity: numBinaries
+    ) { bufferPointer in
+      let binariesPointers = bufferPointer.baseAddress.unsafelyUnwrapped
+      for i in 0..<numBinaries {
+        let size = sizes[i]
+        let binaryPointer: UnsafeMutablePointer<Int8> = .allocate(
+          capacity: size)
+        output.append(
+          Data(bytesNoCopy: binaryPointer, count: size, deallocator: .free))
+        binariesPointers[i] = binaryPointer
+      }
+      let err = clGetProgramInfo(
+        wrapper.object, UInt32(CL_PROGRAM_BINARIES),
+        numBinaries * MemoryLayout<UnsafeMutablePointer<Int8>>.stride,
+        binariesPointers, nil)
+      guard CLError.setCode(err, "__GET_PROGRAM_INFO_ERR") else {
+        return nil
+      }
+      return output
     }
-    let err = clGetProgramInfo(
-      wrapper.object, UInt32(CL_PROGRAM_BINARIES),
-      numBinaries * MemoryLayout<UnsafeMutablePointer<Int8>>.stride,
-      binariesPointers, nil)
-    guard CLError.setCode(err, "__GET_PROGRAM_INFO_ERR") else {
-      return nil
-    }
-    return output
   }
   
   // OpenCL 1.2

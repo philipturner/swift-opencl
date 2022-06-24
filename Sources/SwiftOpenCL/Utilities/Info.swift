@@ -95,6 +95,7 @@ func getInfo_ArrayOfCLNameVersion(
     "`required` was not a multiple of \(elementStride).")
   
   // Leave one more byte for manually null-terminating.
+  // TODO: Use `withUnsafeTemporaryAllocation`
   let value: UnsafeMutableRawPointer = malloc(required + 1)!
   defer { value.deallocate() }
   err = getInfo(UInt32(name), required, value, nil)
@@ -130,10 +131,11 @@ func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {
   }
   
   if required > 0 {
-    var value = malloc(required)!
+    var value: UnsafeMutableRawPointer = .allocate(
+      byteCount: required, alignment: 1)
     err = getInfo(UInt32(name), required, &value, nil)
     guard CLError.setCode(err) else {
-      free(value)
+      value.deallocate()
       return nil
     }
     return String(
@@ -178,20 +180,23 @@ func getInfo_ArrayOfCLReferenceCountable<T: CLReferenceCountable>(
   }
   let elements = required / MemoryLayout<OpaquePointer>.stride
   
-  let value: UnsafeMutablePointer<OpaquePointer> = .allocate(capacity: elements)
-  defer { value.deallocate() }
-  err = getInfo(UInt32(name), required, value, nil)
-  guard CLError.setCode(err) else {
-    return nil
-  }
-  
-  var output: [T] = []
-  output.reserveCapacity(elements)
-  for i in 0..<elements {
-    guard let element = T(value[i], retain: true) else {
+  return withUnsafeTemporaryAllocation(
+    of: OpaquePointer.self, capacity: elements
+  ) { bufferPointer in
+    let value = bufferPointer.baseAddress.unsafelyUnwrapped
+    err = getInfo(UInt32(name), required, value, nil)
+    guard CLError.setCode(err) else {
       return nil
     }
-    output.append(element)
+    
+    var output: [T] = []
+    output.reserveCapacity(elements)
+    for i in 0..<elements {
+      guard let element = T(value[i], retain: true) else {
+        return nil
+      }
+      output.append(element)
+    }
+    return output
   }
-  return output
 }

@@ -43,14 +43,16 @@ public struct CLPlatform: CLReferenceCountable {
       return nil
     }
     
-    var ids: UnsafeMutablePointer<cl_platform_id?> = .allocate(capacity: Int(n))
-    defer { free(ids) }
-    err = clGetPlatformIDs(n, ids, nil)
-    guard CLError.setCode(err) else {
-      return nil
+    return withUnsafeTemporaryAllocation(
+      of: cl_platform_id?.self, capacity: Int(n)
+    ) { bufferPointer in
+      let ids = bufferPointer.baseAddress.unsafelyUnwrapped
+      err = clGetPlatformIDs(n, ids, nil)
+      guard CLError.setCode(err) else {
+        return nil
+      }
+      return CLPlatform(ids[0]!)
     }
-    
-    return CLPlatform(ids[0]!)
   }()
 }
 
