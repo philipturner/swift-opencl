@@ -8,7 +8,9 @@
 import COpenCL
 import Foundation
 
-// TODO: Map OpenCL error codes to a Swift enum so they can be easily presented.
+// TODO: Make a custom error description, store the underlying code in `Storage`
+// along with the enumeration or just make the computed property return the
+// enumeration.
 public struct CLError: LocalizedError {
   // Use reference counted storage to improve memory safety if SwiftOpenCL ever
   // writes to `CLError.latest` from two threads simultaneously.

@@ -21,6 +21,7 @@ SwiftOpenCL renames the following words in OpenCL macros:
 - "Mem" to "Memory"
 - "Ptr" to "Pointer"
 - "Rect" to "Rectangle"
+- "Spec" to "SpecializationConstant"
 
 ## Tips
 
