@@ -14,6 +14,7 @@ SwiftOpenCL renames the following words in OpenCL macros:
 - "Addr" to "Address"
 - "Alloc" to "Allocation"
 - "Arg" to "Argument"
+- "Bitfield" to "BitField"
 - "Cacheline" to "CacheLine"
 - "Exec" to "Execution"
 - "FP" to "FloatingPoint"
