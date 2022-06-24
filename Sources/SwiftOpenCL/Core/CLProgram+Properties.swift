@@ -21,7 +21,7 @@ extension CLProgram {
   }
   
   public var context: CLContext? {
-    getInfo_ReferenceCountable(CL_PROGRAM_CONTEXT, getInfo)
+    getInfo_CLReferenceCountable(CL_PROGRAM_CONTEXT, getInfo)
   }
   
   public var numDevices: UInt32? {
@@ -29,7 +29,7 @@ extension CLProgram {
   }
   
   public var devices: [CLDevice]? {
-    getInfo_ArrayOfReferenceCountable(CL_PROGRAM_DEVICES, getInfo)
+    getInfo_ArrayOfCLReferenceCountable(CL_PROGRAM_DEVICES, getInfo)
   }
   
   public var source: String? {

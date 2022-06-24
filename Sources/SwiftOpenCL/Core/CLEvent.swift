@@ -95,7 +95,7 @@ extension CLEvent {
   // OpenCL 1.0
   
   public var commandQueue: CLCommandQueue? {
-    getInfo_ReferenceCountable(CL_EVENT_COMMAND_QUEUE, getInfo)
+    getInfo_CLReferenceCountable(CL_EVENT_COMMAND_QUEUE, getInfo)
   }
   
   public var commandType: cl_command_type? {
@@ -113,7 +113,7 @@ extension CLEvent {
   // OpenCL 1.1
   
   public var context: CLContext? {
-    getInfo_ReferenceCountable(CL_EVENT_CONTEXT, getInfo)
+    getInfo_CLReferenceCountable(CL_EVENT_CONTEXT, getInfo)
   }
 }
 

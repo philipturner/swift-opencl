@@ -7,6 +7,8 @@
 
 import COpenCL
 
+// TODO: Mark these defines as unavailable in certain versions of macOS.
+
 #if canImport(Darwin)
 public typealias cl_command_queue_properties = cl_bitfield
 public typealias cl_device_atomic_capabilities = cl_bitfield

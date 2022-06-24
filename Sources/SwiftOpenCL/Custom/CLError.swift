@@ -58,6 +58,7 @@ public struct CLError: LocalizedError {
     line: UInt = #line
   ) -> Never {
     var expandedMessage = "OpenCL error: \(message())"
+    // Should this be `.localizedDescription` instead?
     if let desc = CLError.latest?.errorDescription {
       expandedMessage += "\n\(desc)"
     } else {

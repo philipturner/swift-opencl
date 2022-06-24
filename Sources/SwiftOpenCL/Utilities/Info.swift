@@ -15,13 +15,13 @@ typealias GetInfoClosure = (
 
 // Force-inline this.
 func getInfo_Bool(_ name: Int32, _ callGetInfo: GetInfoClosure) -> Bool? {
-  var output = false
   // cl_bool is a typealias of `UInt32`, which is 4 bytes.
+  var output: cl_bool = 0
   let err = callGetInfo(UInt32(name), MemoryLayout<cl_bool>.stride, &output, nil)
   guard CLError.setCode(err) else {
     return nil
   }
-  return output
+  return output != 0
 }
 
 // Force-inline this.
@@ -46,7 +46,7 @@ func getInfo_CLMacro<T: CLMacro>(
   return T(rawValue: rawValue)
 }
 
-func getInfo_ReferenceCountable<T: CLReferenceCountable>(
+func getInfo_CLReferenceCountable<T: CLReferenceCountable>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> T? {
   var value: OpaquePointer? = nil
@@ -166,7 +166,7 @@ func getInfo_CLSize(_ name: Int32, _ getInfo: GetInfoClosure) -> CLSize? {
   return output
 }
 
-func getInfo_ArrayOfReferenceCountable<T: CLReferenceCountable>(
+func getInfo_ArrayOfCLReferenceCountable<T: CLReferenceCountable>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> [T]? {
   var required = 0

@@ -28,11 +28,11 @@ extension CLKernel {
   }
   
   public var context: CLContext? {
-    getInfo_ReferenceCountable(CL_KERNEL_CONTEXT, getInfo)
+    getInfo_CLReferenceCountable(CL_KERNEL_CONTEXT, getInfo)
   }
   
   public var program: CLProgram? {
-    getInfo_ReferenceCountable(CL_KERNEL_PROGRAM, getInfo)
+    getInfo_CLReferenceCountable(CL_KERNEL_PROGRAM, getInfo)
   }
   
   // OpenCL 1.2

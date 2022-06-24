@@ -127,11 +127,11 @@ extension CLCommandQueue {
   // OpenCL 1.0
   
   public var context: CLContext? {
-    getInfo_ReferenceCountable(CL_QUEUE_CONTEXT, getInfo)
+    getInfo_CLReferenceCountable(CL_QUEUE_CONTEXT, getInfo)
   }
   
   public var device: CLDevice? {
-    getInfo_ReferenceCountable(CL_QUEUE_DEVICE, getInfo)
+    getInfo_CLReferenceCountable(CL_QUEUE_DEVICE, getInfo)
   }
   
   public var referenceCount: UInt32? {

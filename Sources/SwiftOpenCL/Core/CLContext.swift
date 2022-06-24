@@ -123,7 +123,7 @@ extension CLContext {
   }
   
   public var devices: [CLDevice]? {
-    getInfo_ArrayOfReferenceCountable(CL_CONTEXT_DEVICES, getInfo)
+    getInfo_ArrayOfCLReferenceCountable(CL_CONTEXT_DEVICES, getInfo)
   }
   
   public var properties: [CLContextProperties]? {
