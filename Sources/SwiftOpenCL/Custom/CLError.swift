@@ -27,15 +27,15 @@ public struct CLError: LocalizedError {
   private var storage: Storage
   
   @inline(never)
-  init(code: Int32, message: String?) {
+  public init(code: Int32, message: String?) {
     storage = Storage(code: code, message: message)
   }
   
-  var code: Int32 {
+  public var code: Int32 {
     get { storage.code }
     set { storage.code = newValue }
   }
-  var message: String? {
+  public var message: String? {
     get { storage.message }
     set { storage.message = newValue }
   }

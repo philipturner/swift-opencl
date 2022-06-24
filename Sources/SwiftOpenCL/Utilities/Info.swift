@@ -80,10 +80,12 @@ func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
   return localData
 }
 
-// TODO: Evaluate whether manually null-terminating is really necessary.
+// The OpenCL 3.0 specification says each name string is null-terminated, with a
+// maximum of 63 characters.
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 func getInfo_ArrayOfCLNameVersion(
   _ name: Int32, _ getInfo: GetInfoClosure
-) -> [(cl_version, String)]? {
+) -> [CLNameVersion]? {
   var required = 0
   var err = getInfo(UInt32(name), 0, nil, &required)
   guard CLError.setCode(err) else {
@@ -94,33 +96,30 @@ func getInfo_ArrayOfCLNameVersion(
   precondition(required % elementStride == 0,
     "`required` was not a multiple of \(elementStride).")
   
-  // Leave one more byte for manually null-terminating.
-  // TODO: Use `withUnsafeTemporaryAllocation`
-  let value: UnsafeMutableRawPointer = malloc(required + 1)!
-  defer { value.deallocate() }
-  err = getInfo(UInt32(name), required, value, nil)
-  guard CLError.setCode(err) else {
-    return nil
-  }
-  
-  var output: [(cl_version, String)] = []
-  output.reserveCapacity(elements)
-  var byteStream = value.assumingMemoryBound(to: Int8.self)
-  for _ in 0..<elements {
-    // Ensure C-style string is null-terminated.
-    let overwrittenChar = byteStream[64]
-    defer {
-      byteStream[64] = overwrittenChar
-      byteStream += 64
+  return withUnsafeTemporaryAllocation(
+    byteCount: required, alignment: MemoryLayout<cl_version>.stride
+  ) { bufferPointer in
+    var value = bufferPointer.baseAddress.unsafelyUnwrapped.assumingMemoryBound(
+      to: Int8.self)
+    err = getInfo(UInt32(name), required, value, nil)
+    guard CLError.setCode(err) else {
+      return nil
     }
-    byteStream[64] = 0
     
-    let version = UnsafeRawPointer(byteStream)
-      .assumingMemoryBound(to: cl_version.self).pointee
-    let name = String(cString: byteStream + 4 /* cl_version is UInt32 */)
-    output.append((version, name))
+    var output: [CLNameVersion] = []
+    output.reserveCapacity(elements)
+    for _ in 0..<elements {
+      defer {
+        value += elementStride
+      }
+      let rawVersion = UnsafeRawPointer(value).assumingMemoryBound(
+        to: cl_version.self).pointee
+      let version = CLVersion(version: rawVersion)
+      let name = String(cString: value + MemoryLayout<cl_version>.stride)
+      output.append(CLNameVersion(version: version, name: name))
+    }
+    return output
   }
-  return output
 }
 
 func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {

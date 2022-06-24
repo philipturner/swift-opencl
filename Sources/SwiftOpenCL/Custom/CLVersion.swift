@@ -40,6 +40,17 @@ public struct CLVersion: Comparable {
   }
 }
 
+public struct CLNameVersion {
+  public var version: CLVersion
+  public var name: String
+  
+  @_transparent
+  public init(version: CLVersion, name: String) {
+    self.version = version
+    self.name = name
+  }
+}
+
 // I wish I could pass the Swift wrapper types into the functions, but that is
 // not possible inside the initializer of one of those wrappers (e.g.
 // `CLDevice.init`). Also, the extension after this processes the raw
@@ -136,7 +147,44 @@ extension CLVersion {
   }
 }
 
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 extension CLVersion {
-  // init(rawCLVersion: cl_version)
-  // var rawCLVersion: cl_version
+  @usableFromInline static let majorBits = 10
+  @usableFromInline static let minorBits = 10
+  @usableFromInline static let patchBits = 12
+  
+  @usableFromInline static let majorMask: UInt32 = 1 << majorBits - 1
+  @usableFromInline static let minorMask: UInt32 = 1 << minorBits - 1
+  @usableFromInline static let patchMask: UInt32 = 1 << patchBits - 1
+  
+  @inlinable
+  init(version: cl_version) {
+    major = version
+    minor = version
+    var patch = version
+    
+    // Vectorize the bitwise AND.
+    major &= Self.majorMask << (Self.minorBits + Self.patchBits)
+    minor &= Self.minorMask << Self.patchBits
+    patch &= Self.patchMask
+    
+    major >>= Self.minorBits + Self.patchBits
+    minor >>= Self.patchBits
+    self.patch = patch
+  }
+  
+  @inlinable
+  var version: cl_version {
+    // Unwrapping of `patch` could induce a 1-cycle overhead, so waiting to
+    // vectorize until later.
+    var majorMask = major << (Self.minorBits + Self.patchBits)
+    var minorMask = minor << Self.patchBits
+    var patchMask = patch ?? 0
+    
+    // Vectorize the bitwise AND.
+    majorMask &= Self.majorMask << (Self.minorBits + Self.patchBits)
+    minorMask &= Self.minorMask << Self.patchBits
+    patchMask &= Self.patchMask
+    return majorMask | minorMask | patchMask
+  }
 }

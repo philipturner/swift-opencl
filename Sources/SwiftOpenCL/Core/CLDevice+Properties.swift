@@ -493,15 +493,19 @@ extension CLDevice {
 extension CLDevice {
   // TODO: Come up with a better way to express `cl_version`. Give the tuples
   // element labels if I use tuples in the final design.
-  public var numericVersion: cl_version? {
+  public var numericVersion: CLVersion? {
     let name: Int32 = 0x105E
     #if !canImport(Darwin)
     assert(CL_DEVICE_NUMERIC_VERSION == name)
     #endif
-    return getInfo_Int(name, getInfo)
+    if let rawVersion: cl_version = getInfo_Int(name, getInfo) {
+      return CLVersion(version: rawVersion)
+    } else {
+      return nil
+    }
   }
   
-  public var extensionsWithVersion: [(cl_version, String)]? {
+  public var extensionsWithVersion: [CLNameVersion]? {
     let name: Int32 = 0x1060
     #if !canImport(Darwin)
     assert(CL_DEVICE_EXTENSIONS_WITH_VERSION == name)
@@ -509,7 +513,7 @@ extension CLDevice {
     return getInfo_ArrayOfCLNameVersion(name, getInfo)
   }
   
-  public var ilsWithVersion: [(cl_version, String)]? {
+  public var ilsWithVersion: [CLNameVersion]? {
     let name: Int32 = 0x1061
     #if !canImport(Darwin)
     assert(CL_DEVICE_ILS_WITH_VERSION == name)
@@ -517,7 +521,7 @@ extension CLDevice {
     return getInfo_ArrayOfCLNameVersion(name, getInfo)
   }
   
-  public var builtInKernelsWithVersion: [(cl_version, String)]? {
+  public var builtInKernelsWithVersion: [CLNameVersion]? {
     let name: Int32 = 0x1062
     #if !canImport(Darwin)
     assert(CL_DEVICE_BUILT_IN_KERNELS_WITH_VERSION == name)
@@ -549,7 +553,7 @@ extension CLDevice {
     return getInfo_Bool(name, getInfo)
   }
   
-  public var openclCAllVersions: [(cl_version, String)]? {
+  public var openclCAllVersions: [CLNameVersion]? {
     let name: Int32 = 0x1066
     #if !canImport(Darwin)
     assert(CL_DEVICE_OPENCL_C_ALL_VERSIONS == name)
@@ -581,7 +585,7 @@ extension CLDevice {
     return getInfo_Bool(name, getInfo)
   }
   
-  public var openclCFeatures: [(cl_version, String)]? {
+  public var openclCFeatures: [CLNameVersion]? {
     let name: Int32 = 0x106F
     #if !canImport(Darwin)
     assert(CL_DEVICE_OPENCL_C_FEATURES == name)
