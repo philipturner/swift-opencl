@@ -25,7 +25,7 @@ SwiftOpenCL renames the following words in OpenCL macros:
 
 ## Tips
 
-Most properties of OpenCL types take a non-negligible time to retrieve, making multiple function calls under the hood. When possible, retrieve them once and reuse the retrieved value.
+Most properties of OpenCL types take a non-negligible time to retrieve, making multiple function calls under the hood. When possible, retrieve them once and reuse the retrieved value. This rule of thumb may also apply to using Metal.
 
 ```swift
 // ❌
