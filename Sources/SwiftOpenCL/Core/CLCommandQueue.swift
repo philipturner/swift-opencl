@@ -10,5 +10,4 @@ func CLCommandQueue_init(
   properties: CLCommandQueueProperties
 ) {
   _ = properties.rawValue
-  fatalError()
 }

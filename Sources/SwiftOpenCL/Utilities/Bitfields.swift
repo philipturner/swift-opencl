@@ -11,5 +11,3 @@ struct CLCommandQueueProperties: OptionSet  {
     self.rawValue = rawValue
   }
 }
-
-
