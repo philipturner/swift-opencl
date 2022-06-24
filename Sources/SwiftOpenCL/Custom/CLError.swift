@@ -5,8 +5,8 @@
 //  Created by Philip Turner on 5/16/22.
 //
 
-import Foundation
 import COpenCL
+import Foundation
 
 public struct CLError: LocalizedError {
   // Use reference counted storage to improve memory safety if SwiftOpenCL ever

@@ -68,6 +68,9 @@ public struct CLCommandQueue: CLReferenceCountable {
       // `UInt64`.
       #if canImport(Darwin)
       typealias cl_queue_properties = cl_queue_properties_APPLE
+      let CL_QUEUE_ON_DEVICE: Int32 = 1 << 2
+      let clCreateCommandQueueWithProperties =
+        clCreateCommandQueueWithPropertiesAPPLE
       #endif
       withUnsafeTemporaryAllocation(
         of: cl_queue_properties.self, capacity: 3
@@ -75,22 +78,11 @@ public struct CLCommandQueue: CLReferenceCountable {
         queue_properties[0] = cl_queue_properties(CL_QUEUE_PROPERTIES)
         queue_properties[1] = cl_queue_properties(properties.rawValue)
         queue_properties[2] = 0
-        #if canImport(Darwin)
-        let CL_QUEUE_ON_DEVICE: Int32 = 1 << 2
-        #endif
+        
         if properties.rawValue & UInt64(CL_QUEUE_ON_DEVICE) == 0 {
-          #if canImport(Darwin)
-          let clCreateCommandQueueWithProperties =
-            clCreateCommandQueueWithPropertiesAPPLE
-          #endif
           object_ = clCreateCommandQueueWithProperties(
             context.context, device.deviceID, queue_properties.baseAddress,
             &error)
-          // On macOS, `cl_queue_properties` is `Int`. Everywhere else, it is
-          // `UInt64`.
-          #if canImport(Darwin)
-          typealias cl_queue_properties = cl_queue_properties_APPLE
-          #endif
         } else {
           error = CL_INVALID_QUEUE_PROPERTIES
         }
@@ -102,7 +94,7 @@ public struct CLCommandQueue: CLReferenceCountable {
     } else {
       #if !canImport(Darwin)
       object_ = clCreateCommandQueue(
-        context.context, device.deviceID, properties, &error)
+        context.context, device.deviceID, properties.rawValue, &error)
       let message = "__CREATE_COMMAND_QUEUE_ERR"
       guard CLError.setCode(error, message) else {
         return nil

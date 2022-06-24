@@ -16,7 +16,7 @@ extension CLMacro {
 
 public struct CLDeviceFloatingPointConfig: CLMacro {
   public let rawValue: cl_device_fp_config
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_device_fp_config) {
     self.rawValue = rawValue
   }
   
@@ -33,7 +33,7 @@ public struct CLDeviceFloatingPointConfig: CLMacro {
 
 public struct CLDeviceMemoryCacheType: CLMacro {
   public let rawValue: cl_device_mem_cache_type
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_device_mem_cache_type) {
     self.rawValue = rawValue
   }
   
@@ -44,7 +44,7 @@ public struct CLDeviceMemoryCacheType: CLMacro {
 
 public struct CLDeviceLocalMemoryType: CLMacro {
   public let rawValue: cl_device_local_mem_type
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_device_local_mem_type) {
     self.rawValue = rawValue
   }
   
@@ -54,7 +54,7 @@ public struct CLDeviceLocalMemoryType: CLMacro {
 
 public struct CLDeviceExecutionCapabilities: CLMacro {
   public let rawValue: cl_device_exec_capabilities
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_device_exec_capabilities) {
     self.rawValue = rawValue
   }
   
@@ -65,7 +65,7 @@ public struct CLDeviceExecutionCapabilities: CLMacro {
 public struct CLCommandQueueProperties: CLMacro {
   // `cl_command_queue_properties` is not defined until OpenCL 2.0.
   public let rawValue: cl_command_queue_properties
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_command_queue_properties) {
     self.rawValue = rawValue
   }
   
@@ -81,7 +81,7 @@ public struct CLCommandQueueProperties: CLMacro {
 
 public struct CLContextProperties: CLMacro {
   public let rawValue: cl_context_properties
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_context_properties) {
     self.rawValue = rawValue
   }
   
@@ -91,7 +91,7 @@ public struct CLContextProperties: CLMacro {
 
 public struct CLDevicePartitionProperty: CLMacro {
   public let rawValue: cl_device_partition_property
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_device_partition_property) {
     self.rawValue = rawValue
   }
   
@@ -105,7 +105,7 @@ public struct CLDevicePartitionProperty: CLMacro {
 
 public struct CLDeviceAffinityDomain: CLMacro {
   public let rawValue: cl_device_affinity_domain
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_device_affinity_domain) {
     self.rawValue = rawValue
   }
   
@@ -121,7 +121,7 @@ public struct CLDeviceAffinityDomain: CLMacro {
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public struct CLDeviceSVMCapabilities: CLMacro {
   public let rawValue: cl_device_svm_capabilities
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_device_svm_capabilities) {
     self.rawValue = rawValue
   }
   
@@ -133,7 +133,7 @@ public struct CLDeviceSVMCapabilities: CLMacro {
 
 public struct CLMemoryFlags: CLMacro {
   public let rawValue: cl_mem_flags
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_mem_flags) {
     self.rawValue = rawValue
   }
   
@@ -157,7 +157,7 @@ public struct CLMemoryFlags: CLMacro {
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public struct CLSVMMemoryFlags: CLMacro {
   public let rawValue: cl_svm_mem_flags
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_svm_mem_flags) {
     self.rawValue = rawValue
   }
   
@@ -170,7 +170,7 @@ public struct CLSVMMemoryFlags: CLMacro {
 
 public struct CLMemoryMigrationFlags: CLMacro {
   public let rawValue: cl_mem_migration_flags
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_mem_migration_flags) {
     self.rawValue = rawValue
   }
   
@@ -181,7 +181,7 @@ public struct CLMemoryMigrationFlags: CLMacro {
 
 public struct CLChannelOrder: CLMacro {
   public let rawValue: cl_channel_order
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_channel_order) {
     self.rawValue = rawValue
   }
   
@@ -241,7 +241,7 @@ public struct CLChannelOrder: CLMacro {
 
 public struct CLChannelType: CLMacro {
   public let rawValue: cl_channel_type
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_channel_type) {
     self.rawValue = rawValue
   }
   
@@ -268,7 +268,7 @@ public struct CLChannelType: CLMacro {
 
 public struct CLMemoryObjectType: CLMacro {
   public let rawValue: cl_mem_object_type
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_mem_object_type) {
     self.rawValue = rawValue
   }
   
@@ -286,7 +286,7 @@ public struct CLMemoryObjectType: CLMacro {
 
 public struct CLAddressingMode: CLMacro {
   public let rawValue: cl_addressing_mode
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_addressing_mode) {
     self.rawValue = rawValue
   }
   
@@ -299,7 +299,7 @@ public struct CLAddressingMode: CLMacro {
 
 public struct CLFilterMode: CLMacro {
   public let rawValue: cl_filter_mode
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_filter_mode) {
     self.rawValue = rawValue
   }
   
@@ -309,7 +309,7 @@ public struct CLFilterMode: CLMacro {
 
 public struct CLMapFlags: CLMacro {
   public let rawValue: cl_map_flags
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_map_flags) {
     self.rawValue = rawValue
   }
   
@@ -320,7 +320,7 @@ public struct CLMapFlags: CLMacro {
 
 public struct CLProgramBinaryType: CLMacro {
   public let rawValue: cl_program_binary_type
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_program_binary_type) {
     self.rawValue = rawValue
   }
   
@@ -333,7 +333,7 @@ public struct CLProgramBinaryType: CLMacro {
 
 public struct CLBuildStatus: CLMacro {
   public let rawValue: cl_build_status
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_build_status) {
     self.rawValue = rawValue
   }
   
@@ -345,7 +345,7 @@ public struct CLBuildStatus: CLMacro {
 
 public struct CLKernelArgumentAddressQualifier: CLMacro {
   public let rawValue: cl_kernel_arg_address_qualifier
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_kernel_arg_address_qualifier) {
     self.rawValue = rawValue
   }
   
@@ -357,7 +357,7 @@ public struct CLKernelArgumentAddressQualifier: CLMacro {
 
 public struct CLKernelArgumentAccessQualifier: CLMacro {
   public let rawValue: cl_kernel_arg_access_qualifier
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_kernel_arg_access_qualifier) {
     self.rawValue = rawValue
   }
   
@@ -369,7 +369,7 @@ public struct CLKernelArgumentAccessQualifier: CLMacro {
 
 public struct CLKernelArgumentTypeQualifier: CLMacro {
   public let rawValue: cl_kernel_arg_type_qualifier
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_kernel_arg_type_qualifier) {
     self.rawValue = rawValue
   }
   
@@ -384,7 +384,7 @@ public struct CLKernelArgumentTypeQualifier: CLMacro {
 
 public struct CLCommandType: CLMacro {
   public let rawValue: cl_command_type
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_command_type) {
     self.rawValue = rawValue
   }
   
@@ -408,12 +408,9 @@ public struct CLCommandType: CLMacro {
   public static let marker = Self(CL_COMMAND_MARKER)
   public static let acquireGLObjects = Self(CL_COMMAND_ACQUIRE_GL_OBJECTS)
   public static let releaseGLObjects = Self(CL_COMMAND_RELEASE_GL_OBJECTS)
-  public static let readBufferRectangularRegion = Self(
-    CL_COMMAND_READ_BUFFER_RECT)
-  public static let writeBufferRectangularRegion = Self(
-    CL_COMMAND_WRITE_BUFFER_RECT)
-  public static let copyBufferRectangularRegion = Self(
-    CL_COMMAND_COPY_BUFFER_RECT)
+  public static let readBufferRectangle = Self(CL_COMMAND_READ_BUFFER_RECT)
+  public static let writeBufferRectangle = Self(CL_COMMAND_WRITE_BUFFER_RECT)
+  public static let copyBufferRectangle = Self(CL_COMMAND_COPY_BUFFER_RECT)
   public static let user = Self(CL_COMMAND_USER)
   public static let barrier = Self(CL_COMMAND_BARRIER)
   public static let migrateMemoryObjects = Self(CL_COMMAND_MIGRATE_MEM_OBJECTS)
@@ -444,7 +441,7 @@ public struct CLCommandType: CLMacro {
 // or `internal`?
 public struct CLCommandExecutionStatus: CLMacro {
   public let rawValue: Int32
-  public init(rawValue: RawValue) {
+  public init(rawValue: Int32) {
     self.rawValue = rawValue
   }
   
@@ -456,7 +453,7 @@ public struct CLCommandExecutionStatus: CLMacro {
 
 public struct CLBufferCreateType: CLMacro {
   public let rawValue: cl_buffer_create_type
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_buffer_create_type) {
     self.rawValue = rawValue
   }
   
@@ -466,7 +463,7 @@ public struct CLBufferCreateType: CLMacro {
 @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 public struct CLDeviceAtomicCapabilities: CLMacro {
   public let rawValue: cl_device_atomic_capabilities
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_device_atomic_capabilities) {
     self.rawValue = rawValue
   }
   
@@ -487,7 +484,7 @@ public struct CLDeviceAtomicCapabilities: CLMacro {
 @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 public struct CLDeviceDeviceEnqueueCapabilities: CLMacro {
   public let rawValue: cl_device_device_enqueue_capabilities
-  public init(rawValue: RawValue) {
+  public init(rawValue: cl_device_device_enqueue_capabilities) {
     self.rawValue = rawValue
   }
   

@@ -20,7 +20,7 @@ SwiftOpenCL renames the following words in OpenCL macros:
 - "FP" to "FloatingPoint"
 - "Mem" to "Memory"
 - "Ptr" to "Pointer"
-- "Rect" to "RectangularRegion"
+- "Rect" to "Rectangle"
 
 ## Tips
 
