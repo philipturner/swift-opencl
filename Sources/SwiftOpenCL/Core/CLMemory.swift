@@ -31,3 +31,16 @@ public struct CLMemory: CLReferenceCountable {
     clReleaseMemObject(object)
   }
 }
+
+extension CLMemory {
+  @inline(__always)
+  private var getInfo: GetInfoClosure {
+    { clGetMemObjectInfo(wrapper.object, $0, $1, $2, $3) }
+  }
+  
+  // OpenCL 1.0
+  
+  public var type: CLMemoryObjectType? {
+    getInfo_CLMacro(CL_MEM_TYPE, getInfo)
+  }
+}
