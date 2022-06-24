@@ -41,8 +41,8 @@ public struct CLContext: CLReferenceCountable {
     return withUnsafeTemporaryAllocation(
       of: cl_context_properties.self, capacity: 3
     ) { properties in
-      properties[0] = Int(CL_CONTEXT_PLATFORM)
-      properties[1] = Int(bitPattern: defaultPlatform)
+      properties[0] = cl_context_properties(CL_CONTEXT_PLATFORM)
+      properties[1] = cl_context_properties(bitPattern: defaultPlatform)
       properties[2] = 0
       return CLContext(
         type: UInt64(CL_DEVICE_TYPE_DEFAULT),
@@ -55,6 +55,9 @@ public struct CLContext: CLReferenceCountable {
     #endif
   }()
   
+  // Convert to a more Swift-friendly function, which uses `CLContextProperties`
+  // instead of `cl_context_properties`. Also, change `notifyFptr` to
+  // `callback`.
   public init?(
     devices: [CLDevice],
     properties: UnsafePointer<cl_context_properties>? = nil,
@@ -123,7 +126,7 @@ extension CLContext {
     getInfo_ArrayOfReferenceCountable(CL_CONTEXT_DEVICES, getInfo)
   }
   
-  public var properties: [cl_context_properties]? {
+  public var properties: [CLContextProperties]? {
     getInfo_Array(CL_CONTEXT_PROPERTIES, getInfo)
   }
   

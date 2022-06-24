@@ -36,6 +36,16 @@ func getInfo_Int<T: BinaryInteger>(
   return output
 }
 
+func getInfo_CLMacro<T: CLMacro>(
+  _ name: Int32, _ getInfo: GetInfoClosure
+) -> T? {
+  let rawValue: T.RawValue? = getInfo_Int(name, getInfo)
+  guard let rawValue = rawValue else {
+    return nil
+  }
+  return T(rawValue: rawValue)
+}
+
 func getInfo_ReferenceCountable<T: CLReferenceCountable>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> T? {

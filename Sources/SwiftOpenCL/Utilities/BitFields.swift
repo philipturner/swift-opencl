@@ -14,6 +14,19 @@ extension CLMacro {
   }
 }
 
+public struct CLDeviceType: CLMacro {
+  public let rawValue: cl_device_type
+  public init(rawValue: cl_device_type) {
+    self.rawValue = rawValue
+  }
+  
+  public static let `default` = Self(CL_DEVICE_TYPE_DEFAULT)
+  public static let cpu = Self(CL_DEVICE_TYPE_CPU)
+  public static let gpu = Self(CL_DEVICE_TYPE_GPU)
+  public static let accelerator = Self(CL_DEVICE_TYPE_ACCELERATOR)
+  public static let custom = Self(CL_DEVICE_TYPE_CUSTOM)
+}
+
 public struct CLDeviceFloatingPointConfig: CLMacro {
   public let rawValue: cl_device_fp_config
   public init(rawValue: cl_device_fp_config) {

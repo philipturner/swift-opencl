@@ -15,8 +15,8 @@ extension CLDevice {
   
   // OpenCL 1.0
   
-  public var type: cl_device_type? {
-    getInfo_Int(CL_DEVICE_TYPE, getInfo)
+  public var type: CLDeviceType? {
+    getInfo_CLMacro(CL_DEVICE_TYPE, getInfo)
   }
   
   public var vendorID: UInt32? {

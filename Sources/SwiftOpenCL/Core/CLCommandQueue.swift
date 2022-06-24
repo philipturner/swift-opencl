@@ -138,7 +138,7 @@ extension CLCommandQueue {
     getInfo_Int(CL_QUEUE_REFERENCE_COUNT, getInfo)
   }
   
-  public var properties: cl_command_queue_properties? {
-    getInfo_Int(CL_QUEUE_PROPERTIES, getInfo)
+  public var properties: CLCommandQueueProperties? {
+    getInfo_CLMacro(CL_QUEUE_PROPERTIES, getInfo)
   }
 }

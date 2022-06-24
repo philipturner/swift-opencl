@@ -64,7 +64,7 @@ public struct CLUserEvent {
   public var clEvent: CLEvent
   
   /// `CLUserEvent` is a subset of `CLEvent`. The first parameter is unsafe
-  /// because it cannot be checked internally to ensure it is a user event.
+  // because it cannot be checked internally to ensure it is a user event.
   public init(unsafeCLEvent clEvent: CLEvent) {
     self.clEvent = clEvent
   }
