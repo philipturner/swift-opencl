@@ -6,9 +6,9 @@
 //
 
 // Must be in another file
-public func CLCommandQueue_init(
+func CLCommandQueue_init(
   properties: CLCommandQueueProperties
 ) {
-  _ = Int(properties.rawValue)
+  _ = properties.rawValue
   fatalError()
 }
