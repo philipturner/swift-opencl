@@ -80,6 +80,7 @@ func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
   return localData
 }
 
+// TODO: Evaluate whether manually null-terminating is really necessary.
 func getInfo_ArrayOfCLNameVersion(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> [(cl_version, String)]? {

@@ -241,23 +241,30 @@ extension CLProgram {
     try throwBuildCode(buildError, "__COMPILE_PROGRAM_ERR")
   }
   
-  public func createKernels() throws -> [CLKernel] {
+  public func createKernels() -> [CLKernel]? {
     var numKernels: UInt32 = 0
     var err = clCreateKernelsInProgram(wrapper.object, 0, nil, &numKernels)
-    try CLError.throwCode(err, "__CREATE_KERNELS_IN_PROGRAM_ERR")
+    guard CLError.setCode(err, "__CREATE_KERNELS_IN_PROGRAM_ERR") else {
+      return nil
+    }
     
     let value: UnsafeMutablePointer<cl_kernel?> = .allocate(
       capacity: Int(numKernels))
     defer { value.deallocate() }
     err = clCreateKernelsInProgram(wrapper.object, numKernels, value, nil)
-    try CLError.throwCode(err, "__CREATE_KERNELS_IN_PROGRAM_ERR")
-    
-    return try (0..<Int(numKernels)).map { i -> CLKernel in
-      guard let kernel = CLKernel(value[i]!, retain: false) else {
-        throw CLError.latest!
-      }
-      return kernel
+    guard CLError.setCode(err, "__CREATE_KERNELS_IN_PROGRAM_ERR") else {
+      return nil
     }
+    
+    var kernels: [CLKernel] = []
+    kernels.reserveCapacity(Int(numKernels))
+    for i in 0..<Int(numKernels) {
+      guard let kernel = CLKernel(value[i]!, retain: false) else {
+        return nil
+      }
+      kernels.append(kernel)
+    }
+    return kernels
   }
   
   #if !canImport(Darwin)
