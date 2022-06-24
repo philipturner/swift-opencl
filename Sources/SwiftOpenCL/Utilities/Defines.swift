@@ -7,13 +7,29 @@
 
 import COpenCL
 
-// TODO: Mark these defines as unavailable in certain versions of macOS.
-
 #if canImport(Darwin)
-public typealias cl_command_queue_properties = cl_bitfield
+// Fundamental typedefs (alphabetical order)
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+public typealias cl_properties = cl_ulong
+
+// Second-level typedefs (alphabetical order)
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 public typealias cl_device_atomic_capabilities = cl_bitfield
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 public typealias cl_device_device_enqueue_capabilities = cl_bitfield
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public typealias cl_device_svm_capabilities = cl_bitfield
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+public typealias cl_mem_properties = cl_properties
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public typealias cl_svm_mem_flags = cl_bitfield
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 public typealias cl_version = cl_uint
 #endif

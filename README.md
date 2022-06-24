@@ -27,3 +27,18 @@ SwiftOpenCL renames the following words in OpenCL macros:
 
 `CLError` produces a name collision with Apple’s CoreLocation, but you can just use `CoreLocation.CLError` and `SwiftOpenCL.CLError` explicitly.
 
+Most properties of OpenCL types take a non-negligible time to retrieve, involving several function calls under-the-hood. When possible, retrieve them once and reuse the retrieved value.
+
+```swift
+// ❌
+func inList(device: CLDevice, names: [String]) -> Bool {
+  // Fetches the device name on potentially every iteration through `names`.
+  names.contains(where: { $0 == device.name })
+}
+
+// ✅
+func inList(device: CLDevice, names: [String]) -> Bool {
+  let deviceName = device.name
+  return names.contains(where: { $0 == deviceName })
+}
+```

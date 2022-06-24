@@ -76,7 +76,6 @@ public struct CLDeviceExecutionCapabilities: CLMacro {
 }
 
 public struct CLCommandQueueProperties: CLMacro {
-  // `cl_command_queue_properties` is not defined until OpenCL 2.0.
   public let rawValue: cl_command_queue_properties
   public init(rawValue: cl_command_queue_properties) {
     self.rawValue = rawValue
@@ -505,4 +504,14 @@ public struct CLDeviceDeviceEnqueueCapabilities: CLMacro {
   public static let replaceableDefault = Self(1 << 1)
 }
 
-// TODO: Implement `CL_MAKE_VERSION` and maybe the Swift type `CLVersion`.
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+public struct CLMemoryProperties: CLMacro {
+  public let rawValue: cl_mem_properties
+  public init(rawValue: cl_mem_properties) {
+    self.rawValue = rawValue
+  }
+  
+  // From the OpenCL 3.0 specification:
+  // "OpenCL 3.0 does not define any optional properties for buffers."
+  // "OpenCL 3.0 does not define any optional properties for images."
+}

@@ -14,10 +14,10 @@ typealias GetInfoClosure = (
   /*param_value_size_ret=*/UnsafeMutablePointer<Int>?) -> Int32
 
 @inline(__always)
-func getInfo_Bool(_ name: Int32, _ callGetInfo: GetInfoClosure) -> Bool? {
+func getInfo_Bool(_ name: Int32, _ getInfo: GetInfoClosure) -> Bool? {
   // cl_bool is a typealias of `UInt32`, which is 4 bytes.
   var output: cl_bool = 0
-  let err = callGetInfo(UInt32(name), MemoryLayout<cl_bool>.stride, &output, nil)
+  let err = getInfo(UInt32(name), MemoryLayout<cl_bool>.stride, &output, nil)
   guard CLError.setCode(err) else {
     return nil
   }

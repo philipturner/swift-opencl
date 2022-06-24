@@ -491,8 +491,6 @@ extension CLDevice {
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 extension CLDevice {
-  // TODO: Come up with a better way to express `cl_version`. Give the tuples
-  // element labels if I use tuples in the final design.
   public var numericVersion: CLVersion? {
     let name: Int32 = 0x105E
     #if !canImport(Darwin)
