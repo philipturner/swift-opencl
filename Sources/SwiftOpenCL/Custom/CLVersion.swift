@@ -7,7 +7,7 @@
 
 import COpenCL
 
-public struct CLVersion {
+public struct CLVersion: Comparable {
   // Using `UInt32` instead of `Int` to halve CPU register usage. Also, it's a
   // standard type to represent things across the OpenCL API. `cl_version` is
   // even a typealias of `UInt32`.
@@ -20,6 +20,23 @@ public struct CLVersion {
     self.major = major
     self.minor = minor
     self.patch = patch
+  }
+  
+  @inlinable
+  public static func < (lhs: CLVersion, rhs: CLVersion) -> Bool {
+    if lhs.major != rhs.major {
+      return lhs.major < rhs.major
+    }
+    if lhs.minor != rhs.minor {
+      return lhs.minor < rhs.minor
+    }
+    
+    // Not having a patch is considered being "0" of the patch. If one side has
+    // a patch and another doesn't, the versions will already be counted as not
+    // equal. So determine a convention for comparing them.
+    let lhsPatch = lhs.patch ?? 0
+    let rhsPatch = rhs.patch ?? 0
+    return lhsPatch < rhsPatch
   }
 }
 
@@ -94,69 +111,32 @@ extension CLVersion {
   // the two functions above.
   public init?(context: cl_context) {
     var size = 0
-    fatalError()
+    var error = clGetContextInfo(
+      context, UInt32(CL_CONTEXT_DEVICES), 0, nil, &size)
+    guard CLError.setCode(error),
+          size > 0 else {
+      return nil
+    }
+    let numDevices = size / MemoryLayout<cl_device_id?>.stride
+    
+    var deviceID: cl_device_id?
+    withUnsafeTemporaryAllocation(
+      of: cl_device_id?.self, capacity: numDevices
+    ) { bufferPointer in
+      let devices = bufferPointer.baseAddress.unsafelyUnwrapped
+      error = clGetContextInfo(
+        context, UInt32(CL_CONTEXT_DEVICES), size, devices, nil)
+      deviceID = devices[0]
+    }
+    guard CLError.setCode(error),
+          let deviceID = deviceID else {
+      return nil
+    }
+    self.init(deviceID: deviceID)
   }
 }
 
 extension CLVersion {
   // init(rawCLVersion: cl_version)
   // var rawCLVersion: cl_version
-}
-
-func getVersion(device: OpaquePointer) -> (major: Int, minor: Int) {
-  var platform: OpaquePointer?
-  clGetDeviceInfo(device, UInt32(CL_DEVICE_PLATFORM), Int.bitWidth, &platform,
-    nil)
-  return getVersion(platform: platform!)
-}
-
-func getVersion(context: OpaquePointer) -> (major: Int, minor: Int) {
-  // The platform cannot be queried directly, so we first have to grab a device
-  // and obtain its context
-  var size = 0
-  clGetContextInfo(context, UInt32(CL_CONTEXT_DEVICES), 0, nil, &size)
-  if (size == 0) {
-    return (0, 0)
-  }
-  
-  let devices: UnsafeMutablePointer<OpaquePointer> = .allocate(
-    capacity: size / Int.bitWidth)
-  defer { devices.deallocate() }
-  clGetContextInfo(context, UInt32(CL_CONTEXT_DEVICES), size, devices, nil)
-  return getVersion(device: devices[0])
-}
-
-func getVersion(info versionInfo: UnsafePointer<Int8>) -> (major: Int, minor: Int) {
-  // In these loops, each integer operation likely adds 1 cycle of overhead
-  // because Swift guards against overflows, unless you prefix the ops with "&".
-  // Memory accesses, integer multiplies, and the encapsulating function call
-  // could dwarf this 1-cycle overhead. Also, it's better to preserve the
-  // debugging advantages of overflow checking.
-  var highVersion = 0
-  var lowVersion = 0
-  var index = 7
-  while versionInfo[index] != 0x2E /* Unicode for '.' */ {
-    highVersion *= 10
-    highVersion += Int(versionInfo[index] - 0x30) /* Unicode for '0' */
-    index += 1
-  }
-  index += 1
-  while versionInfo[index] != 0x20 /* Unicode for ' ' */ &&
-        versionInfo[index] != 0x00 /* Unicode for '\0' */ {
-    lowVersion *= 10
-    lowVersion += Int(versionInfo[index] - 0x30) /* Unicode for '0' */
-    index += 1
-  }
-  return (highVersion, lowVersion)
-}
-
-func getVersion(platform: OpaquePointer) -> (major: Int, minor: Int) {
-  var size = 0
-  clGetPlatformInfo(platform, UInt32(CL_PLATFORM_VERSION), 0, nil, &size)
-  
-  let versionInfo: UnsafeMutablePointer<Int8> = .allocate(capacity: size)
-  defer { versionInfo.deallocate() }
-  clGetPlatformInfo(platform, UInt32(CL_PLATFORM_VERSION), size, versionInfo,
-    &size)
-  return getVersion(info: versionInfo)
 }

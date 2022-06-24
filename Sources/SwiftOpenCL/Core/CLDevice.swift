@@ -18,9 +18,10 @@ public struct CLDevice: CLReferenceCountable {
   public init?(_ deviceID: cl_device_id, retain: Bool = false) {
     var shouldRetain = false
     if retain {
-      let version = getVersion(device: deviceID)
-      // Needs OpenCL 1.2 or higher.
-      if version.major > 1 || version.minor >= 2 {
+      guard let version = CLVersion(deviceID: deviceID) else {
+        return nil
+      }
+      if version >= .init(major: 1, minor: 2) {
         shouldRetain = true
       }
     }
