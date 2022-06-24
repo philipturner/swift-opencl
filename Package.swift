@@ -15,13 +15,7 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "COpenCL",
-      dependencies: []),
-    .target(
       name: "SwiftOpenCL",
-      dependencies: ["COpenCL"]),
-    .testTarget(
-      name: "SwiftOpenCLTests",
-      dependencies: ["SwiftOpenCL"]),
+      dependencies: []),
   ]
 )
