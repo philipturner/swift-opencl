@@ -1,11 +1,22 @@
 //
-//  CLPlatformVersion.swift
+//  CLVersion.swift
 //  
 //
 //  Created by Philip Turner on 4/26/22.
 //
 
 import COpenCL
+
+// Merge this into `cl_version`.
+public struct CLVersion {
+  public var major: Int
+  public var minor: Int
+  public var patch: Int?
+  
+//  public init(major: Int, minor: Int, )
+}
+
+// Change these to initializers of `CLVersion`.
 
 func getVersion(info versionInfo: UnsafePointer<Int8>) -> (major: Int, minor: Int) {
   var highVersion = 0
@@ -17,7 +28,7 @@ func getVersion(info versionInfo: UnsafePointer<Int8>) -> (major: Int, minor: In
     index += 1
   }
   index += 1
-  while versionInfo[index] != Character(".").asciiValue! &&
+  while versionInfo[index] != Character(" ").asciiValue! &&
         versionInfo[index] != Character("\0").asciiValue! {
     lowVersion *= 10
     lowVersion += Character(.init(versionInfo[index])).wholeNumberValue!
