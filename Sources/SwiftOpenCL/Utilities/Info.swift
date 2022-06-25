@@ -17,7 +17,8 @@ typealias GetInfoClosure = (
 func getInfo_Bool(_ name: Int32, _ getInfo: GetInfoClosure) -> Bool? {
   // cl_bool is a typealias of `UInt32`, which is 4 bytes.
   var output: cl_bool = 0
-  let err = getInfo(UInt32(name), MemoryLayout<cl_bool>.stride, &output, nil)
+  let err = getInfo(
+    UInt32(name), MemoryLayout.stride(ofValue: output), &output, nil)
   guard CLError.setCode(err) else {
     return nil
   }
@@ -29,7 +30,8 @@ func getInfo_Int<T: BinaryInteger>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> T? {
   var output: T = 0
-  let err = getInfo(UInt32(name), MemoryLayout<T>.stride, &output, nil)
+  let err = getInfo(
+    UInt32(name), MemoryLayout.stride(ofValue: output), &output, nil)
   guard CLError.setCode(err) else {
     return nil
   }
@@ -52,7 +54,7 @@ func getInfo_CLReferenceCountable<T: CLReferenceCountable>(
 ) -> T? {
   var value: OpaquePointer? = nil
   let err = getInfo(
-    UInt32(name), MemoryLayout<OpaquePointer>.stride, &value, nil)
+    UInt32(name), MemoryLayout.stride(ofValue: value), &value, nil)
   guard CLError.setCode(err),
         let value = value else {
     return nil

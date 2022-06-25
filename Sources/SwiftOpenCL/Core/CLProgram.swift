@@ -275,7 +275,7 @@ extension CLProgram {
   ) throws {
     var ucValue = value.pointee ? UInt8.max : 0
     let error = clSetProgramSpecializationConstant(
-      wrapper.object, index, MemoryLayout<UInt8>.stride, &ucValue)
+      wrapper.object, index, MemoryLayout.stride(ofValue: ucValue), &ucValue)
     try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   
