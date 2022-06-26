@@ -51,21 +51,11 @@ public struct CLNameVersion {
   }
 }
 
-// I wish I could pass the Swift wrapper types into the functions, but that is
-// not possible inside the initializer of one of those wrappers (e.g.
-// `CLDevice.init`). Also, the extension after this processes the raw
-// `cl_version` integer. This at least creates a theme of initializing
-// `CLVersion` with raw C-side stuff.
-//
-// An alternative is creating two sets of initializers - one for the Swift
-// wrapper and one for the C type. That option creates ambiguity in
-// `.init(context:)`, but most importantly, nearly identical ways to accomplish
-// the same thing. That goes against the design principles of Swift.
 extension CLVersion {
-  public init?(platformID: cl_platform_id) {
+  public init?(clPlatformID: cl_platform_id) {
     var size = 0
     var error = clGetPlatformInfo(
-      platformID, UInt32(CL_PLATFORM_VERSION), 0, nil, &size)
+      clPlatformID, UInt32(CL_PLATFORM_VERSION), 0, nil, &size)
     guard CLError.setCode(error),
           size > 7 else {
       return nil
@@ -78,7 +68,7 @@ extension CLVersion {
     ) { bufferPointer in
       let versionInfo = bufferPointer.baseAddress.unsafelyUnwrapped
       error = clGetPlatformInfo(
-        platformID, UInt32(CL_PLATFORM_VERSION), size, versionInfo, nil)
+        clPlatformID, UInt32(CL_PLATFORM_VERSION), size, versionInfo, nil)
       
       // In these loops, each integer operation likely adds 1 cycle of overhead
       // because Swift guards against overflows, unless you prefix the ops with
@@ -104,46 +94,43 @@ extension CLVersion {
     }
   }
   
-  public init?(deviceID: cl_device_id) {
-    var platformID: cl_platform_id?
+  public init?(clDeviceID: cl_device_id) {
+    var clPlatformID: cl_platform_id?
     let error = clGetDeviceInfo(
-      deviceID, UInt32(CL_DEVICE_PLATFORM),
-      MemoryLayout.stride(ofValue: platformID), &platformID, nil)
+      clDeviceID, UInt32(CL_DEVICE_PLATFORM),
+      MemoryLayout.stride(ofValue: clPlatformID), &clPlatformID, nil)
     guard CLError.setCode(error),
-          let platformID = platformID else {
+          let clPlatformID = clPlatformID else {
       return nil
     }
-    self.init(platformID: platformID)
+    self.init(clPlatformID: clPlatformID)
   }
   
   /// Initialize with the raw C pointer to the context.
-  // The argument label may be ambiguous because it could imply that you pass a
-  // `CLContext`. However, I am following the naming convention established in
-  // the two functions above.
-  public init?(context: cl_context) {
+  public init?(clContext: cl_context) {
     var size = 0
     var error = clGetContextInfo(
-      context, UInt32(CL_CONTEXT_DEVICES), 0, nil, &size)
+      clContext, UInt32(CL_CONTEXT_DEVICES), 0, nil, &size)
     guard CLError.setCode(error),
           size > 0 else {
       return nil
     }
     let numDevices = size / MemoryLayout<cl_device_id?>.stride
     
-    var deviceID: cl_device_id?
+    var clDeviceID: cl_device_id?
     withUnsafeTemporaryAllocation(
       of: cl_device_id?.self, capacity: numDevices
     ) { bufferPointer in
       let devices = bufferPointer.baseAddress.unsafelyUnwrapped
       error = clGetContextInfo(
-        context, UInt32(CL_CONTEXT_DEVICES), size, devices, nil)
-      deviceID = devices[0]
+        clContext, UInt32(CL_CONTEXT_DEVICES), size, devices, nil)
+      clDeviceID = devices[0]
     }
     guard CLError.setCode(error),
-          let deviceID = deviceID else {
+          let clDeviceID = clDeviceID else {
       return nil
     }
-    self.init(deviceID: deviceID)
+    self.init(clDeviceID: clDeviceID)
   }
 }
 

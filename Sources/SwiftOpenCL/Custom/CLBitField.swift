@@ -224,11 +224,9 @@ public struct CLChannelOrder: CLMacro {
   // convention used elsewhere, but it doesn't. `sRGB` is one word, similar to
   // how `ReLU` and `OpenCL` are all one word. It looks wierd to put `reLU` and
   // `openCL`, so it's better to make them `relu` and `opencl`. Regarding
-  // "OpenCL C", another part of this API translated it `openclC`. This clearly
+  // "OpenCL C", other parts of this API translate it to `openclC`. This clearly
   // shows "opencl" came from one word and "C" came from another. The
   // alternative, `openCLC`, looks like something called "CLC" was very open.
-  // I'd love to learn about the "CLC" programming language; please show me the
-  // docs!
   //
   // Even worse, when translating "DirectX 12" to Swift, you could do
   // `directX12` instead of the lowercase `directx12`. Emphasis on the surprise
@@ -236,7 +234,7 @@ public struct CLChannelOrder: CLMacro {
   // backwards-compatible API. Meanwhile, "Metal 3" becomes the beautiful
   // `metal3` no matter what we do. This favoring of Apple's graphics libraries
   // would sabotage our already finite efforts to make Swift something taken
-  // seriously on Windows. Excellent work!
+  // seriously on Windows.
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   public static let srgb = Self(0x10BF)
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")

@@ -62,28 +62,28 @@ public struct CLEvent: CLReferenceCountable {
 }
 
 public struct CLUserEvent {
-  public var clEvent: CLEvent
+  public var event: CLEvent
   
   /// `CLUserEvent` is a subset of `CLEvent`. The first parameter is unsafe
   /// because it cannot be checked internally to ensure it is a user event.
   @_transparent
-  public init(unsafeCLEvent clEvent: CLEvent) {
-    self.clEvent = clEvent
+  public init(unsafeEvent event: CLEvent) {
+    self.event = event
   }
   
   public init?(context: CLContext) {
     var error: Int32 = CL_SUCCESS
-    let object_ = clCreateUserEvent(context.context, &error)
+    let object_ = clCreateUserEvent(context.clContext, &error)
     guard CLError.setCode(error, "__CREATE_USER_EVENT_ERR"),
           let object_ = object_,
-          let clEvent = CLEvent(object_) else {
+          let event = CLEvent(object_) else {
       return nil
     }
-    self.clEvent = clEvent
+    self.event = event
   }
   
   public mutating func setStatus(_ status: Int32) throws {
-    let error = clSetUserEventStatus(clEvent.event, status)
+    let error = clSetUserEventStatus(event.event, status)
     try CLError.throwCode(error, "__SET_USER_EVENT_STATUS_ERR")
   }
 }

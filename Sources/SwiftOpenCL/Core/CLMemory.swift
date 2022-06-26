@@ -12,11 +12,11 @@ public struct CLMemory: CLReferenceCountable {
   var wrapper: CLReferenceWrapper<Self>
   
   @_transparent
-  public var memory: cl_mem { wrapper.object }
+  public var clMemoryObject: cl_mem { wrapper.object }
   
   @inline(__always) // Force-inline this internally, but not externally.
-  public init?(_ memory: cl_mem, retain: Bool = false) {
-    guard let wrapper = CLReferenceWrapper<Self>(memory, retain) else {
+  public init?(_ clMemoryObject: cl_mem, retain: Bool = false) {
+    guard let wrapper = CLReferenceWrapper<Self>(clMemoryObject, retain) else {
       return nil
     }
     self.wrapper = wrapper

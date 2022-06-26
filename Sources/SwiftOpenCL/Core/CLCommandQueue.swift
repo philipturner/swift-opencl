@@ -12,11 +12,11 @@ public struct CLCommandQueue: CLReferenceCountable {
   var wrapper: CLReferenceWrapper<Self>
   
   @_transparent
-  public var commandQueue: cl_command_queue { wrapper.object }
+  public var clCommandQueue: cl_command_queue { wrapper.object }
   
   @inline(__always) // Force-inline this internally, but not externally.
-  public init?(_ commandQueue: cl_command_queue, retain: Bool = false) {
-    guard let wrapper = CLReferenceWrapper<Self>(commandQueue, retain) else {
+  public init?(_ clCommandQueue: cl_command_queue, retain: Bool = false) {
+    guard let wrapper = CLReferenceWrapper<Self>(clCommandQueue, retain) else {
       return nil
     }
     self.wrapper = wrapper
@@ -49,7 +49,7 @@ public struct CLCommandQueue: CLReferenceCountable {
     var error: Int32 = CL_SUCCESS
     var useWithProperties = false
     #if !canImport(Darwin)
-    if let version = CLVersion(context: context.context) {
+    if let version = CLVersion(clContext: context.clContext) {
       useWithProperties = version.major >= 2
     }
     #endif
@@ -69,7 +69,7 @@ public struct CLCommandQueue: CLReferenceCountable {
           error = CL_INVALID_QUEUE_PROPERTIES
         } else {
           object_ = clCreateCommandQueueWithProperties(
-            context.context, device.deviceID, queueProperties.baseAddress,
+            context.clContext, device.clDeviceID, queueProperties.baseAddress,
             &error)
         }
       }
@@ -80,7 +80,7 @@ public struct CLCommandQueue: CLReferenceCountable {
       #endif
     } else {
       object_ = clCreateCommandQueue(
-        context.context, device.deviceID, properties.rawValue, &error)
+        context.clContext, device.clDeviceID, properties.rawValue, &error)
       let message = "__CREATE_COMMAND_QUEUE_ERR"
       guard CLError.setCode(error, message) else {
         return nil
@@ -167,7 +167,7 @@ extension CLCommandQueue {
     assert(CL_QUEUE_DEVICE_DEFAULT == name)
     #endif
     if let queue: CLCommandQueue = getInfo_CLReferenceCountable(name, getInfo) {
-      return CLDeviceCommandQueue(unsafeCLCommandQueue: queue)
+      return CLDeviceCommandQueue(unsafeCommandQueue: queue)
     } else {
       return nil
     }

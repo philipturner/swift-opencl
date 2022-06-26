@@ -9,15 +9,15 @@ import COpenCL
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public struct CLDeviceCommandQueue {
-  public var clCommandQueue: CLCommandQueue
+  public var commandQueue: CLCommandQueue
   
   /// `CLDeviceCommandQueue` is a subset of `CLCommandQueue`. The first
   /// parameter is unsafe because it is not checked internally to ensure it is a
   /// device command queue. You can check it manually by querying
   /// `CLCommandQueue.propertiesArray`.
   @_transparent
-  public init(unsafeCLCommandQueue clCommandQueue: CLCommandQueue) {
-    self.clCommandQueue = clCommandQueue
+  public init(unsafeCommandQueue commandQueue: CLCommandQueue) {
+    self.commandQueue = commandQueue
   }
   
   public static func setDefault(
@@ -27,7 +27,7 @@ public struct CLDeviceCommandQueue {
   ) throws {
     #if !canImport(Darwin)
     let err = clSetDefaultDeviceCommandQueue(
-      context.context, device.deviceID, queue.clCommandQueue.commandQueue)
+      context.clContext, device.clDeviceID, queue.commandQueue.clCommandQueue)
     try CLError.throwCode(err, "__SET_DEFAULT_DEVICE_COMMAND_QUEUE_ERR")
     #endif
   }
@@ -55,7 +55,8 @@ public struct CLDeviceCommandQueue {
         queueProperties[3] = cl_queue_properties(queueSize)
         queueProperties[4] = 0
         object_ = clCreateCommandQueueWithProperties(
-          context.context, device.deviceID, queueProperties.baseAddress, &error)
+          context.clContext, device.clDeviceID, queueProperties.baseAddress,
+          &error)
       }
       #endif
     } else {
@@ -67,7 +68,8 @@ public struct CLDeviceCommandQueue {
         queueProperties[1] = cl_queue_properties(mergedProperties.rawValue)
         queueProperties[2] = 0
         object_ = clCreateCommandQueueWithProperties(
-          context.context, device.deviceID, queueProperties.baseAddress, &error)
+          context.clContext, device.clDeviceID, queueProperties.baseAddress,
+          &error)
       }
       #endif
     }
@@ -78,7 +80,7 @@ public struct CLDeviceCommandQueue {
           let queue = CLCommandQueue(object_) else {
       return nil
     }
-    self.init(unsafeCLCommandQueue: queue)
+    self.init(unsafeCommandQueue: queue)
   }
   
   // The following two initializers differ from the C++ bindings. Instead of

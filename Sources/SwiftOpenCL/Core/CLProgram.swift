@@ -13,11 +13,11 @@ public struct CLProgram: CLReferenceCountable {
   var wrapper: CLReferenceWrapper<Self>
   
   @_transparent
-  public var program: cl_program { wrapper.object }
+  public var clProgram: cl_program { wrapper.object }
   
   @inline(__always) // Force-inline this internally, but not externally.
-  public init?(_ program: cl_program, retain: Bool = false) {
-    guard let wrapper = CLReferenceWrapper<Self>(program, retain) else {
+  public init?(_ clProgram: cl_program, retain: Bool = false) {
+    guard let wrapper = CLReferenceWrapper<Self>(clProgram, retain) else {
       return nil
     }
     self.wrapper = wrapper
@@ -27,7 +27,7 @@ public struct CLProgram: CLReferenceCountable {
   static func retain(_ object: OpaquePointer) -> Int32 {
     clRetainProgram(object)
   }
-
+  
   @usableFromInline
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseProgram(object)
@@ -47,7 +47,7 @@ public struct CLProgram: CLReferenceCountable {
       var string = bufferPointer.baseAddress
       var length = bufferPointer.count
       object_ = clCreateProgramWithSource(
-        context.context, 1, &string, &length, &error)
+        context.clContext, 1, &string, &length, &error)
     }
     guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_SOURCE_ERR"),
           let object_ = object_ else {
@@ -86,7 +86,7 @@ public struct CLProgram: CLReferenceCountable {
       }
     }
     let object_ = clCreateProgramWithSource(
-      context.context, UInt32(n), &strings, &lengths, &error)
+      context.clContext, UInt32(n), &strings, &lengths, &error)
     guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_SOURCE_ERR"),
           let object_ = object_ else {
       return nil
@@ -113,8 +113,8 @@ public struct CLProgram: CLReferenceCountable {
     lengths.reserveCapacity(numDevices)
     var images: [UnsafePointer<UInt8>?] = []
     images.reserveCapacity(numDevices)
-    var deviceIDs: [cl_device_id?] = []
-    deviceIDs.reserveCapacity(numDevices)
+    var clDeviceIDs: [cl_device_id?] = []
+    clDeviceIDs.reserveCapacity(numDevices)
     
     for i in 0..<numDevices {
       let binary = binaries[i]
@@ -124,15 +124,15 @@ public struct CLProgram: CLReferenceCountable {
           bufferPointer.baseAddress.unsafelyUnwrapped
             .assumingMemoryBound(to: UInt8.self))
       }
-      deviceIDs.append(devices[i].deviceID)
+      clDeviceIDs.append(devices[i].clDeviceID)
     }
     
     var object_: cl_program?
     if usingBinaryStatus {
       binaryStatus = Array(repeating: 0, count: numDevices)
-      object_ = clCreateProgramWithBinary(context.context, UInt32(numDevices), deviceIDs, lengths, &images, &binaryStatus!, &error)
+      object_ = clCreateProgramWithBinary(context.clContext, UInt32(numDevices), clDeviceIDs, lengths, &images, &binaryStatus!, &error)
     } else {
-      object_ = clCreateProgramWithBinary(context.context, UInt32(numDevices), deviceIDs, lengths, &images, nil, &error)
+      object_ = clCreateProgramWithBinary(context.clContext, UInt32(numDevices), clDeviceIDs, lengths, &images, nil, &error)
     }
     
     guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_BINARY_ERR"),
@@ -168,9 +168,10 @@ public struct CLProgram: CLReferenceCountable {
   
   public init?(context: CLContext, devices: [CLDevice], kernelNames: String) {
     var error: Int32 = CL_SUCCESS
-    let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
+    let clDeviceIDs: [cl_device_id?] = devices.map(\.clDeviceID)
     let object_ = clCreateProgramWithBuiltInKernels(
-      context.context, UInt32(devices.count), deviceIDs, kernelNames, &error)
+      context.clContext, UInt32(devices.count), clDeviceIDs, kernelNames,
+      &error)
     
     let message = "__CREATE_PROGRAM_WITH_BUILT_IN_KERNELS_ERR"
     guard CLError.setCode(error, message),
@@ -197,9 +198,9 @@ extension CLProgram {
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil
   ) throws {
-    let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
+    let clDeviceIDs: [cl_device_id?] = devices.map(\.clDeviceID)
     let buildError = clBuildProgram(
-      wrapper.object, UInt32(devices.count), deviceIDs, options, notifyFptr,
+      wrapper.object, UInt32(devices.count), clDeviceIDs, options, notifyFptr,
       data)
     try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
   }
@@ -212,9 +213,9 @@ extension CLProgram {
       cl_program?, UnsafeMutableRawPointer?
     ) -> Void)? = nil
   ) throws {
-    var deviceID = Optional(device.deviceID)
+    var clDeviceID = Optional(device.clDeviceID)
     let buildError = clBuildProgram(
-      wrapper.object, 1, &deviceID, options, notifyFptr, data)
+      wrapper.object, 1, &clDeviceID, options, notifyFptr, data)
     try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
   }
   
@@ -314,12 +315,12 @@ extension CLProgram {
     
     let prog = withUnsafeTemporaryAllocation(
       of: cl_program?.self, capacity: 2
-    ) { programs -> cl_program? in
-      programs[0] = input1.program
-      programs[1] = input2.program
+    ) { clPrograms -> cl_program? in
+      clPrograms[0] = input1.clProgram
+      clPrograms[1] = input2.clProgram
       return clLinkProgram(
-        ctx.context, 0, nil, options, 2, programs.baseAddress, notifyFptr, data,
-        &error)
+        ctx.clContext, 0, nil, options, 2, clPrograms.baseAddress, notifyFptr,
+        data, &error)
     }
     guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
           let prog = prog else {
@@ -337,18 +338,18 @@ extension CLProgram {
     ) -> Void)? = nil
   ) -> CLProgram? {
     var error: Int32 = CL_SUCCESS
-    let programs: [cl_program?] = inputPrograms.map(\.program)
-    var context: cl_context?
+    let clPrograms: [cl_program?] = inputPrograms.map(\.clProgram)
+    var clContext: cl_context?
     if inputPrograms.count > 0 {
       guard let ctx = inputPrograms[0].context else {
         CLError.latest!.message = "__LINK_PROGRAM_ERR"
         return nil
       }
-      context = ctx.context
+      clContext = ctx.clContext
     }
     
     let prog = clLinkProgram(
-      context, 0, nil, options, UInt32(inputPrograms.count), programs,
+      clContext, 0, nil, options, UInt32(inputPrograms.count), clPrograms,
       notifyFptr, data, &error)
     guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
           let prog = prog else {

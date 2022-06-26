@@ -12,11 +12,11 @@ public struct CLContext: CLReferenceCountable {
   var wrapper: CLReferenceWrapper<Self>
   
   @_transparent
-  public var context: cl_context { wrapper.object }
+  public var clContext: cl_context { wrapper.object }
   
   @inline(__always) // Force-inline this internally, but not externally.
-  public init?(_ context: cl_context, retain: Bool = false) {
-    guard let wrapper = CLReferenceWrapper<Self>(context, retain) else {
+  public init?(_ clContext: cl_context, retain: Bool = false) {
+    guard let wrapper = CLReferenceWrapper<Self>(clContext, retain) else {
       return nil
     }
     self.wrapper = wrapper
@@ -37,7 +37,7 @@ public struct CLContext: CLReferenceCountable {
     guard let p = CLPlatform.defaultPlatform else {
       return nil
     }
-    let defaultPlatform = p.platformID
+    let defaultPlatform = p.clPlatformID
     return withUnsafeTemporaryAllocation(
       of: cl_context_properties.self, capacity: 3
     ) { properties in
@@ -68,10 +68,10 @@ public struct CLContext: CLReferenceCountable {
   ) {
     var error: Int32 = CL_SUCCESS
     let numDevices = devices.count
-    let deviceIDs: [cl_device_id?] = devices.map(\.deviceID)
+    let clDeviceIDs: [cl_device_id?] = devices.map(\.clDeviceID)
     
     let object_ = clCreateContext(
-      properties, UInt32(numDevices), deviceIDs, notifyFptr, data, &error)
+      properties, UInt32(numDevices), clDeviceIDs, notifyFptr, data, &error)
     guard CLError.setCode(error), let object_ = object_ else {
       return nil
     }
@@ -87,10 +87,10 @@ public struct CLContext: CLReferenceCountable {
     ) -> Void)? = nil
   ) {
     var error: Int32 = CL_SUCCESS
-    var deviceID: cl_device_id? = device.deviceID
+    var clDeviceID: cl_device_id? = device.clDeviceID
     
     let object_ = clCreateContext(
-      properties, 1, &deviceID, notifyFptr, data, &error)
+      properties, 1, &clDeviceID, notifyFptr, data, &error)
     guard CLError.setCode(error), let object_ = object_ else {
       return nil
     }

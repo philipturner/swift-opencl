@@ -11,6 +11,38 @@ protocol CLProperties {
   associatedtype Key: CLMacro
   init(key: Key.RawValue, value: Key.RawValue)
 }
+extension CLProperties {
+  // Force-inline
+  // withTemporaryBuffer(properties: KeyValuePairs, ???: ???)
+}
+
+public enum CLContextProperties2: CLProperties {
+  case platform(CLPlatform)
+  case interopUserSync(Bool)
+  
+  struct Key: CLMacro {
+    let rawValue: cl_context_properties
+    init(rawValue: cl_context_properties) {
+      self.rawValue = rawValue
+    }
+    
+    static let platform = Self(CL_CONTEXT_PLATFORM)
+    static let interopUserSync = Self(CL_CONTEXT_INTEROP_USER_SYNC)
+  }
+  
+  init(key: Key.RawValue, value: Key.RawValue) {
+    switch key {
+    case Key.platform.rawValue:
+      let clPlatformID = cl_platform_id(bitPattern: value)!
+      self = .platform(CLPlatform(clPlatformID)!)
+    case Key.interopUserSync.rawValue:
+      let clBool: UInt32 = cl_bool(value)
+      self = .interopUserSync(clBool != 0)
+    default:
+      fatalError("Encountered unexpected key \(key) with value \(value).")
+    }
+  }
+}
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 public enum CLMemoryProperties: CLProperties {

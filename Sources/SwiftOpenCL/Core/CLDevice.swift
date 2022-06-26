@@ -12,20 +12,21 @@ public struct CLDevice: CLReferenceCountable {
   var wrapper: CLReferenceWrapper<Self>
   
   @_transparent
-  public var deviceID: cl_device_id { wrapper.object }
+  public var clDeviceID: cl_device_id { wrapper.object }
   
   // Will only retain if OpenCL version is at least 1.2.
-  public init?(_ deviceID: cl_device_id, retain: Bool = false) {
+  public init?(_ clDeviceID: cl_device_id, retain: Bool = false) {
     var shouldRetain = false
     if retain {
-      guard let version = CLVersion(deviceID: deviceID) else {
+      guard let version = CLVersion(clDeviceID: clDeviceID) else {
         return nil
       }
       if version >= .init(major: 1, minor: 2) {
         shouldRetain = true
       }
     }
-    guard let wrapper = CLReferenceWrapper<Self>(deviceID, shouldRetain) else {
+    let wrapper = CLReferenceWrapper<Self>(clDeviceID, shouldRetain)
+    guard let wrapper = wrapper else {
       return nil
     }
     self.wrapper = wrapper

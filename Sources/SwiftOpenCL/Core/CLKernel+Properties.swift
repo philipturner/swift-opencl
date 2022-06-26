@@ -86,8 +86,8 @@ extension CLKernel {
   
   @inline(__always)
   private func getWorkGroupInfo(device: CLDevice) -> GetInfoClosure {
-    // `kernel` instead of `wrapper.object` to prevent exceeding 80 spaces.
-    { clGetKernelWorkGroupInfo(kernel, device.deviceID, $0, $1, $2, $3) }
+    // `clKernel` instead of `wrapper.object` to prevent exceeding 80 spaces.
+    { clGetKernelWorkGroupInfo(clKernel, device.clDeviceID, $0, $1, $2, $3) }
   }
   
   // OpenCL 1.0
@@ -135,7 +135,7 @@ extension CLKernel {
       return range.withUnsafeBytes { bufferPointer -> Int32 in
         #if !canImport(Darwin)
         clGetKernelSubGroupInfo(
-          wrapper.object, device.deviceID, name, bufferPointer.count,
+          wrapper.object, device.clDeviceID, name, bufferPointer.count,
           bufferPointer.baseAddress, valueSize, value, returnValue)
         #else
         fatalError("macOS does not support OpenCL 2.1.")

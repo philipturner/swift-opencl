@@ -12,12 +12,12 @@ public struct CLPlatform: CLReferenceCountable {
   var wrapper: CLReferenceWrapper<Self>
   
   @_transparent
-  public var platformID: cl_platform_id { wrapper.object }
+  public var clPlatformID: cl_platform_id { wrapper.object }
   
   // Does not retain the platform.
   @inline(__always) // Force-inline this internally, but not externally.
-  public init?(_ platformID: cl_platform_id, retain: Bool = false) {
-    guard let wrapper = CLReferenceWrapper<Self>(platformID, retain) else {
+  public init?(_ clPlatformID: cl_platform_id, retain: Bool = false) {
+    guard let wrapper = CLReferenceWrapper<Self>(clPlatformID, retain) else {
       return nil
     }
     self.wrapper = wrapper

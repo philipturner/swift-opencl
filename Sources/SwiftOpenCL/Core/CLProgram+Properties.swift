@@ -116,7 +116,7 @@ extension CLProgram {
 extension CLProgram {
   @inline(__always)
   private func getBuildInfo(device: CLDevice) -> GetInfoClosure {
-    { clGetProgramBuildInfo(wrapper.object, device.deviceID, $0, $1, $2, $3) }
+    { clGetProgramBuildInfo(wrapper.object, device.clDeviceID, $0, $1, $2, $3) }
   }
   
   // OpenCL 1.0
