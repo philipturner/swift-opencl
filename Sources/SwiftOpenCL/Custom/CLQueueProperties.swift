@@ -24,12 +24,19 @@ public typealias cl_queue_properties = cl_properties
 // - CL_COMMAND_QUEUE_PRIORITY_APPLE
 // - CL_COMMAND_QUEUE_NUM_COMPUTE_UNITS_APPLE
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-public struct CLQueueProperties: CLMacro {
-  public let rawValue: cl_queue_properties
-  public init(rawValue: cl_queue_properties) {
-    self.rawValue = rawValue
-  }
+public enum CLQueueProperties {
+  case properties(CLCommandQueueProperties)
+  case size(UInt32)
   
-  public static let properties = Self(CL_QUEUE_PROPERTIES)
-  public static let size = Self(0x1094)
+  // Should this initializer be made public?
+//  internal init(key: cl_queue_properties, value: cl_queue_properties) {
+//    switch key {
+//    case cl_queue_properties(CL_QUEUE_PROPERTIES):
+//      self = .properties(.init(rawValue: value))
+//      case cl_queue_properties(CL_Q)
+//    }
+//  }
+//
+//  public static let properties = Self(CL_QUEUE_PROPERTIES)
+//  public static let size = Self(0x1094)
 }

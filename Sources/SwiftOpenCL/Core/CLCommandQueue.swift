@@ -37,13 +37,6 @@ public struct CLCommandQueue: CLReferenceCountable {
     nil
   }()
   
-//  guard let context = CLContext.defaultContext else {
-//    return nil
-//  }
-//  guard let device = context.devices?[0] else {
-//    return nil
-//  }
-  
   public init?(
     context: CLContext,
     device: CLDevice,
@@ -61,13 +54,13 @@ public struct CLCommandQueue: CLReferenceCountable {
     if useWithProperties {
       #if !canImport(Darwin)
       withUnsafeTemporaryAllocation(
-        of: cl_bitfield.self, capacity: 3
+        of: cl_queue_properties.self, capacity: 3
       ) { queue_properties in
         queue_properties[0] = cl_queue_properties(CL_QUEUE_PROPERTIES)
-        queue_properties[1] = cl_command_queue_properties(properties.rawValue)
+        queue_properties[1] = cl_queue_properties(properties.rawValue)
         queue_properties[2] = 0
         
-        // A restriction related to `cl::DeviceCommandQueue`?
+        // To make a queue that's on-device, use `CLDeviceCommandQueue`.
         if properties.contains(.onDevice) {
           error = CL_INVALID_QUEUE_PROPERTIES
         } else {
@@ -166,18 +159,27 @@ extension CLCommandQueue {
   
   // OpenCL 2.1
   
-  // Can't create until `CLDeviceCommandQueue` is defined.
-//  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
-//  public var deviceDefault: CLDeviceCommandQueue? {}
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
+  public var deviceDefault: CLDeviceCommandQueue? {
+    let name: Int32 = 0x1095
+    #if !canImport(Darwin)
+    assert(CL_QUEUE_DEVICE_DEFAULT == name)
+    #endif
+    if let queue: CLCommandQueue = getInfo_CLReferenceCountable(name, getInfo) {
+      return CLDeviceCommandQueue(unsafeCLCommandQueue: queue)
+    } else {
+      return nil
+    }
+  }
   
   // OpenCL 3.0
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-  public var propertiesArray: [CLQueueProperties]? {
-    let name: Int32 = 0x1094
-    #if !canImport(Darwin)
-    assert(CL_QUEUE_PROPERTIES_ARRAY == name)
-    #endif
-    return getInfo_Array(name, getInfo)
-  }
+//  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+//  public var propertiesArray: [CLQueueProperties]? {
+//    let name: Int32 = 0x1098
+//    #if !canImport(Darwin)
+//    assert(CL_QUEUE_PROPERTIES_ARRAY == name)
+//    #endif
+//    return getInfo_Array(name, getInfo)
+//  }
 }
