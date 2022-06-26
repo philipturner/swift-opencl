@@ -24,9 +24,6 @@ public typealias cl_device_device_enqueue_capabilities = cl_bitfield
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public typealias cl_device_svm_capabilities = cl_bitfield
 
-@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-public typealias cl_mem_properties = cl_properties
-
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public typealias cl_svm_mem_flags = cl_bitfield
 

@@ -1,5 +1,5 @@
 //
-//  CLQueueProperties.swift
+//  CLProperties.swift
 //  
 //
 //  Created by Philip Turner on 6/26/22.
@@ -7,8 +7,13 @@
 
 import COpenCL
 
+// protocol CLProperties { associatedtype Key: CLMacro }
+
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public typealias cl_queue_properties = cl_properties
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+public typealias cl_mem_properties = cl_properties
 
 // This enum is not defined in "cl.h", but multiple macros act like one
 // according to the OpenCL 3.0 specification. The enum cases are all properties

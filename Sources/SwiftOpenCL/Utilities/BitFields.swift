@@ -7,14 +7,21 @@
 
 import COpenCL
 
-protocol CLMacro: OptionSet where RawValue: BinaryInteger {}
+protocol CLMacro: RawRepresentable where RawValue: BinaryInteger {}
 extension CLMacro {
+  init?(_ macro: Int32) {
+    self.init(rawValue: RawValue(macro))
+  }
+}
+
+protocol CLBitField: CLMacro, OptionSet {}
+extension CLBitField {
   init(_ macro: Int32) {
     self.init(rawValue: RawValue(macro))
   }
 }
 
-public struct CLDeviceType: CLMacro {
+public struct CLDeviceType: CLBitField {
   public let rawValue: cl_device_type
   public init(rawValue: cl_device_type) {
     self.rawValue = rawValue
@@ -27,7 +34,7 @@ public struct CLDeviceType: CLMacro {
   public static let custom = Self(CL_DEVICE_TYPE_CUSTOM)
 }
 
-public struct CLDeviceFloatingPointConfig: CLMacro {
+public struct CLDeviceFloatingPointConfig: CLBitField {
   public let rawValue: cl_device_fp_config
   public init(rawValue: cl_device_fp_config) {
     self.rawValue = rawValue
@@ -44,7 +51,7 @@ public struct CLDeviceFloatingPointConfig: CLMacro {
     CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT)
 }
 
-public struct CLDeviceMemoryCacheType: CLMacro {
+public struct CLDeviceMemoryCacheType: CLBitField {
   public let rawValue: cl_device_mem_cache_type
   public init(rawValue: cl_device_mem_cache_type) {
     self.rawValue = rawValue
@@ -65,7 +72,7 @@ public struct CLDeviceLocalMemoryType: CLMacro {
   public static let global = Self(CL_GLOBAL)
 }
 
-public struct CLDeviceExecutionCapabilities: CLMacro {
+public struct CLDeviceExecutionCapabilities: CLBitField {
   public let rawValue: cl_device_exec_capabilities
   public init(rawValue: cl_device_exec_capabilities) {
     self.rawValue = rawValue
@@ -75,7 +82,7 @@ public struct CLDeviceExecutionCapabilities: CLMacro {
   public static let nativeKernel = Self(CL_EXEC_NATIVE_KERNEL)
 }
 
-public struct CLCommandQueueProperties: CLMacro {
+public struct CLCommandQueueProperties: CLBitField {
   public let rawValue: cl_command_queue_properties
   public init(rawValue: cl_command_queue_properties) {
     self.rawValue = rawValue
@@ -115,7 +122,7 @@ public struct CLDevicePartitionProperty: CLMacro {
     CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN)
 }
 
-public struct CLDeviceAffinityDomain: CLMacro {
+public struct CLDeviceAffinityDomain: CLBitField {
   public let rawValue: cl_device_affinity_domain
   public init(rawValue: cl_device_affinity_domain) {
     self.rawValue = rawValue
@@ -131,7 +138,7 @@ public struct CLDeviceAffinityDomain: CLMacro {
 }
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-public struct CLDeviceSVMCapabilities: CLMacro {
+public struct CLDeviceSVMCapabilities: CLBitField {
   public let rawValue: cl_device_svm_capabilities
   public init(rawValue: cl_device_svm_capabilities) {
     self.rawValue = rawValue
@@ -143,7 +150,7 @@ public struct CLDeviceSVMCapabilities: CLMacro {
   public static let atomics = Self(1 << 3)
 }
 
-public struct CLMemoryFlags: CLMacro {
+public struct CLMemoryFlags: CLBitField {
   public let rawValue: cl_mem_flags
   public init(rawValue: cl_mem_flags) {
     self.rawValue = rawValue
@@ -167,7 +174,7 @@ public struct CLMemoryFlags: CLMacro {
 // documented in https://man.opencl.org/clSVMAlloc.html are. This is the same as
 // what the OpenCL 3.0 specification says.
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-public struct CLSVMMemoryFlags: CLMacro {
+public struct CLSVMMemoryFlags: CLBitField {
   public let rawValue: cl_svm_mem_flags
   public init(rawValue: cl_svm_mem_flags) {
     self.rawValue = rawValue
@@ -180,7 +187,7 @@ public struct CLSVMMemoryFlags: CLMacro {
   public static let atomics = Self(1 << 11)
 }
 
-public struct CLMemoryMigrationFlags: CLMacro {
+public struct CLMemoryMigrationFlags: CLBitField {
   public let rawValue: cl_mem_migration_flags
   public init(rawValue: cl_mem_migration_flags) {
     self.rawValue = rawValue
@@ -319,7 +326,7 @@ public struct CLFilterMode: CLMacro {
   public static let linear = Self(CL_FILTER_LINEAR)
 }
 
-public struct CLMapFlags: CLMacro {
+public struct CLMapFlags: CLBitField {
   public let rawValue: cl_map_flags
   public init(rawValue: cl_map_flags) {
     self.rawValue = rawValue
@@ -379,7 +386,7 @@ public struct CLKernelArgumentAccessQualifier: CLMacro {
   public static let none = Self(CL_KERNEL_ARG_ACCESS_NONE)
 }
 
-public struct CLKernelArgumentTypeQualifier: CLMacro {
+public struct CLKernelArgumentTypeQualifier: CLBitField {
   public let rawValue: cl_kernel_arg_type_qualifier
   public init(rawValue: cl_kernel_arg_type_qualifier) {
     self.rawValue = rawValue
@@ -473,7 +480,7 @@ public struct CLBufferCreateType: CLMacro {
 }
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-public struct CLDeviceAtomicCapabilities: CLMacro {
+public struct CLDeviceAtomicCapabilities: CLBitField {
   public let rawValue: cl_device_atomic_capabilities
   public init(rawValue: cl_device_atomic_capabilities) {
     self.rawValue = rawValue
@@ -494,7 +501,7 @@ public struct CLDeviceAtomicCapabilities: CLMacro {
 // "device-side enqueue capabilities of a device". There are several other
 // "capabilities of a device", such as the atomic capabilities defined above.
 @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-public struct CLDeviceDeviceEnqueueCapabilities: CLMacro {
+public struct CLDeviceDeviceEnqueueCapabilities: CLBitField {
   public let rawValue: cl_device_device_enqueue_capabilities
   public init(rawValue: cl_device_device_enqueue_capabilities) {
     self.rawValue = rawValue
