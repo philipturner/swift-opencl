@@ -12,6 +12,7 @@ public struct CLUserEvent {
   
   /// `CLUserEvent` is a subset of `CLEvent`. The first parameter is unsafe
   /// because it cannot be checked internally to ensure it is a user event.
+  @_transparent
   public init(unsafeCLEvent clEvent: CLEvent) {
     self.clEvent = clEvent
   }
@@ -27,7 +28,7 @@ public struct CLUserEvent {
     self.clEvent = clEvent
   }
   
-  public func setStatus(_ status: Int32) throws {
+  public mutating func setStatus(_ status: Int32) throws {
     let error = clSetUserEventStatus(clEvent.event, status)
     try CLError.throwCode(error, "__SET_USER_EVENT_STATUS_ERR")
   }

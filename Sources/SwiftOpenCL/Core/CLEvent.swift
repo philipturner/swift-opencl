@@ -37,7 +37,7 @@ public struct CLEvent: CLReferenceCountable {
     try CLError.throwCode(error, "__WAIT_FOR_EVENTS_ERR")
   }
   
-  public func setCallback(
+  public mutating func setCallback(
     type: Int32,
     userData: UnsafeMutableRawPointer? = nil,
     notifyFptr: @escaping (@convention(c) (

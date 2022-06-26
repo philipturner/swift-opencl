@@ -188,7 +188,7 @@ extension CLProgram {
     }
   }
   
-  public func build(
+  public mutating func build(
     devices: [CLDevice],
     options: UnsafePointer<Int8>? = nil,
     data: UnsafeMutableRawPointer? = nil,
@@ -203,7 +203,7 @@ extension CLProgram {
     try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
   }
   
-  public func build(
+  public mutating func build(
     device: CLDevice,
     options: UnsafePointer<Int8>? = nil,
     data: UnsafeMutableRawPointer? = nil,
@@ -217,7 +217,7 @@ extension CLProgram {
     try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
   }
   
-  public func build(
+  public mutating func build(
     options: UnsafePointer<Int8>? = nil,
     data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
@@ -229,7 +229,7 @@ extension CLProgram {
     try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
   }
   
-  public func compile(
+  public mutating func compile(
     options: UnsafePointer<Int8>? = nil,
     data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
@@ -270,7 +270,7 @@ extension CLProgram {
   }
   
   #if !canImport(Darwin)
-  public func setSpecializationConstant(
+  public mutating func setSpecializationConstant(
     _ value: UnsafePointer<Bool>, index: UInt32
   ) throws {
     var ucValue = value.pointee ? UInt8.max : 0
@@ -279,7 +279,7 @@ extension CLProgram {
     try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   
-  public func setSpecializationConstant<T>(
+  public mutating func setSpecializationConstant<T>(
     _ value: UnsafePointer<T>, index: UInt32
   ) throws {
     let error = clSetProgramSpecializationConstant(
@@ -287,7 +287,7 @@ extension CLProgram {
     try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   
-  public func setSpecializationConstant(
+  public mutating func setSpecializationConstant(
     _ value: UnsafeRawPointer, size: Int, index: UInt32
   ) throws {
     let error = clSetProgramSpecializationConstant(

@@ -23,7 +23,7 @@ class CLReferenceWrapper<T: CLReferenceCountable> {
   var shouldRetain: Bool
   
   @usableFromInline @inline(never)
-  internal func retainReturningSuccess() -> Bool {
+  func retainReturningSuccess() -> Bool {
     CLError.setCode(T.retain(object), "__RETAIN_ERR")
   }
   
@@ -39,7 +39,7 @@ class CLReferenceWrapper<T: CLReferenceCountable> {
   }
   
   @usableFromInline @inline(never)
-  internal func release() {
+  func release() {
     CLError.setCode(T.release(object), "__RELEASE_ERR")
   }
   

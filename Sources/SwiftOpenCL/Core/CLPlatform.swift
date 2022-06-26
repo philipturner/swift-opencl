@@ -14,7 +14,7 @@ public struct CLPlatform: CLReferenceCountable {
   @_transparent
   public var platformID: cl_platform_id { wrapper.object }
   
-  // Document that it never actually retains in DocC.
+  // Does not retain the platform.
   public init?(_ platformID: cl_platform_id, retain: Bool = false) {
     guard let wrapper = CLReferenceWrapper<Self>(platformID, retain) else {
       return nil

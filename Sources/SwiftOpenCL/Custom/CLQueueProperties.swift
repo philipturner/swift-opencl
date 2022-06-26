@@ -28,15 +28,15 @@ public enum CLQueueProperties {
   case properties(CLCommandQueueProperties)
   case size(UInt32)
   
-  // Should this initializer be made public?
-//  internal init(key: cl_queue_properties, value: cl_queue_properties) {
-//    switch key {
-//    case cl_queue_properties(CL_QUEUE_PROPERTIES):
-//      self = .properties(.init(rawValue: value))
-//      case cl_queue_properties(CL_Q)
-//    }
-//  }
-//
-//  public static let properties = Self(CL_QUEUE_PROPERTIES)
-//  public static let size = Self(0x1094)
+  // Should this initializer be public?
+  internal init(key: cl_queue_properties, value: cl_queue_properties) {
+    switch key {
+    case cl_queue_properties(CL_QUEUE_PROPERTIES):
+      self = .properties(.init(rawValue: value))
+    case cl_queue_properties(0x1094): // CL_QUEUE_SIZE
+      self = .size(UInt32(value))
+    default:
+      fatalError("Encountered unexpected key \(key) with value \(value).")
+    }
+  }
 }

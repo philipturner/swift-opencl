@@ -33,8 +33,12 @@ public struct CLCommandQueue: CLReferenceCountable {
   }
   
   public static var defaultCommandQueue: CLCommandQueue? = {
-    // Implementation requires one of the more complex initializers.
-    nil
+    var error: Int32 = CL_SUCCESS
+    guard let context = CLContext.defaultContext,
+          let device = CLDevice.defaultDevice else {
+      return nil
+    }
+    return CLCommandQueue(context: context, device: device, properties: [])
   }()
   
   public init?(
@@ -85,6 +89,9 @@ public struct CLCommandQueue: CLReferenceCountable {
     self.init(object_!)
   }
   
+  // Does this initializer even need to exist? Why is it not present in
+  // `cl::DeviceCommandQueue`?
+  @inlinable
   public init?(context: CLContext, properties: CLCommandQueueProperties) {
     guard let device = context.devices?[0] else {
       return nil
@@ -92,6 +99,7 @@ public struct CLCommandQueue: CLReferenceCountable {
     self.init(context: context, device: device, properties: properties)
   }
   
+  @inlinable
   public init?(properties: CLCommandQueueProperties) {
     // Does the same thing as calling `init(context:properties)` with the
     // default context.
@@ -174,12 +182,31 @@ extension CLCommandQueue {
   
   // OpenCL 3.0
   
-//  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-//  public var propertiesArray: [CLQueueProperties]? {
-//    let name: Int32 = 0x1098
-//    #if !canImport(Darwin)
-//    assert(CL_QUEUE_PROPERTIES_ARRAY == name)
-//    #endif
-//    return getInfo_Array(name, getInfo)
-//  }
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+  public var propertiesArray: [CLQueueProperties]? {
+    let name: Int32 = 0x1098
+    #if !canImport(Darwin)
+    assert(CL_QUEUE_PROPERTIES_ARRAY == name)
+    #endif
+    if let array: [cl_queue_properties] = getInfo_Array(name, getInfo) {
+      // `array.count` should be odd.
+      let numProperties = array.count >> 1 // (array.count - 1) / 2
+      var output: [CLQueueProperties] = []
+      output.reserveCapacity(numProperties)
+      
+      var index: Int = 0
+      for _ in 0..<numProperties {
+        let key = array[index]
+        let value = array[index + 1]
+        output.append(CLQueueProperties(key: key, value: value))
+        index += 2
+      }
+      precondition(array[index] == 0 && index + 1 == array.count, """
+        Invalid output from `CL_QUEUE_PROPERTIES_ARRAY`: \(array).
+        """)
+      return output
+    } else {
+      return nil
+    }
+  }
 }

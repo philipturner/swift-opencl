@@ -41,5 +41,11 @@ public struct CLDevice: CLReferenceCountable {
     clReleaseDevice(object)
   }
   
-  // to make `defaultDevice`, I need to first create CLContext.
+  public static var defaultDevice: CLDevice? = {
+    guard let context = CLContext.defaultContext,
+          let devices = context.devices else {
+      return nil
+    }
+    return devices[0]
+  }()
 }
