@@ -32,21 +32,84 @@ public struct CLDeviceCommandQueue {
     #endif
   }
   
-//  public init?(
-//    context: CLContext,
-//    device: CLDevice,
-//    properties: CLCommandQueueProperties = [],
-//    // Should this argument label be renamed to `size`?
-//    queueSize: UInt32? = nil
-//  )
+  public init?(
+    context: CLContext,
+    device: CLDevice,
+    properties: CLCommandQueueProperties = [],
+    size queueSize: UInt32? = nil
+  ) {
+    var error: Int32 = CL_SUCCESS
+    let mergedProperties: CLCommandQueueProperties = [
+      .outOfOrderExecutionModeEnable, .onDevice, properties
+    ]
+    
+    var object_: cl_command_queue?
+    if let queueSize = queueSize {
+      #if !canImport(Darwin)
+      withUnsafeTemporaryAllocation(
+        of: cl_queue_properties.self, capacity: 5
+      ) { queueProperties in
+        queueProperties[0] = cl_queue_properties(CL_QUEUE_PROPERTIES)
+        queueProperties[1] = cl_queue_properties(mergedProperties.rawValue)
+        queueProperties[2] = cl_queue_properties(CL_QUEUE_SIZE)
+        queueProperties[3] = cl_queue_properties(queueSize)
+        queueProperties[4] = 0
+        object_ = clCreateCommandQueueWithProperties(
+          context.context, device.deviceID, queueProperties.baseAddress, &error)
+      }
+      #endif
+    } else {
+      #if !canImport(Darwin)
+      withUnsafeTemporaryAllocation(
+        of: cl_queue_properties.self, capacity: 3
+      ) { queueProperties in
+        queueProperties[0] = cl_queue_properties(CL_QUEUE_PROPERTIES)
+        queueProperties[1] = cl_queue_properties(mergedProperties.rawValue)
+        queueProperties[2] = 0
+        object_ = clCreateCommandQueueWithProperties(
+          context.context, device.deviceID, queueProperties.baseAddress, &error)
+      }
+      #endif
+    }
+    
+    let message = "__CREATE_COMMAND_QUEUE_WITH_PROPERTIES_ERR"
+    guard CLError.setCode(error, message),
+          let object_ = object_,
+          let queue = CLCommandQueue(object_) else {
+      return nil
+    }
+    self.init(unsafeCLCommandQueue: queue)
+  }
   
-//  public init?(
-//    context: CLContext,
-//    device: CLDevice,
-//    // Should this argument label be renamed to `size`?
-//    queueSize: UInt32,
-//    properties: CLCommandQueueProperties = []
-//  ) {
-//    fatalError()
-//  }
+  // The following two initializers differ from the C++ bindings. Instead of
+  // fetching `CLDevice.deviceDefault`, they retrieve the device like in
+  // `CLCommandQueue.init(properties:)`. This ensures that the regular and
+  // device command queues have similar APIs. You can still emulate the behavior
+  // of the C++ bindings by manually fetching `CLDevice.deviceDefault`.
+  
+  @inlinable
+  public init?(
+    context: CLContext,
+    properties: CLCommandQueueProperties = [],
+    size queueSize: UInt32? = nil
+  ) {
+    guard let device = context.devices?[0] else {
+      return nil
+    }
+    self.init(
+      context: context, device: device, properties: properties, size: queueSize)
+  }
+  
+  @inlinable
+  public init?(
+    properties: CLCommandQueueProperties = [],
+    size queueSize: UInt32? = nil
+  ) {
+    guard let context = CLContext.defaultContext,
+          let device = context.devices?[0] else {
+      return nil
+    }
+    self.init(
+      context: context, device: device, properties: properties, size: queueSize)
+  }
 }

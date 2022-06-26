@@ -59,17 +59,17 @@ public struct CLCommandQueue: CLReferenceCountable {
       #if !canImport(Darwin)
       withUnsafeTemporaryAllocation(
         of: cl_queue_properties.self, capacity: 3
-      ) { queue_properties in
-        queue_properties[0] = cl_queue_properties(CL_QUEUE_PROPERTIES)
-        queue_properties[1] = cl_queue_properties(properties.rawValue)
-        queue_properties[2] = 0
+      ) { queueProperties in
+        queueProperties[0] = cl_queue_properties(CL_QUEUE_PROPERTIES)
+        queueProperties[1] = cl_queue_properties(properties.rawValue)
+        queueProperties[2] = 0
         
         // To make a queue that's on-device, use `CLDeviceCommandQueue`.
         if properties.contains(.onDevice) {
           error = CL_INVALID_QUEUE_PROPERTIES
         } else {
           object_ = clCreateCommandQueueWithProperties(
-            context.context, device.deviceID, queue_properties.baseAddress,
+            context.context, device.deviceID, queueProperties.baseAddress,
             &error)
         }
       }
@@ -89,8 +89,6 @@ public struct CLCommandQueue: CLReferenceCountable {
     self.init(object_!)
   }
   
-  // Does this initializer even need to exist? Why is it not present in
-  // `cl::DeviceCommandQueue`?
   @inlinable
   public init?(context: CLContext, properties: CLCommandQueueProperties) {
     guard let device = context.devices?[0] else {
@@ -99,10 +97,10 @@ public struct CLCommandQueue: CLReferenceCountable {
     self.init(context: context, device: device, properties: properties)
   }
   
+  // Does the same thing as calling `init(context:properties)` with the
+  // default context.
   @inlinable
   public init?(properties: CLCommandQueueProperties) {
-    // Does the same thing as calling `init(context:properties)` with the
-    // default context.
     guard let context = CLContext.defaultContext,
           let device = context.devices?[0] else {
       return nil
@@ -124,11 +122,6 @@ public struct CLCommandQueue: CLReferenceCountable {
     try CLError.throwCode(error, "__FLUSH_ERR")
   }
 }
-
-// Try merging the implementation of this with `CLCommandQueue`. Why does the
-// C++ version have two types?
-//@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-//class CLDeviceCommandQueue {}
 
 extension CLCommandQueue {
   @inline(__always)
