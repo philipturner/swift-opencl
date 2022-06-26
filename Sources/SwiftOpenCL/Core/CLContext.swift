@@ -13,7 +13,7 @@ public struct CLContext: CLReferenceCountable {
   
   @_transparent
   public var context: cl_context { wrapper.object }
-
+  
   @inline(__always) // Force-inline this internally, but not externally.
   public init?(_ context: cl_context, retain: Bool = false) {
     guard let wrapper = CLReferenceWrapper<Self>(context, retain) else {
@@ -21,12 +21,12 @@ public struct CLContext: CLReferenceCountable {
     }
     self.wrapper = wrapper
   }
-
+  
   @usableFromInline
   static func retain(_ object: OpaquePointer) -> Int32 {
     clRetainContext(object)
   }
-
+  
   @usableFromInline
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseContext(object)
