@@ -303,27 +303,26 @@ extension CLDevice {
   public var printfBufferSize: Int? {
     getInfo_Int(CL_DEVICE_PRINTF_BUFFER_SIZE, getInfo)
   }
+  
+  // `CL_DEVICE_QUEUE_PROPERTIES` is deprecated by
+  // `CL_DEVICE_QUEUE_ON_HOST_PROPERTIES`, but it's the only way to fetch that
+  // info on macOS. Both macros have the same raw value, 0x102A. The new macro
+  // was introduced in OpenCL 2.0, but its functionality existed in OpenCL 1.2.
+  // Therefore, this property is accessible on macOS with a name that doesn't
+  // match its macro.
+  public var queueOnHostProperties: CLCommandQueueProperties? {
+    #if canImport(Darwin)
+    getInfo_CLMacro(CL_DEVICE_QUEUE_PROPERTIES, getInfo)
+    #else
+    getInfo_CLMacro(CL_DEVICE_QUEUE_ON_HOST_PROPERTIES, getInfo)
+    #endif
+  }
 }
 
 // OpenCL 2.0
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 extension CLDevice {
-  // `CL_DEVICE_QUEUE_PROPERTIES` is deprecated, but it's the only way to fetch
-  // that info on macOS. `CL_DEVICE_QUEUE_ON_HOST_PROPERTIES` has the same raw
-  // value as the macro it deprecates. Should I make a property for the
-  // deprecated one that's only available on macOS?
-  //
-  // Solution: Make something that's available on all platforms, but deprecated
-  // on everything except macOS.
-  public var queueOnHostProperties: CLCommandQueueProperties? {
-    let name: Int32 = 0x102A
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_QUEUE_ON_HOST_PROPERTIES == name)
-    #endif
-    return getInfo_CLMacro(name, getInfo)
-  }
-  
   public var queueOnDeviceProperties: CLCommandQueueProperties? {
     let name: Int32 = 0x104E
     #if !canImport(Darwin)

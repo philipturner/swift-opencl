@@ -37,78 +37,80 @@ public struct CLCommandQueue: CLReferenceCountable {
     nil
   }()
   
-  // TODO: make a way to not duplicate this massive chunk of code that has
-  // `withUnsafeTemporaryAllocation`. Then, finish the rest of the initializers.
+//  guard let context = CLContext.defaultContext else {
+//    return nil
+//  }
+//  guard let device = context.devices?[0] else {
+//    return nil
+//  }
   
   public init?(
+    context: CLContext,
+    device: CLDevice,
     properties: CLCommandQueueProperties
   ) {
     var error: Int32 = CL_SUCCESS
-    guard let context = CLContext.defaultContext else {
-      return nil
-    }
-    guard let device = context.devices?[0] else {
-      return nil
-    }
-    
-    var useWithProperties: Bool
-    #if canImport(Darwin)
-    useWithProperties = true
-    #else
-    if let version = getVersion(context: context.context) {
-      useWithProperties = version.0 >= 2
-    } else {
-      useWithProperties = false
+    var useWithProperties = false
+    #if !canImport(Darwin)
+    if let version = CLVersion(context: context.context) {
+      useWithProperties = version.major >= 2
     }
     #endif
     
-    // TODO: Remove support for calling Apple's extension to creating command
-    // queues with properties. The older function still allows passing
-    // properties in.
-    
     var object_: cl_command_queue?
     if useWithProperties {
-      // On macOS, `cl_queue_properties` is `Int`. Everywhere else, it is
-      // `UInt64`.
-      #if canImport(Darwin)
-      typealias cl_queue_properties = cl_queue_properties_APPLE
-      let CL_QUEUE_ON_DEVICE: Int32 = 1 << 2
-      let clCreateCommandQueueWithProperties =
-        clCreateCommandQueueWithPropertiesAPPLE
-      #endif
+      #if !canImport(Darwin)
       withUnsafeTemporaryAllocation(
-        of: cl_queue_properties.self, capacity: 3
+        of: cl_bitfield.self, capacity: 3
       ) { queue_properties in
         queue_properties[0] = cl_queue_properties(CL_QUEUE_PROPERTIES)
-        queue_properties[1] = cl_queue_properties(properties.rawValue)
+        queue_properties[1] = cl_command_queue_properties(properties.rawValue)
         queue_properties[2] = 0
         
-        if properties.rawValue & UInt64(CL_QUEUE_ON_DEVICE) == 0 {
+        // A restriction related to `cl::DeviceCommandQueue`?
+        if properties.contains(.onDevice) {
+          error = CL_INVALID_QUEUE_PROPERTIES
+        } else {
           object_ = clCreateCommandQueueWithProperties(
             context.context, device.deviceID, queue_properties.baseAddress,
             &error)
-        } else {
-          error = CL_INVALID_QUEUE_PROPERTIES
         }
       }
       let message = "__CREATE_COMMAND_QUEUE_WITH_PROPERTIES_ERR"
       guard CLError.setCode(error, message) else {
         return nil
       }
+      #endif
     } else {
-      #if !canImport(Darwin)
       object_ = clCreateCommandQueue(
         context.context, device.deviceID, properties.rawValue, &error)
       let message = "__CREATE_COMMAND_QUEUE_ERR"
       guard CLError.setCode(error, message) else {
         return nil
       }
-      #endif
     }
-    guard let object_ = object_ else {
+    self.init(object_!)
+  }
+  
+  public init?(context: CLContext, properties: CLCommandQueueProperties) {
+    guard let device = context.devices?[0] else {
       return nil
     }
-    self.init(object_)
+    self.init(context: context, device: device, properties: properties)
+  }
+  
+  public init?(properties: CLCommandQueueProperties) {
+    // Does the same thing as calling `init(context:properties)` with the
+    // default context.
+    guard let context = CLContext.defaultContext,
+          let device = context.devices?[0] else {
+      return nil
+    }
+    
+    // Skipping the call to `init(context:properties)` and going straight to
+    // `init(context:device:properties)`. This prevents an unnecessary function
+    // call.
+    self.init(context: context, device: device, properties: properties)
   }
   
   public func flush() throws {
