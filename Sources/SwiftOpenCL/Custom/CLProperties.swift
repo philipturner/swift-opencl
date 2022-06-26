@@ -12,6 +12,24 @@ protocol CLProperties {
   init(key: Key.RawValue, value: Key.RawValue)
 }
 
+@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+public enum CLMemoryProperties: CLProperties {
+  struct Key: CLMacro {
+    let rawValue: cl_mem_properties
+    init(rawValue: cl_mem_properties) {
+      self.rawValue = rawValue
+    }
+    
+    // From the OpenCL 3.0 specification:
+    // "OpenCL 3.0 does not define any optional properties for buffers."
+    // "OpenCL 3.0 does not define any optional properties for images."
+  }
+  
+  init(key: Key.RawValue, value: Key.RawValue) {
+    fatalError("`CLMemoryProperties` does not have any cases.")
+  }
+}
+
 // This enum is not defined in "cl.h", but multiple macros act like one
 // according to the OpenCL 3.0 specification. The enum cases are all properties
 // listed in the table under `clCreateCommandQueueWithProperties`.
@@ -27,6 +45,9 @@ protocol CLProperties {
 // - CL_COMMAND_QUEUE_NUM_COMPUTE_UNITS_APPLE
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public enum CLQueueProperties: CLProperties {
+  case properties(CLCommandQueueProperties)
+  case size(UInt32)
+  
   struct Key: CLMacro {
     let rawValue: cl_queue_properties
     init(rawValue: cl_queue_properties) {
@@ -36,9 +57,6 @@ public enum CLQueueProperties: CLProperties {
     static let properties = Self(CL_QUEUE_PROPERTIES)
     static let size = Self(0x1094)
   }
-  
-  case properties(CLCommandQueueProperties)
-  case size(UInt32)
   
   init(key: Key.RawValue, value: Key.RawValue) {
     switch key {

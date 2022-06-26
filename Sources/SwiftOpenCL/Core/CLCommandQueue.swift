@@ -181,25 +181,6 @@ extension CLCommandQueue {
     #if !canImport(Darwin)
     assert(CL_QUEUE_PROPERTIES_ARRAY == name)
     #endif
-    if let array: [cl_queue_properties] = getInfo_Array(name, getInfo) {
-      // `array.count` should be odd.
-      let numProperties = array.count >> 1 // (array.count - 1) / 2
-      var output: [CLQueueProperties] = []
-      output.reserveCapacity(numProperties)
-      
-      var index: Int = 0
-      for _ in 0..<numProperties {
-        let key = array[index]
-        let value = array[index + 1]
-        output.append(CLQueueProperties(key: key, value: value))
-        index += 2
-      }
-      precondition(array[index] == 0 && index + 1 == array.count, """
-        Invalid output from `CL_QUEUE_PROPERTIES_ARRAY`: \(array).
-        """)
-      return output
-    } else {
-      return nil
-    }
+    return getInfo_ArrayOfCLProperties(name, getInfo)
   }
 }

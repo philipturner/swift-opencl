@@ -510,15 +510,3 @@ public struct CLDeviceDeviceEnqueueCapabilities: CLBitField {
   public static let supported = Self(1 << 0)
   public static let replaceableDefault = Self(1 << 1)
 }
-
-@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-public struct CLMemoryProperties: CLMacro {
-  public let rawValue: cl_mem_properties
-  public init(rawValue: cl_mem_properties) {
-    self.rawValue = rawValue
-  }
-  
-  // From the OpenCL 3.0 specification:
-  // "OpenCL 3.0 does not define any optional properties for buffers."
-  // "OpenCL 3.0 does not define any optional properties for images."
-}

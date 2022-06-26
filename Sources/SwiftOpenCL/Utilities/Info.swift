@@ -145,12 +145,12 @@ func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
   }
   let elements = required / MemoryLayout<T>.stride
   
-  let localData = [T](
-    unsafeUninitializedCapacity: elements,
-    initializingWith: { buffer, initializedCount in
-      initializedCount = elements
-      err = getInfo(UInt32(name), required, buffer.baseAddress, nil)
-    })
+  let localData = Array<T>.init(
+    unsafeUninitializedCapacity: elements
+  ) { buffer, initializedCount in
+    initializedCount = elements
+    err = getInfo(UInt32(name), required, buffer.baseAddress, nil)
+  }
   guard CLError.setCode(err) else {
     return nil
   }
@@ -194,6 +194,45 @@ func getInfo_ArrayOfCLNameVersion(
       let version = CLVersion(version: rawVersion)
       let name = String(cString: value + MemoryLayout<cl_version>.stride)
       output.append(CLNameVersion(version: version, name: name))
+    }
+    return output
+  }
+}
+
+func getInfo_ArrayOfCLProperties<T: CLProperties>(
+  _ name: Int32, _ getInfo: GetInfoClosure
+) -> [T]? {
+  var required = 0
+  var err = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(err) else {
+    return nil
+  }
+  typealias RawValue = T.Key.RawValue
+  let elements = required / MemoryLayout<RawValue>.stride
+  
+  return withUnsafeTemporaryAllocation(
+    of: RawValue.self, capacity: elements
+  ) { bufferPointer in
+    let value = bufferPointer.baseAddress.unsafelyUnwrapped
+    err = getInfo(UInt32(name), required, value, nil)
+    guard CLError.setCode(err) else {
+      return nil
+    }
+    
+    // The array is a series of key-value pairs ending in 0, so the count should
+    // be odd.
+    precondition(elements & 1 == 1, """
+      Attempted to create an array of `CLProperties`, but its count was even.
+      """)
+    let numProperties = elements >> 1 // (array.count - 1) / 2
+    var output: [T] = []
+    output.reserveCapacity(numProperties)
+    
+    for i in 0..<numProperties {
+      let keyIndex = i * 2
+      let key = value[keyIndex]
+      let value_ = value[keyIndex + 1]
+      output.append(T(key: key, value: value_))
     }
     return output
   }
