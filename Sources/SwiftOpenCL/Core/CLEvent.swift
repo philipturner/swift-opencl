@@ -14,6 +14,7 @@ public struct CLEvent: CLReferenceCountable {
   @_transparent
   public var event: cl_event { wrapper.object }
   
+  @inline(__always) // Force-inline this internally, but not externally.
   public init?(_ event: cl_event, retain: Bool = false) {
     guard let wrapper = CLReferenceWrapper<Self>(event, retain) else {
       return nil

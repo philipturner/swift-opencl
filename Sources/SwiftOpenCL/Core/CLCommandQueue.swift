@@ -14,7 +14,7 @@ public struct CLCommandQueue: CLReferenceCountable {
   @_transparent
   public var commandQueue: cl_command_queue { wrapper.object }
   
-  // Force-inline this internally, but not externally.
+  @inline(__always) // Force-inline this internally, but not externally.
   public init?(_ commandQueue: cl_command_queue, retain: Bool = false) {
     guard let wrapper = CLReferenceWrapper<Self>(commandQueue, retain) else {
       return nil

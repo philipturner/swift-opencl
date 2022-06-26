@@ -27,7 +27,7 @@ class CLReferenceWrapper<T: CLReferenceCountable> {
     CLError.setCode(T.retain(object), "__RETAIN_ERR")
   }
   
-  @inlinable @inline(__always)
+  @inline(__always)
   init?(_ object: OpaquePointer, _ shouldRetain: Bool) {
     self.object = object
     self.shouldRetain = shouldRetain

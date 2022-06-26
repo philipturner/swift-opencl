@@ -15,6 +15,7 @@ public struct CLProgram: CLReferenceCountable {
   @_transparent
   public var program: cl_program { wrapper.object }
   
+  @inline(__always) // Force-inline this internally, but not externally.
   public init?(_ program: cl_program, retain: Bool = false) {
     guard let wrapper = CLReferenceWrapper<Self>(program, retain) else {
       return nil

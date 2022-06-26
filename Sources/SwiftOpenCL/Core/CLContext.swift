@@ -14,7 +14,7 @@ public struct CLContext: CLReferenceCountable {
   @_transparent
   public var context: cl_context { wrapper.object }
 
-  // Force-inline this internally, but not externally.
+  @inline(__always) // Force-inline this internally, but not externally.
   public init?(_ context: cl_context, retain: Bool = false) {
     guard let wrapper = CLReferenceWrapper<Self>(context, retain) else {
       return nil
