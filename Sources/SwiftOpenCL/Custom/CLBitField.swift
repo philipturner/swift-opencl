@@ -1,5 +1,5 @@
 //
-//  BitFields.swift
+//  CLBitField.swift
 //  
 //
 //  Created by Philip Turner on 6/22/22.
@@ -9,8 +9,8 @@ import COpenCL
 
 protocol CLMacro: RawRepresentable where RawValue: BinaryInteger {}
 extension CLMacro {
-  init?(_ macro: Int32) {
-    self.init(rawValue: RawValue(macro))
+  init(_ macro: Int32) {
+    self.init(rawValue: RawValue(macro))!
   }
 }
 

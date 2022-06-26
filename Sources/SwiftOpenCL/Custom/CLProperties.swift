@@ -7,13 +7,10 @@
 
 import COpenCL
 
-// protocol CLProperties { associatedtype Key: CLMacro }
-
-@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-public typealias cl_queue_properties = cl_properties
-
-@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-public typealias cl_mem_properties = cl_properties
+protocol CLProperties {
+  associatedtype Key: CLMacro
+  init(key: Key.RawValue, value: Key.RawValue)
+}
 
 // This enum is not defined in "cl.h", but multiple macros act like one
 // according to the OpenCL 3.0 specification. The enum cases are all properties
@@ -29,16 +26,25 @@ public typealias cl_mem_properties = cl_properties
 // - CL_COMMAND_QUEUE_PRIORITY_APPLE
 // - CL_COMMAND_QUEUE_NUM_COMPUTE_UNITS_APPLE
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-public enum CLQueueProperties {
+public enum CLQueueProperties: CLProperties {
+  struct Key: CLMacro {
+    let rawValue: cl_queue_properties
+    init(rawValue: cl_queue_properties) {
+      self.rawValue = rawValue
+    }
+    
+    static let properties = Self(CL_QUEUE_PROPERTIES)
+    static let size = Self(0x1094)
+  }
+  
   case properties(CLCommandQueueProperties)
   case size(UInt32)
   
-  // Should this initializer be public?
-  internal init(key: cl_queue_properties, value: cl_queue_properties) {
+  init(key: Key.RawValue, value: Key.RawValue) {
     switch key {
-    case cl_queue_properties(CL_QUEUE_PROPERTIES):
-      self = .properties(.init(rawValue: value))
-    case cl_queue_properties(0x1094): // CL_QUEUE_SIZE
+    case Key.properties.rawValue:
+      self = .properties(CLCommandQueueProperties(rawValue: value))
+    case Key.size.rawValue:
       self = .size(UInt32(value))
     default:
       fatalError("Encountered unexpected key \(key) with value \(value).")
