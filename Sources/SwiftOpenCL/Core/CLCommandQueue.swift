@@ -62,6 +62,10 @@ public struct CLCommandQueue: CLReferenceCountable {
     }
     #endif
     
+    // TODO: Remove support for calling Apple's extension to creating command
+    // queues with properties. The older function still allows passing
+    // properties in.
+    
     var object_: cl_command_queue?
     if useWithProperties {
       // On macOS, `cl_queue_properties` is `Int`. Everywhere else, it is
@@ -118,6 +122,11 @@ public struct CLCommandQueue: CLReferenceCountable {
   }
 }
 
+// Try merging the implementation of this with `CLCommandQueue`. Why does the
+// C++ version have two types?
+//@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+//class CLDeviceCommandQueue {}
+
 extension CLCommandQueue {
   @inline(__always)
   private var getInfo: GetInfoClosure {
@@ -140,5 +149,33 @@ extension CLCommandQueue {
   
   public var properties: CLCommandQueueProperties? {
     getInfo_CLMacro(CL_QUEUE_PROPERTIES, getInfo)
+  }
+  
+  // OpenCL 2.0
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public var size: UInt32? {
+    let name: Int32 = 0x1094
+    #if !canImport(Darwin)
+    assert(CL_QUEUE_SIZE == name)
+    #endif
+    return getInfo_Int(name, getInfo)
+  }
+  
+  // OpenCL 2.1
+  
+  // Can't create until `CLDeviceCommandQueue` is defined.
+//  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
+//  public var deviceDefault: CLDeviceCommandQueue? {}
+  
+  // OpenCL 3.0
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+  public var propertiesArray: [CLQueueProperties]? {
+    let name: Int32 = 0x1094
+    #if !canImport(Darwin)
+    assert(CL_QUEUE_PROPERTIES_ARRAY == name)
+    #endif
+    return getInfo_Array(name, getInfo)
   }
 }

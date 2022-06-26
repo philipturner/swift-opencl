@@ -313,6 +313,9 @@ extension CLDevice {
   // that info on macOS. `CL_DEVICE_QUEUE_ON_HOST_PROPERTIES` has the same raw
   // value as the macro it deprecates. Should I make a property for the
   // deprecated one that's only available on macOS?
+  //
+  // Solution: Make something that's available on all platforms, but deprecated
+  // on everything except macOS.
   public var queueOnHostProperties: CLCommandQueueProperties? {
     let name: Int32 = 0x102A
     #if !canImport(Darwin)

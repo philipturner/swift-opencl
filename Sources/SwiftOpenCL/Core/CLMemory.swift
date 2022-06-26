@@ -74,7 +74,6 @@ extension CLMemory {
   
   // OpenCL 1.1
   
-  // Renaming "Memobject" to "MemoryObject".
   public var associatedMemoryObject: CLMemory? {
     getInfo_CLReferenceCountable(CL_MEM_ASSOCIATED_MEMOBJECT, getInfo)
   }

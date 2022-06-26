@@ -6,7 +6,7 @@
 //
 
 import COpenCL
-import Foundation
+import struct Foundation.Data
 
 extension CLProgram {
   @inline(__always)
@@ -80,6 +80,37 @@ extension CLProgram {
   public var kernelNames: String? {
     getInfo_String(CL_PROGRAM_KERNEL_NAMES, getInfo)
   }
+  
+  // OpenCL 2.1
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
+  public var il: Data? {
+    let name: Int32 = 0x1169
+    #if !canImport(Darwin)
+    assert(CL_PROGRAM_IL == name)
+    #endif
+    return getInfo_Data(name, getInfo)
+  }
+  
+  // OpenCL 2.2
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.2.")
+  public var scopeGlobalConstructorsPresent: Bool? {
+    let name: Int32 = 0x116A
+    #if !canImport(Darwin)
+    assert(CL_PROGRAM_SCOPE_GLOBAL_CTORS_PRESENT == name)
+    #endif
+    return getInfo_Bool(name, getInfo)
+  }
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.2.")
+  public var scopeGlobalDestructorsPresent: Bool? {
+    let name: Int32 = 0x116B
+    #if !canImport(Darwin)
+    assert(CL_PROGRAM_SCOPE_GLOBAL_DTORS_PRESENT == name)
+    #endif
+    return getInfo_Bool(name, getInfo)
+  }
 }
 
 extension CLProgram {
@@ -102,13 +133,7 @@ extension CLProgram {
     getInfo_String(CL_PROGRAM_BUILD_LOG, getBuildInfo(device: device))
   }
   
-  // OpenCL 1.2
-  
-  public func binaryType(device: CLDevice) -> CLProgramBinaryType? {
-    getInfo_CLMacro(CL_PROGRAM_BINARY_TYPE, getBuildInfo(device: device))
-  }
-  
-  func buildLogHasNoErrors() -> Bool {
+  internal func buildLogHasNoErrors() -> Bool {
     guard let devices = devices else {
       return false
     }
@@ -118,5 +143,22 @@ extension CLProgram {
       }
     }
     return true
+  }
+  
+  // OpenCL 1.2
+  
+  public func binaryType(device: CLDevice) -> CLProgramBinaryType? {
+    getInfo_CLMacro(CL_PROGRAM_BINARY_TYPE, getBuildInfo(device: device))
+  }
+  
+  // OpenCL 2.0
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+  public func globalVariableTotalSize(device: CLDevice) -> Int? {
+    let name: Int32 = 0x1185
+    #if !canImport(Darwin)
+    assert(CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE == name)
+    #endif
+    return getInfo_Int(name, getBuildInfo(device: device))
   }
 }
