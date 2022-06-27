@@ -99,11 +99,14 @@ public struct CLContext: CLReferenceCountable {
   
   public init?(
     type: CLDeviceType,
+    // TODO: Change [CLContextProperties] to Set<CLContextProperties> everywhere
     properties: [CLContextProperties]? = nil,
     notify: CLContextCallback.FunctionPointer? = nil
   ) {
     // requires CLPlatform.getDevices()
     fatalError()
+    
+    // Overrides the CL_CONTEXT_PLATFORM. Why is it disabled on macOS?
   }
 }
 

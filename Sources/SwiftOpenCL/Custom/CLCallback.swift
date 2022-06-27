@@ -11,6 +11,8 @@ public protocol CLCallback {
   associatedtype FunctionPointer
 }
 
+// A second-level protocol that defines internal requirements. These should not
+// be made public and do not belong in the DocC documentation.
 protocol CLCallbackExtended: CLCallback, AnyObject {
   var functionPointer: FunctionPointer? { get }
   init(_ functionPointer: FunctionPointer?)
