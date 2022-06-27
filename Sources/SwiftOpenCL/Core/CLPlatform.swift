@@ -55,6 +55,86 @@ public struct CLPlatform: CLReferenceCountable {
       return CLPlatform(ids[0]!)
     }
   }()
+  
+  // Property getter for `availablePlatforms`
+  
+  public static var availablePlatforms: [CLPlatform]? {
+    var n: UInt32 = 0
+    var err = clGetPlatformIDs(0, nil, &n)
+    guard CLError.setCode(err, "__GET_PLATFORM_IDS_ERR") else {
+      return nil
+    }
+    let elements = Int(n)
+    
+    return withUnsafeTemporaryAllocation(
+      of: cl_platform_id?.self, capacity: elements
+    ) { bufferPointer in
+      let ids = bufferPointer.baseAddress.unsafelyUnwrapped
+      err = clGetPlatformIDs(n, ids, nil)
+      guard CLError.setCode(err) else {
+        return nil
+      }
+      
+      var output: [CLPlatform] = []
+      output.reserveCapacity(elements)
+      for i in 0..<elements {
+        // Platforms don't reference count. Setting `retain` could force a
+        // pointless function call in `CLPlatform.retain`, and an extra function
+        // call when each platform object deinitializes. Leaving `retain` as the
+        // default (`false`) improves performance.
+        //
+        // The statement below force-unwraps the output of `CLPlatform.init`.
+        // Since it doesn't reference count, there is no execution path that
+        // lets the initializer fail. TODO: Scan other code for instances where
+        // I can remove an unnecessary guard statement around
+        // `CLReferenceCountable.init`.
+        let element = CLPlatform(ids[i]!)!
+        output.append(element)
+      }
+      return output
+    }
+  }
+  
+  public func devices(type: CLDeviceType) -> [CLDevice]? {
+    var n: UInt32 = 0
+    var err = clGetDeviceIDs(wrapper.object, type.rawValue, 0, nil, &n)
+    if err == CL_DEVICE_NOT_FOUND {
+      precondition(n == 0, """
+        If no OpenCL devices are found, the number of devices should be zero.
+        """)
+      return []
+    } else {
+      guard CLError.setCode(err) else {
+        return nil
+      }
+    }
+    let elements = Int(n)
+    
+    return withUnsafeTemporaryAllocation(
+      of: cl_device_id?.self, capacity: elements
+    ) { bufferPointer in
+      let ids = bufferPointer.baseAddress.unsafelyUnwrapped
+      err = clGetDeviceIDs(wrapper.object, type.rawValue, n, ids, nil)
+      guard CLError.setCode(err) else {
+        return nil
+      }
+      
+      var output: [CLDevice] = []
+      output.reserveCapacity(elements)
+      for i in 0..<elements {
+        guard let element = CLDevice(ids[i]!, retain: true) else {
+          return nil
+        }
+        output.append(element)
+      }
+      return output
+    }
+  }
+  
+  public func unloadCompiler() throws {
+    let error = clUnloadPlatformCompiler(wrapper.object)
+    try CLError.throwCode(error)
+  }
 }
 
 extension CLPlatform {

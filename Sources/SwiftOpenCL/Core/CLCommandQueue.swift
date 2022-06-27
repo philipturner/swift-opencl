@@ -108,12 +108,12 @@ public struct CLCommandQueue: CLReferenceCountable {
     self.init(context: context, device: device, properties: properties)
   }
   
-  public func flush() throws {
+  public mutating func flush() throws {
     let error = clFlush(wrapper.object)
     try CLError.throwCode(error, "__FLUSH_ERR")
   }
   
-  public func finish() throws {
+  public mutating func finish() throws {
     let error = clFinish(wrapper.object)
     try CLError.throwCode(error, "__FLUSH_ERR")
   }
