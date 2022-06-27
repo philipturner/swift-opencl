@@ -6,7 +6,7 @@
 //
 
 import COpenCL
-import Foundation
+import protocol Foundation.LocalizedError
 
 // TODO: Make a custom error description, store the underlying code in `Storage`
 // along with the enumeration or just make the computed property return the

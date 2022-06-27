@@ -6,7 +6,7 @@
 //
 
 import COpenCL
-import Foundation
+import struct Foundation.Data
 
 public struct CLProgram: CLReferenceCountable {
   @usableFromInline

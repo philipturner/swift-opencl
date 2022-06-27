@@ -9,10 +9,10 @@ import COpenCL
 import struct Foundation.Data
 
 typealias GetInfoClosure = (
-  /*param_name=*/UInt32,
-  /*param_value_size=*/Int,
-  /*param_value=*/UnsafeMutableRawPointer?,
-  /*param_value_size_ret=*/UnsafeMutablePointer<Int>?) -> Int32
+  _ param_name: UInt32,
+  _ param_value_size: Int,
+  _ param_value: UnsafeMutableRawPointer?,
+  _ param_value_size_ret: UnsafeMutablePointer<Int>?) -> Int32
 
 // MARK: - Single Value Accessors
 
@@ -39,6 +39,7 @@ func getInfo_CLMacro<T: CLMacro>(
   return T(rawValue: rawValue)
 }
 
+// Do not force-inline because `T.init` might be large and already inlined.
 func getInfo_CLReferenceCountable<T: CLReferenceCountable>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> T? {
