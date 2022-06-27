@@ -51,7 +51,7 @@ public struct CLDevice: CLReferenceCountable {
   }()
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
-  var currentHostTimer: UInt64? {
+  public var currentHostTimer: UInt64? {
     var hostTimestamp: UInt64 = 0
     #if !canImport(Darwin)
     let err = clGetHostTimer(wrapper.object, &hostTimestamp)
@@ -63,7 +63,7 @@ public struct CLDevice: CLReferenceCountable {
   }
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
-  var currentDeviceAndHostTimer: (UInt64, UInt64)? {
+  public var currentDeviceAndHostTimer: (UInt64, UInt64)? {
     var deviceTimestamp: UInt64 = 0
     var hostTimestamp: UInt64 = 0
     #if !canImport(Darwin)
@@ -75,4 +75,15 @@ public struct CLDevice: CLReferenceCountable {
     #endif
     return (deviceTimestamp, hostTimestamp)
   }
+  
+  // We do not need to retain because this device is being created
+  // by the runtime.
+  
+  // This differs from the C++ bindings, which use the argument label
+  // `properties`. Only one property can pass in according to the OpenCL 3.0
+  // specification (not explicitly stated, but implied). This code is tailored
+  // for that constraint.
+//  public func subDevices(property: CLDevicePartitionProperty) -> [CLDevice]? {
+//    
+//  }
 }

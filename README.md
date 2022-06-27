@@ -26,6 +26,8 @@ SwiftOpenCL renames the following words in OpenCL macros:
 - "Rect" to "Rectangle"
 - "Spec" to "SpecializationConstant"
 
+This package's source code has numerous comments explaining where its API structure and names differ from the C++ bindings. It lacks much documentation otherwise, because the C++ bindings are extensively documented. Just download `opencl.hpp` and search for the C++ counterpart to any Swift type.
+
 ## Tips
 
 Most properties of OpenCL types take a non-negligible time to retrieve, making multiple function calls under the hood. When possible, access them once and reuse the returned value. This rule of thumb may also apply when using Metal.
