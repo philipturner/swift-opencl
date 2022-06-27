@@ -176,9 +176,10 @@ public enum CLQueueProperty: CLProperty {
 // MARK: - Custom Property Types
 
 // One of the associated values is an array, which cannot be represented by an
-// integral type. Therefore, this cannot conform to `CLProperties`. It also
-// never appears in an array of other properties, so
-// `withUnsafeTemporaryAllocation` should be implemented differently.
+// integral type. Therefore, this cannot conform to `CLProperties`. It never
+// appears in an array of other properties, so
+// `withUnsafeTemporaryAllocation(properties:)` would not have a purpose for
+// this type.
 public enum CLDevicePartitionProperty2 {
   case equally(UInt32)
   case byCounts([UInt32])
@@ -186,6 +187,9 @@ public enum CLDevicePartitionProperty2 {
   
   typealias Key = CLDevicePartitionPropertyKey
   
+//  init(buffer: UnsafePointer<Key.RawValue>) {
+//    
+//  }
 }
 
 // The device partition property equivalent of `CLProperty.Key`.
@@ -200,7 +204,9 @@ public enum CLDevicePartitionProperty2 {
 // properties sourced from `getInfoHelper` return nested types. To solve this
 // problem, I made the key a top level type. Its name is now one continuous
 // word: `CLDevicePartitionPropertyKey`.
-public enum CLDevicePartitionPropertyKey: cl_device_partition_property {
+public enum CLDevicePartitionPropertyKey:
+  cl_device_partition_property, CLMacro
+{
   case equally = 0x1086
   case byCounts = 0x1087
   case byAffinityDomain = 0x1088

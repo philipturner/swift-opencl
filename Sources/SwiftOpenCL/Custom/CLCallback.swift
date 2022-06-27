@@ -31,8 +31,8 @@ extension CLCallback {
   }
 }
 
-public final class CLContextCallback: CLCallback {
-  public typealias FunctionPointer = (
+final class CLContextCallback: CLCallback {
+  typealias FunctionPointer = (
     _ errinfo: UnsafePointer<Int8>?,
     _ private_info: UnsafeRawPointer?,
     _ cb: Int) -> Void
@@ -53,8 +53,8 @@ public final class CLContextCallback: CLCallback {
   }
 }
 
-public final class CLEventCallback: CLCallback {
-  public typealias FunctionPointer = (
+final class CLEventCallback: CLCallback {
+  typealias FunctionPointer = (
     _ event: cl_event?,
     _ event_command_status: Int32?) -> Void
   var functionPointer: FunctionPointer?
@@ -73,8 +73,8 @@ public final class CLEventCallback: CLCallback {
   }
 }
 
-public final class CLProgramCallback: CLCallback {
-  public typealias FunctionPointer = (
+final class CLProgramCallback: CLCallback {
+  typealias FunctionPointer = (
     _ program: cl_program?) -> Void
   var functionPointer: FunctionPointer?
   init(_ functionPointer: FunctionPointer?) {

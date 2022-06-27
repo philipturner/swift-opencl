@@ -59,7 +59,10 @@ public struct CLContext: CLReferenceCountable {
   public init?(
     devices: [CLDevice],
     properties: [CLContextProperty]? = nil,
-    notify: CLContextCallback.FunctionPointer? = nil
+    notify: ((
+      _ errinfo: UnsafePointer<Int8>?,
+      _ private_info: UnsafeRawPointer?,
+      _ cb: Int) -> Void)? = nil
   ) {
     var error: Int32 = CL_SUCCESS
     let numDevices = devices.count
@@ -84,7 +87,10 @@ public struct CLContext: CLReferenceCountable {
   public init?(
     device: CLDevice,
     properties: [CLContextProperty]? = nil,
-    notify: CLContextCallback.FunctionPointer? = nil
+    notify: ((
+      _ errinfo: UnsafePointer<Int8>?,
+      _ private_info: UnsafeRawPointer?,
+      _ cb: Int) -> Void)? = nil
   ) {
     var error: Int32 = CL_SUCCESS
     var clDeviceID: cl_device_id? = device.clDeviceID
@@ -108,7 +114,10 @@ public struct CLContext: CLReferenceCountable {
   public init?(
     type: CLDeviceType,
     properties: [CLContextProperty]? = nil,
-    notify: CLContextCallback.FunctionPointer? = nil
+    notify: ((
+      _ errinfo: UnsafePointer<Int8>?,
+      _ private_info: UnsafeRawPointer?,
+      _ cb: Int) -> Void)? = nil
   ) {
     // There is no documentation about why the C++ bindings don't set the
     // platform on macOS. So I am setting it, then seeing if it breaks.

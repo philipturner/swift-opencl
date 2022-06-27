@@ -125,6 +125,13 @@ public struct CLDeviceAffinityDomain: CLBitField {
     self.rawValue = rawValue
   }
   
+  // Adding an extra case to represent when the device "does not support any
+  // affinity domains". This allows a property returning a
+  // `CLDeviceAffinityDomain` to return `nil` exclusively when an error has
+  // occurred. If I did not do this, `nil` could mean either an error or no
+  // return value. In SwiftOpenCL, `nil` should only mean an error occurred.
+  public static let none = Self(0)
+  
   public static let numa = Self(CL_DEVICE_AFFINITY_DOMAIN_NUMA)
   public static let l4Cache = Self(CL_DEVICE_AFFINITY_DOMAIN_L4_CACHE)
   public static let l3Cache = Self(CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE)
