@@ -14,7 +14,7 @@ public struct CLDevice: CLReferenceCountable {
   @_transparent
   public var clDeviceID: cl_device_id { wrapper.object }
   
-  // Will only retain if OpenCL version is at least 1.2.
+  // Will only retain if the OpenCL version is at least 1.2.
   public init?(_ clDeviceID: cl_device_id, retain: Bool = false) {
     var shouldRetain = false
     if retain {
