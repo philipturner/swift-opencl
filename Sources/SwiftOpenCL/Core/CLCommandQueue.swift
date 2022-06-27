@@ -57,13 +57,9 @@ public struct CLCommandQueue: CLReferenceCountable {
     var object_: cl_command_queue?
     if useWithProperties {
       #if !canImport(Darwin)
-      withUnsafeTemporaryAllocation(
-        of: cl_queue_properties.self, capacity: 3
-      ) { queueProperties in
-        queueProperties[0] = cl_queue_properties(CL_QUEUE_PROPERTIES)
-        queueProperties[1] = cl_queue_properties(properties.rawValue)
-        queueProperties[2] = 0
-        
+      CLQueueProperties.withUnsafeTemporaryAllocation(properties: [
+        .properties: cl_queue_properties(properties.rawValue)
+      ]) { queueProperties in
         // To make a queue that's on-device, use `CLDeviceCommandQueue`.
         if properties.contains(.onDevice) {
           error = CL_INVALID_QUEUE_PROPERTIES

@@ -13,8 +13,9 @@ protocol CLProperties {
 }
 extension CLProperties {
   @inline(__always)
+  @discardableResult
   static func withUnsafeTemporaryAllocation<T>(
-    properties: KeyValuePairs<Key.RawValue, Key.RawValue>,
+    properties: KeyValuePairs<Key, Key.RawValue>,
     _ body: (UnsafeMutableBufferPointer<Key.RawValue>) throws -> T
   ) rethrows -> T {
     return try Swift.withUnsafeTemporaryAllocation(
@@ -23,7 +24,7 @@ extension CLProperties {
       for i in 0..<properties.count {
         let keyIndex = i * 2
         let property = properties[i]
-        bufferPointer[keyIndex] = property.key
+        bufferPointer[keyIndex] = property.key.rawValue
         bufferPointer[keyIndex + 1] = property.value
       }
       bufferPointer[properties.count * 2] = 0

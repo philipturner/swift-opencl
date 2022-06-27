@@ -37,14 +37,11 @@ public struct CLContext: CLReferenceCountable {
     guard let p = CLPlatform.defaultPlatform else {
       return nil
     }
-    let defaultPlatform = p.clPlatformID
-    return withUnsafeTemporaryAllocation(
-      of: cl_context_properties.self, capacity: 3
-    ) { properties in
-      properties[0] = cl_context_properties(CL_CONTEXT_PLATFORM)
-      properties[1] = cl_context_properties(bitPattern: defaultPlatform)
-      properties[2] = 0
-      return CLContext(
+    let defaultPlatformID = p.clPlatformID
+    return CLContextProperties.withUnsafeTemporaryAllocation(properties: [
+      .platform: cl_context_properties(bitPattern: defaultPlatformID)
+    ]) { properties in
+      CLContext(
         type: UInt64(CL_DEVICE_TYPE_DEFAULT),
         properties: properties.baseAddress, data: nil, notifyFptr: nil)
     }
