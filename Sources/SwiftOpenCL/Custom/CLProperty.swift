@@ -178,8 +178,7 @@ public enum CLQueueProperty: CLProperty {
 // One of the associated values is an array, which cannot be represented by an
 // integral type. Therefore, this cannot conform to `CLProperties`. It never
 // appears in an array of other properties, so
-// `Self.withUnsafeTemporaryAllocation(properties:)` should be reimplemented or
-// omitted.
+// `Self.withUnsafeTemporaryAllocation(properties:)` should be reimplemented.
 public enum CLDevicePartitionProperty {
   case equally(UInt32)
   case byCounts([UInt32])
@@ -246,4 +245,49 @@ public enum CLDevicePartitionPropertyKey:
   case equally = 0x1086
   case byCounts = 0x1087
   case byAffinityDomain = 0x1088
+}
+
+extension CLDevicePartitionProperty {
+  // Should automatically inline because the function is only referenced once.
+  @discardableResult
+  static func withUnsafeTemporaryAllocation<T>(
+    property: Self,
+    _ body: (UnsafeMutableBufferPointer<Key.RawValue>) throws -> T
+  ) rethrows -> T {
+    var capacity: Int
+    switch property {
+    case .equally:
+      capacity = 3
+    case .byCounts(let counts):
+      capacity = 1 + counts.count + 1
+    case .byAffinityDomain:
+      capacity = 3
+    }
+    
+    typealias RawValue = Key.RawValue
+    return try Swift.withUnsafeTemporaryAllocation(
+      of: RawValue.self, capacity: capacity
+    ) { bufferPointer in
+      let buffer = bufferPointer.baseAddress.unsafelyUnwrapped
+      switch property {
+      case .equally(let n):
+        buffer[0] = CLDevicePartitionPropertyKey.equally.rawValue
+        buffer[1] = RawValue(n)
+        buffer[2] = 0
+      case .byCounts(let counts):
+        buffer[0] = CLDevicePartitionPropertyKey.byCounts.rawValue
+        let countsBuffer = buffer.advanced(by: 1)
+        for i in 0..<counts.count {
+          countsBuffer[i] = RawValue(counts[i])
+        }
+        countsBuffer[counts.count] = 0
+      case .byAffinityDomain(let affinityDomain):
+        buffer[0] = CLDevicePartitionPropertyKey.byAffinityDomain.rawValue
+        buffer[1] = RawValue(affinityDomain.rawValue)
+        buffer[2] = 0
+      }
+      
+      return try body(bufferPointer)
+    }
+  }
 }
