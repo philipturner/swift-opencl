@@ -37,19 +37,27 @@ extension CLProperties {
   
   @discardableResult
   static func withUnsafeTemporaryAllocation<T>(
-    properties: [Self],
+    properties: [Self]?,
     _ body: (UnsafeMutableBufferPointer<Key.RawValue>) throws -> T
   ) rethrows -> T {
+    var capacity = 1
+    if let count = properties?.count {
+      capacity += count * 2
+    }
     return try Swift.withUnsafeTemporaryAllocation(
-      of: Key.RawValue.self, capacity: properties.count * 2 + 1
+      of: Key.RawValue.self, capacity: capacity
     ) { bufferPointer in
-      for i in 0..<properties.count {
-        let keyIndex = i * 2
-        let (key, value) = properties[i].serialized()
-        bufferPointer[keyIndex] = key
-        bufferPointer[keyIndex + 1] = value
+      if let properties = properties {
+        for i in 0..<properties.count {
+          let keyIndex = i * 2
+          let (key, value) = properties[i].serialized()
+          bufferPointer[keyIndex] = key
+          bufferPointer[keyIndex + 1] = value
+        }
+        bufferPointer[properties.count * 2] = 0
+      } else {
+        bufferPointer[0] = 0
       }
-      bufferPointer[properties.count * 2] = 0
       return try body(bufferPointer)
     }
   }

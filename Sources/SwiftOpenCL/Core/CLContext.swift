@@ -42,58 +42,65 @@ public struct CLContext: CLReferenceCountable {
       .platform: cl_context_properties(bitPattern: defaultPlatformID)
     ]) { properties in
       CLContext(
-        type: UInt64(CL_DEVICE_TYPE_DEFAULT),
-        properties: properties.baseAddress, data: nil, notifyFptr: nil)
+        type: .`default`, properties: properties.baseAddress, data: nil,
+        notifyFptr: nil)
     }
     #else
     return CLContext(
-      type: UInt64(CL_DEVICE_TYPE_DEFAULT), properties: nil, data: nil,
+      type: .`default`, properties: nil, data: nil,
       notifyFptr: nil)
     #endif
   }()
   
-  // Convert to a more Swift-friendly function, which uses `CLContextProperties`
-  // instead of `cl_context_properties`. Also, change `notifyFptr` to
-  // `callback`.
   public init?(
     devices: [CLDevice],
-    properties: UnsafePointer<cl_context_properties>? = nil,
+    properties: [CLContextProperties]? = nil,
     notify: CLContextCallback.FunctionPointer? = nil
   ) {
     var error: Int32 = CL_SUCCESS
     let numDevices = devices.count
     let clDeviceIDs: [cl_device_id?] = devices.map(\.clDeviceID)
-
+    
     let callback = CLContextCallback(notify)
-    let object_ = clCreateContext(
-      properties, UInt32(numDevices), clDeviceIDs, callback.callback,
-      callback.passRetained(), &error)
+    var object_: cl_context?
+    object_ = CLContextProperties.withUnsafeTemporaryAllocation(
+      properties: properties
+    ) { properties in
+      clCreateContext(
+        properties.baseAddress, UInt32(numDevices), clDeviceIDs,
+        callback.callback, callback.passRetained(), &error)
+    }
     guard CLError.setCode(error), let object_ = object_ else {
       return nil
     }
     self.init(object_)
   }
   
-//  public init?(
-//    device: CLDevice,
-//    properties: [CLContextProperties],
-//    notify: CLContextCallback.FunctionPointer? = nil
-//  ) {
-//    var error: Int32 = CL_SUCCESS
-//    var clDeviceID: cl_device_id? = device.clDeviceID
-//    
-//    let callback = CLContextCallback(notify)
-//    let object_ = clCreateContext(
-//      properties, 1, &clDeviceID, callback.callback, callback.passRetained(),
-//      &error)
-//    guard CLError.setCode(error), let object_ = object_ else {
-//      return nil
-//    }
-//    self.init(object_)
-//  }
+  public init?(
+    device: CLDevice,
+    properties: [CLContextProperties]? = nil,
+    notify: CLContextCallback.FunctionPointer? = nil
+  ) {
+    var error: Int32 = CL_SUCCESS
+    var clDeviceID: cl_device_id? = device.clDeviceID
+    
+    let callback = CLContextCallback(notify)
+    let object_: cl_context?
+    object_ = CLContextProperties.withUnsafeTemporaryAllocation(
+      properties: properties
+    ) { properties in
+      clCreateContext(
+        properties.baseAddress, 1, &clDeviceID, callback.callback,
+        callback.passRetained(), &error)
+    }
+    guard CLError.setCode(error), let object_ = object_ else {
+      return nil
+    }
+    self.init(object_)
+  }
   
   public init?(
-    type: cl_device_type, // Convert this to an Int32 argument.
+    type: CLDeviceType,
     properties: UnsafePointer<cl_context_properties>? = nil,
     data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
