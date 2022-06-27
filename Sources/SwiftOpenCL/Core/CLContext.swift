@@ -127,7 +127,7 @@ extension CLContext {
   }
   
   public var properties: [CLContextProperties]? {
-    getInfo_Array(CL_CONTEXT_PROPERTIES, getInfo)
+    getInfo_ArrayOfCLProperties(CL_CONTEXT_PROPERTIES, getInfo)
   }
   
   // OpenCL 1.1

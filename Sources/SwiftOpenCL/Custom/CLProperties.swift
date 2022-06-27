@@ -12,11 +12,27 @@ protocol CLProperties {
   init(key: Key.RawValue, value: Key.RawValue)
 }
 extension CLProperties {
-  // Force-inline
-  // withTemporaryBuffer(properties: KeyValuePairs, ???: ???)
+  @inline(__always)
+  static func withUnsafeTemporaryAllocation<T>(
+    properties: KeyValuePairs<Key.RawValue, Key.RawValue>,
+    _ body: (UnsafeMutableBufferPointer<Key.RawValue>) throws -> T
+  ) rethrows -> T {
+    return try Swift.withUnsafeTemporaryAllocation(
+      of: Key.RawValue.self, capacity: properties.count * 2 + 1
+    ) { bufferPointer in
+      for i in 0..<properties.count {
+        let keyIndex = i * 2
+        let property = properties[i]
+        bufferPointer[keyIndex] = property.key
+        bufferPointer[keyIndex + 1] = property.value
+      }
+      bufferPointer[properties.count * 2] = 0
+      return try body(bufferPointer)
+    }
+  }
 }
 
-public enum CLContextProperties2: CLProperties {
+public enum CLContextProperties: CLProperties {
   case platform(CLPlatform)
   case interopUserSync(Bool)
   

@@ -98,16 +98,6 @@ public struct CLCommandQueueProperties: CLBitField {
   public static let onDeviceDefault = Self(1 << 3)
 }
 
-public struct CLContextProperties: CLMacro {
-  public let rawValue: cl_context_properties
-  public init(rawValue: cl_context_properties) {
-    self.rawValue = rawValue
-  }
-  
-  public static let platform = Self(CL_CONTEXT_PLATFORM)
-  public static let interopUserSync = Self(CL_CONTEXT_INTEROP_USER_SYNC)
-}
-
 public struct CLDevicePartitionProperty: CLMacro {
   public let rawValue: cl_device_partition_property
   public init(rawValue: cl_device_partition_property) {
