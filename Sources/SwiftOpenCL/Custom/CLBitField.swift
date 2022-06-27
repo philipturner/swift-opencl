@@ -107,18 +107,6 @@ public struct CLCommandQueueProperties: CLBitField {
   public static let onDeviceDefault = Self(1 << 3)
 }
 
-public struct CLDevicePartitionProperty: CLMacro {
-  public let rawValue: cl_device_partition_property
-  public init(rawValue: cl_device_partition_property) {
-    self.rawValue = rawValue
-  }
-  
-  public static let equally = Self(CL_DEVICE_PARTITION_EQUALLY)
-  public static let byCounts = Self(CL_DEVICE_PARTITION_BY_COUNTS)
-  public static let byAffinityDomain = Self(
-    CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN)
-}
-
 public struct CLDeviceAffinityDomain: CLBitField {
   public let rawValue: cl_device_affinity_domain
   public init(rawValue: cl_device_affinity_domain) {

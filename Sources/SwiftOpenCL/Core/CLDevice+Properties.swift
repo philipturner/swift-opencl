@@ -276,12 +276,38 @@ extension CLDevice {
     getInfo_Int(CL_DEVICE_PARTITION_MAX_SUB_DEVICES, getInfo)
   }
   
-  public var partitionProperties: [CLDevicePartitionProperty]? {
+  public var partitionProperties: [CLDevicePartitionPropertyKey]? {
     getInfo_Array(CL_DEVICE_PARTITION_PROPERTIES, getInfo)
   }
   
-  public var partitionType: [CLDevicePartitionProperty]? {
-    getInfo_Array(CL_DEVICE_PARTITION_TYPE, getInfo)
+  public var partitionType: CLDevicePartitionProperty? {
+    var required = 0
+    var err = getInfo(UInt32(CL_DEVICE_PARTITION_TYPE), 0, nil, &required)
+    guard CLError.setCode(err) else {
+      return nil
+    }
+    guard required > 0 else {
+      CLError.setCode(CL_INVALID_PROPERTY)
+      return nil
+    }
+    typealias RawValue = CLDevicePartitionProperty.Key.RawValue
+    let elements = required / MemoryLayout<RawValue>.stride
+    
+    return withUnsafeTemporaryAllocation(
+      of: RawValue.self, capacity: elements
+    ) { bufferPointer in
+      let value = bufferPointer.baseAddress.unsafelyUnwrapped
+      err =  getInfo(UInt32(CL_DEVICE_PARTITION_TYPE), required, value, nil)
+      guard CLError.setCode(err) else {
+        return nil
+      }
+      
+      guard let output = CLDevicePartitionProperty(buffer: value) else {
+        CLError.setCode(CL_INVALID_PROPERTY)
+        return nil
+      }
+      return output
+    }
   }
   
   public var referenceCount: UInt32? {

@@ -178,18 +178,54 @@ public enum CLQueueProperty: CLProperty {
 // One of the associated values is an array, which cannot be represented by an
 // integral type. Therefore, this cannot conform to `CLProperties`. It never
 // appears in an array of other properties, so
-// `withUnsafeTemporaryAllocation(properties:)` would not have a purpose for
-// this type.
-public enum CLDevicePartitionProperty2 {
+// `Self.withUnsafeTemporaryAllocation(properties:)` should be reimplemented or
+// omitted.
+public enum CLDevicePartitionProperty {
   case equally(UInt32)
   case byCounts([UInt32])
   case byAffinityDomain(CLDeviceAffinityDomain)
   
   typealias Key = CLDevicePartitionPropertyKey
   
-//  init(buffer: UnsafePointer<Key.RawValue>) {
-//    
-//  }
+  // The implementation can return "no value" for a `CLDevicePartitionProperty`
+  // without creating an error. To prevent possibly two meanings of `nil` (one
+  // being error, the other being nothing), the function calling this
+  // initializer should be creating a special kind of error to describe this
+  // case. Also, documentation should say that you can skip crashing upon
+  // encountering this error. When the error mechanism gets warnings, throw one
+  // of those instead of a full error.
+  init?(buffer: UnsafePointer<Key.RawValue>) {
+    let key = buffer[0]
+    if key == 0 {
+      return nil
+    }
+    switch Key(rawValue: key) {
+    case nil:
+      fatalError("Invalid raw value for `cl_device_partition_property`.")
+    case .equally:
+      self = .equally(UInt32(buffer[1]))
+    case .byCounts:
+      let countsBuffer = buffer.advanced(by: 1)
+      var numCounts: Int = 0
+      while true {
+        let value = buffer[numCounts]
+        if value == 0 {
+          break
+        }
+        numCounts += 1
+      }
+      
+      var counts: [UInt32] = []
+      counts.reserveCapacity(numCounts)
+      for i in 0..<numCounts {
+        counts.append(UInt32(countsBuffer[i]))
+      }
+      self = .byCounts(counts)
+    case .byAffinityDomain:
+      let rawValue = cl_device_affinity_domain(buffer[1])
+      self = .byAffinityDomain(CLDeviceAffinityDomain(rawValue: rawValue))
+    }
+  }
 }
 
 // The device partition property equivalent of `CLProperty.Key`.
