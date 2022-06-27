@@ -25,7 +25,7 @@ func getInfo_Bool(_ name: Int32, _ getInfo: GetInfoClosure) -> Bool? {
   guard CLError.setCode(err) else {
     return nil
   }
-  return output != 0
+  return output == CL_TRUE
 }
 
 @inline(__always)

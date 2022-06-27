@@ -15,7 +15,7 @@ protocol CLReferenceCountable {
 }
 
 @usableFromInline
-class CLReferenceWrapper<T: CLReferenceCountable> {
+final class CLReferenceWrapper<T: CLReferenceCountable> {
   @usableFromInline
   var object: OpaquePointer
   

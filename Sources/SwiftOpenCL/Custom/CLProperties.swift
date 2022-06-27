@@ -9,7 +9,10 @@ import COpenCL
 
 protocol CLProperties {
   associatedtype Key: CLMacro
+  
   init(key: Key.RawValue, value: Key.RawValue)
+  
+  func serialized() -> (Key.RawValue, Key.RawValue)
 }
 extension CLProperties {
   @inline(__always)
@@ -26,6 +29,25 @@ extension CLProperties {
         let property = properties[i]
         bufferPointer[keyIndex] = property.key.rawValue
         bufferPointer[keyIndex + 1] = property.value
+      }
+      bufferPointer[properties.count * 2] = 0
+      return try body(bufferPointer)
+    }
+  }
+  
+  @discardableResult
+  static func withUnsafeTemporaryAllocation<T>(
+    properties: [Self],
+    _ body: (UnsafeMutableBufferPointer<Key.RawValue>) throws -> T
+  ) rethrows -> T {
+    return try Swift.withUnsafeTemporaryAllocation(
+      of: Key.RawValue.self, capacity: properties.count * 2 + 1
+    ) { bufferPointer in
+      for i in 0..<properties.count {
+        let keyIndex = i * 2
+        let (key, value) = properties[i].serialized()
+        bufferPointer[keyIndex] = key
+        bufferPointer[keyIndex + 1] = value
       }
       bufferPointer[properties.count * 2] = 0
       return try body(bufferPointer)
@@ -54,9 +76,18 @@ public enum CLContextProperties: CLProperties {
       self = .platform(CLPlatform(clPlatformID)!)
     case Key.interopUserSync.rawValue:
       let clBool: UInt32 = cl_bool(value)
-      self = .interopUserSync(clBool != 0)
+      self = .interopUserSync(clBool == CL_TRUE)
     default:
       fatalError("Encountered unexpected key \(key) with value \(value).")
+    }
+  }
+  
+  func serialized() -> (Key.RawValue, Key.RawValue) {
+    switch self {
+    case .platform(let platform):
+      return (Key.platform.rawValue, .init(bitPattern: platform.clPlatformID))
+    case .interopUserSync(let interopUserSync):
+      return (Key.interopUserSync.rawValue, interopUserSync ? 1 : 0)
     }
   }
 }
@@ -75,6 +106,10 @@ public enum CLMemoryProperties: CLProperties {
   }
   
   init(key: Key.RawValue, value: Key.RawValue) {
+    fatalError("`CLMemoryProperties` does not have any cases.")
+  }
+  
+  func serialized() -> (Key.RawValue, Key.RawValue) {
     fatalError("`CLMemoryProperties` does not have any cases.")
   }
 }
@@ -115,6 +150,15 @@ public enum CLQueueProperties: CLProperties {
       self = .size(UInt32(value))
     default:
       fatalError("Encountered unexpected key \(key) with value \(value).")
+    }
+  }
+  
+  func serialized() -> (Key.RawValue, Key.RawValue) {
+    switch self {
+    case .properties(let properties):
+      return (Key.properties.rawValue, .init(properties.rawValue))
+    case .size(let size):
+      return (Key.size.rawValue, .init(size))
     }
   }
 }

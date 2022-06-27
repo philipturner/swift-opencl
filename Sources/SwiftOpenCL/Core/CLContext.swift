@@ -58,41 +58,39 @@ public struct CLContext: CLReferenceCountable {
   public init?(
     devices: [CLDevice],
     properties: UnsafePointer<cl_context_properties>? = nil,
-    data: UnsafeMutableRawPointer? = nil,
-    notifyFptr: (@convention(c) (
-      UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
-    ) -> Void)? = nil
+    notify: CLContextCallback.FunctionPointer? = nil
   ) {
     var error: Int32 = CL_SUCCESS
     let numDevices = devices.count
     let clDeviceIDs: [cl_device_id?] = devices.map(\.clDeviceID)
-    
+
+    let callback = CLContextCallback(notify)
     let object_ = clCreateContext(
-      properties, UInt32(numDevices), clDeviceIDs, notifyFptr, data, &error)
+      properties, UInt32(numDevices), clDeviceIDs, callback.callback,
+      callback.passRetained(), &error)
     guard CLError.setCode(error), let object_ = object_ else {
       return nil
     }
     self.init(object_)
   }
   
-  public init?(
-    device: CLDevice,
-    properties: UnsafePointer<cl_context_properties>? = nil,
-    data: UnsafeMutableRawPointer? = nil,
-    notifyFptr: (@convention(c) (
-      UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
-    ) -> Void)? = nil
-  ) {
-    var error: Int32 = CL_SUCCESS
-    var clDeviceID: cl_device_id? = device.clDeviceID
-    
-    let object_ = clCreateContext(
-      properties, 1, &clDeviceID, notifyFptr, data, &error)
-    guard CLError.setCode(error), let object_ = object_ else {
-      return nil
-    }
-    self.init(object_)
-  }
+//  public init?(
+//    device: CLDevice,
+//    properties: [CLContextProperties],
+//    notify: CLContextCallback.FunctionPointer? = nil
+//  ) {
+//    var error: Int32 = CL_SUCCESS
+//    var clDeviceID: cl_device_id? = device.clDeviceID
+//    
+//    let callback = CLContextCallback(notify)
+//    let object_ = clCreateContext(
+//      properties, 1, &clDeviceID, callback.callback, callback.passRetained(),
+//      &error)
+//    guard CLError.setCode(error), let object_ = object_ else {
+//      return nil
+//    }
+//    self.init(object_)
+//  }
   
   public init?(
     type: cl_device_type, // Convert this to an Int32 argument.
