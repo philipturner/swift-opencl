@@ -162,6 +162,9 @@ public struct CLContext: CLReferenceCountable {
     self.init(object_)
   }
   
+  // Create this property once I have implemented OpenCL memory objects.
+//  public var supportedImageFormats: [CLImageFormat]?
+  
   // An optimization for internal code looking for just the first device. This
   // skips creating unused object wrappers, each of which invokes `swift_retain`
   // and `clRetainDevice` once. It also skips creating an array that would be
