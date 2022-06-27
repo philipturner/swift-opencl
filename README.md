@@ -30,7 +30,7 @@ This package's source code has numerous comments explaining where its API struct
 
 ## Tips
 
-Most properties of OpenCL types take a non-negligible time to retrieve, making multiple function calls under the hood. When possible, access them once and reuse the returned value. This rule of thumb may also apply when using Metal.
+Most properties of OpenCL types take a non-negligible time to retrieve, making multiple function calls under the hood. When possible, access them once and reuse the returned value. This rule of thumb may apply when using other GPU libraries, such as Metal.
 
 ```swift
 // ❌
