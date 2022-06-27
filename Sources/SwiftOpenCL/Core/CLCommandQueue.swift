@@ -87,7 +87,7 @@ public struct CLCommandQueue: CLReferenceCountable {
   
   @inlinable
   public init?(context: CLContext, properties: CLCommandQueueProperties) {
-    guard let device = context.devices?[0] else {
+    guard let device = context.firstDevice else {
       return nil
     }
     self.init(context: context, device: device, properties: properties)
@@ -98,7 +98,7 @@ public struct CLCommandQueue: CLReferenceCountable {
   @inlinable
   public init?(properties: CLCommandQueueProperties) {
     guard let context = CLContext.defaultContext,
-          let device = context.devices?[0] else {
+          let device = context.firstDevice else {
       return nil
     }
     

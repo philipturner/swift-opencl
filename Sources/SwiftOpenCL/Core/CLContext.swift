@@ -173,6 +173,7 @@ public struct CLContext: CLReferenceCountable {
   // `nil` can also mean there are zero devices. All of the callers fail no
   // matter what `nil` means, so I don't have to distinguish between the two
   // meanings.
+  @usableFromInline
   internal var firstDevice: CLDevice? {
     var required = 0
     var err = getInfo(UInt32(CL_CONTEXT_DEVICES), 0, nil, &required)
@@ -180,11 +181,20 @@ public struct CLContext: CLReferenceCountable {
       return nil
     }
     let elements = required / MemoryLayout<OpaquePointer>.stride
+    guard elements > 0 else {
+      return nil
+    }
     
     return withUnsafeTemporaryAllocation(
       of: OpaquePointer.self, capacity: elements
     ) { bufferPointer in
-      nil
+      let value = bufferPointer.baseAddress.unsafelyUnwrapped
+      err = getInfo(UInt32(CL_CONTEXT_DEVICES), required, value, nil)
+      guard CLError.setCode(err) else {
+        return nil
+      }
+      
+      return CLDevice(value[0], retain: true)
     }
   }
 }

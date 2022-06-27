@@ -44,7 +44,7 @@ public struct CLDevice: CLReferenceCountable {
   
   public static var defaultDevice: CLDevice? = {
     guard let context = CLContext.defaultContext,
-          let device = context.devices?[0] else {
+          let device = context.firstDevice else {
       return nil
     }
     return device

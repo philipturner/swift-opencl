@@ -88,7 +88,7 @@ public struct CLDeviceCommandQueue {
     properties: CLCommandQueueProperties = [],
     size queueSize: UInt32? = nil
   ) {
-    guard let device = context.devices?[0] else {
+    guard let device = context.firstDevice else {
       return nil
     }
     self.init(
@@ -101,7 +101,7 @@ public struct CLDeviceCommandQueue {
     size queueSize: UInt32? = nil
   ) {
     guard let context = CLContext.defaultContext,
-          let device = context.devices?[0] else {
+          let device = context.firstDevice else {
       return nil
     }
     self.init(
