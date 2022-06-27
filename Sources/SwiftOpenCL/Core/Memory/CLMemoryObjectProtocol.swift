@@ -8,7 +8,7 @@
 import COpenCL
 
 // Do not make this protocol public. Its relation to `CLMemoryObject` differs
-// from the relation between `NSObject` and `NSObjectProtocol`, or the relation
+// from the relation between `NSObject` and `NSObjectProtocol`, and the relation
 // between `Tensor` and `TensorProtocol`.
 @usableFromInline
 protocol CLMemoryObjectProtocol {

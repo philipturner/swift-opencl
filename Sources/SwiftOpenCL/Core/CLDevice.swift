@@ -49,4 +49,30 @@ public struct CLDevice: CLReferenceCountable {
     }
     return device
   }()
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
+  var currentHostTimer: UInt64? {
+    var hostTimestamp: UInt64 = 0
+    #if !canImport(Darwin)
+    let err = clGetHostTimer(wrapper.object, &hostTimestamp)
+    guard CLError.setCode(err, "__GET_HOST_TIMER_ERR") else {
+      return nil
+    }
+    #endif
+    return hostTimestamp
+  }
+  
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
+  var currentDeviceAndHostTimer: (UInt64, UInt64)? {
+    var deviceTimestamp: UInt64 = 0
+    var hostTimestamp: UInt64 = 0
+    #if !canImport(Darwin)
+    let err = clGetDeviceAndHostTimer(
+      wrapper.object, &deviceTimestamp, &hostTimestamp)
+    guard CLError.setCode(err, "__GET_DEVICE_AND_HOST_TIMER_ERR") else {
+      return nil
+    }
+    #endif
+    return (deviceTimestamp, hostTimestamp)
+  }
 }
