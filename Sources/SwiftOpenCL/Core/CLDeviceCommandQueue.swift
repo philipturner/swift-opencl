@@ -46,7 +46,7 @@ public struct CLDeviceCommandQueue {
     var object_: cl_command_queue?
     if let queueSize = queueSize {
       #if !canImport(Darwin)
-      CLQueueProperties.withUnsafeTemporaryAllocation(properties: [
+      CLQueueProperty.withUnsafeTemporaryAllocation(properties: [
         .properties: cl_queue_properties(mergedProperties.rawValue),
         .size: cl_queue_properties(queueSize)
       ]) { queueProperties in
@@ -57,7 +57,7 @@ public struct CLDeviceCommandQueue {
       #endif
     } else {
       #if !canImport(Darwin)
-      CLQueueProperties.withUnsafeTemporaryAllocation(properties: [
+      CLQueueProperty.withUnsafeTemporaryAllocation(properties: [
         .properties: cl_queue_properties(mergedProperties.rawValue)
       ]) { queueProperties in
         object_ = clCreateCommandQueueWithProperties(

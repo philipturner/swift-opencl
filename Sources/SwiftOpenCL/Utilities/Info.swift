@@ -200,7 +200,7 @@ func getInfo_ArrayOfCLNameVersion(
   }
 }
 
-func getInfo_ArrayOfCLProperties<T: CLProperties>(
+func getInfo_ArrayOfCLProperty<T: CLProperty>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> [T]? {
   var required = 0

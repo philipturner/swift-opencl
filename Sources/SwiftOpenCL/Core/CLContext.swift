@@ -42,7 +42,7 @@ public struct CLContext: CLReferenceCountable {
     let defaultPlatformID = p.clPlatformID
     
     var object_: cl_context?
-    object_ = CLContextProperties.withUnsafeTemporaryAllocation(properties: [
+    object_ = CLContextProperty.withUnsafeTemporaryAllocation(properties: [
       .platform: cl_context_properties(bitPattern: defaultPlatformID)
     ]) { properties in
       clCreateContextFromType(
@@ -58,7 +58,7 @@ public struct CLContext: CLReferenceCountable {
   
   public init?(
     devices: [CLDevice],
-    properties: [CLContextProperties]? = nil,
+    properties: [CLContextProperty]? = nil,
     notify: CLContextCallback.FunctionPointer? = nil
   ) {
     var error: Int32 = CL_SUCCESS
@@ -67,7 +67,7 @@ public struct CLContext: CLReferenceCountable {
     
     let callback = CLContextCallback(notify)
     var object_: cl_context?
-    object_ = CLContextProperties.withUnsafeTemporaryAllocation(
+    object_ = CLContextProperty.withUnsafeTemporaryAllocation(
       properties: properties
     ) { properties in
       clCreateContext(
@@ -83,7 +83,7 @@ public struct CLContext: CLReferenceCountable {
   
   public init?(
     device: CLDevice,
-    properties: [CLContextProperties]? = nil,
+    properties: [CLContextProperty]? = nil,
     notify: CLContextCallback.FunctionPointer? = nil
   ) {
     var error: Int32 = CL_SUCCESS
@@ -91,7 +91,7 @@ public struct CLContext: CLReferenceCountable {
     
     let callback = CLContextCallback(notify)
     let object_: cl_context?
-    object_ = CLContextProperties.withUnsafeTemporaryAllocation(
+    object_ = CLContextProperty.withUnsafeTemporaryAllocation(
       properties: properties
     ) { properties in
       clCreateContext(
@@ -107,7 +107,7 @@ public struct CLContext: CLReferenceCountable {
   
   public init?(
     type: CLDeviceType,
-    properties: [CLContextProperties]? = nil,
+    properties: [CLContextProperty]? = nil,
     notify: CLContextCallback.FunctionPointer? = nil
   ) {
     // There is no documentation about why the C++ bindings don't set the
@@ -116,7 +116,7 @@ public struct CLContext: CLReferenceCountable {
     
     // Redefine the local variable `properties`.
     let inputProperties = properties
-    var properties = inputProperties ?? [CLContextProperties](
+    var properties = inputProperties ?? [CLContextProperty](
       unsafeUninitializedCapacity: 1, initializingWith: { _, _ in })
     
     // Get a valid platform ID as we cannot send in a blank one.
@@ -148,7 +148,7 @@ public struct CLContext: CLReferenceCountable {
     
     let callback = CLContextCallback(notify)
     var object_: cl_context?
-    object_ = CLContextProperties.withUnsafeTemporaryAllocation(
+    object_ = CLContextProperty.withUnsafeTemporaryAllocation(
       properties: properties
     ) { properties in
       clCreateContextFromType(
@@ -218,8 +218,8 @@ extension CLContext {
     getInfo_ArrayOfCLReferenceCountable(CL_CONTEXT_DEVICES, getInfo)
   }
   
-  public var properties: [CLContextProperties]? {
-    getInfo_ArrayOfCLProperties(CL_CONTEXT_PROPERTIES, getInfo)
+  public var properties: [CLContextProperty]? {
+    getInfo_ArrayOfCLProperty(CL_CONTEXT_PROPERTIES, getInfo)
   }
   
   // OpenCL 1.1

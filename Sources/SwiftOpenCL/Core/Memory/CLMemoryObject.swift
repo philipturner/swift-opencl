@@ -97,11 +97,11 @@ extension CLMemoryObject {
   // OpenCL 3.0
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-  public var memoryProperties: [CLMemoryProperties]? {
+  public var memoryProperties: [CLMemoryProperty]? {
     let name: Int32 = 0x110A
     #if !canImport(Darwin)
     assert(CL_MEM_PROPERTIES == name)
     #endif
-    return getInfo_ArrayOfCLProperties(name, getInfo)
+    return getInfo_ArrayOfCLProperty(name, getInfo)
   }
 }

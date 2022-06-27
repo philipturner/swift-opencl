@@ -1,5 +1,5 @@
 //
-//  CLProperties.swift
+//  CLProperty.swift
 //  
 //
 //  Created by Philip Turner on 6/26/22.
@@ -7,14 +7,14 @@
 
 import COpenCL
 
-protocol CLProperties {
+protocol CLProperty {
   associatedtype Key: CLMacro
   
   init(key: Key.RawValue, value: Key.RawValue)
   
   func serialized() -> (Key.RawValue, Key.RawValue)
 }
-extension CLProperties {
+extension CLProperty {
   @inline(__always)
   @discardableResult
   static func withUnsafeTemporaryAllocation<T>(
@@ -63,7 +63,9 @@ extension CLProperties {
   }
 }
 
-public enum CLContextProperties: CLProperties {
+// MARK: - Property Types
+
+public enum CLContextProperty: CLProperty {
   case platform(CLPlatform)
   case interopUserSync(Bool)
   
@@ -101,7 +103,7 @@ public enum CLContextProperties: CLProperties {
 }
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-public enum CLMemoryProperties: CLProperties {
+public enum CLMemoryProperty: CLProperty {
   struct Key: CLMacro {
     let rawValue: cl_mem_properties
     init(rawValue: cl_mem_properties) {
@@ -129,14 +131,14 @@ public enum CLMemoryProperties: CLProperties {
 // This also conflicts with `cl_queue_properties_APPLE`. `cl_queue_properties`
 // has a different `RawValue` than the Apple counterpart, and calls into a
 // different function (`clCreateCommandQueueWithPropertiesAPPLE`). I may change
-// the implementation of `CLQueueProperties` to support Apple's extension.
+// the implementation of `CLQueueProperty` to support Apple's extension.
 //
 // The Apple version of creating a command queue with properties does not allow
 // setting `CL_QUEUE_SIZE`. Instead, Apple supports two new properties:
 // - CL_COMMAND_QUEUE_PRIORITY_APPLE
 // - CL_COMMAND_QUEUE_NUM_COMPUTE_UNITS_APPLE
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-public enum CLQueueProperties: CLProperties {
+public enum CLQueueProperty: CLProperty {
   case properties(CLCommandQueueProperties)
   case size(UInt32)
   
@@ -169,4 +171,37 @@ public enum CLQueueProperties: CLProperties {
       return (Key.size.rawValue, .init(size))
     }
   }
+}
+
+// MARK: - Custom Property Types
+
+// One of the associated values is an array, which cannot be represented by an
+// integral type. Therefore, this cannot conform to `CLProperties`. It also
+// never appears in an array of other properties, so
+// `withUnsafeTemporaryAllocation` should be implemented differently.
+public enum CLDevicePartitionProperty2 {
+  case equally(UInt32)
+  case byCounts([UInt32])
+  case byAffinityDomain(CLDeviceAffinityDomain)
+  
+  typealias Key = CLDevicePartitionPropertyKey
+  
+}
+
+// The device partition property equivalent of `CLProperty.Key`.
+//
+// Unlike other property types, `CLDevicePartitionProperty`'s key must be
+// public. This lets it match the semantics of `CL_DEVICE_PARTITION_PROPERTIES`
+// by returning a list of supported keys. To make `Key` easy to enumerate over,
+// it is an `enum` instead of a `struct`.
+//
+// Showing `CLDevicePartitionProperty.Key` in the public API would appear wildly
+// different than every other type exposed by OpenCL. None of the exposed
+// properties sourced from `getInfoHelper` return nested types. To solve this
+// problem, I made the key a top level type. Its name is now one continuous
+// word: `CLDevicePartitionPropertyKey`.
+public enum CLDevicePartitionPropertyKey: cl_device_partition_property {
+  case equally = 0x1086
+  case byCounts = 0x1087
+  case byAffinityDomain = 0x1088
 }

@@ -115,8 +115,6 @@ public struct CLDevicePartitionProperty: CLMacro {
   
   public static let equally = Self(CL_DEVICE_PARTITION_EQUALLY)
   public static let byCounts = Self(CL_DEVICE_PARTITION_BY_COUNTS)
-  public static let byCountsListEnd = Self(
-    CL_DEVICE_PARTITION_BY_COUNTS_LIST_END)
   public static let byAffinityDomain = Self(
     CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN)
 }

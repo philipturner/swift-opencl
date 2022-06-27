@@ -57,7 +57,7 @@ public struct CLCommandQueue: CLReferenceCountable {
     var object_: cl_command_queue?
     if useWithProperties {
       #if !canImport(Darwin)
-      CLQueueProperties.withUnsafeTemporaryAllocation(properties: [
+      CLQueueProperty.withUnsafeTemporaryAllocation(properties: [
         .properties: cl_queue_properties(properties.rawValue)
       ]) { queueProperties in
         // To make a queue that's on-device, use `CLDeviceCommandQueue`.
@@ -172,11 +172,11 @@ extension CLCommandQueue {
   // OpenCL 3.0
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-  public var propertiesArray: [CLQueueProperties]? {
+  public var propertiesArray: [CLQueueProperty]? {
     let name: Int32 = 0x1098
     #if !canImport(Darwin)
     assert(CL_QUEUE_PROPERTIES_ARRAY == name)
     #endif
-    return getInfo_ArrayOfCLProperties(name, getInfo)
+    return getInfo_ArrayOfCLProperty(name, getInfo)
   }
 }

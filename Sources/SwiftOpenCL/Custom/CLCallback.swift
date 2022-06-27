@@ -7,13 +7,8 @@
 
 import COpenCL
 
-public protocol CLCallback {
+protocol CLCallback: AnyObject {
   associatedtype FunctionPointer
-}
-
-// A second-level protocol that defines internal requirements. These should not
-// be made public and do not belong in the DocC documentation.
-protocol CLCallbackExtended: CLCallback, AnyObject {
   var functionPointer: FunctionPointer? { get }
   init(_ functionPointer: FunctionPointer?)
   
@@ -21,7 +16,7 @@ protocol CLCallbackExtended: CLCallback, AnyObject {
   associatedtype CallbackFunctionPointer
   static var unwrappedCallback: CallbackFunctionPointer { get }
 }
-extension CLCallbackExtended {
+extension CLCallback {
   @inline(__always)
   func passRetained() -> UnsafeMutableRawPointer {
     Unmanaged.passRetained(self).toOpaque()
@@ -36,7 +31,7 @@ extension CLCallbackExtended {
   }
 }
 
-public final class CLContextCallback: CLCallbackExtended {
+public final class CLContextCallback: CLCallback {
   public typealias FunctionPointer = (
     _ errinfo: UnsafePointer<Int8>?,
     _ private_info: UnsafeRawPointer?,
@@ -58,7 +53,7 @@ public final class CLContextCallback: CLCallbackExtended {
   }
 }
 
-public final class CLEventCallback: CLCallbackExtended {
+public final class CLEventCallback: CLCallback {
   public typealias FunctionPointer = (
     _ event: cl_event?,
     _ event_command_status: Int32?) -> Void
@@ -78,7 +73,7 @@ public final class CLEventCallback: CLCallbackExtended {
   }
 }
 
-public final class CLProgramCallback: CLCallbackExtended {
+public final class CLProgramCallback: CLCallback {
   public typealias FunctionPointer = (
     _ program: cl_program?) -> Void
   var functionPointer: FunctionPointer?
