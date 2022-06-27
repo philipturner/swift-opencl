@@ -33,21 +33,27 @@ public struct CLContext: CLReferenceCountable {
   }
   
   public static var defaultContext: CLContext? = {
-    #if !canImport(Darwin)
+    // There is no documentation about why the C++ bindings don't set the
+    // platform on macOS. So I am setting it, then seeing if it breaks.
+    var error: Int32 = CL_SUCCESS
     guard let p = CLPlatform.defaultPlatform else {
       return nil
     }
     let defaultPlatformID = p.clPlatformID
-    return CLContextProperties.withUnsafeTemporaryAllocation(properties: [
+    
+    var object_: cl_context?
+    object_ = CLContextProperties.withUnsafeTemporaryAllocation(properties: [
       .platform: cl_context_properties(bitPattern: defaultPlatformID)
     ]) { properties in
-      CLContext(
-        type: .`default`, properties: properties.baseAddress)
+      clCreateContextFromType(
+        properties.baseAddress, CLDeviceType.`default`.rawValue, nil, nil,
+        &error)
     }
-    #else
-    return CLContext(
-      type: .`default`, properties: nil)
-    #endif
+    guard CLError.setCode(error),
+          let object_ = object_ else {
+      return nil
+    }
+    return CLContext(object_)
   }()
   
   public init?(
@@ -68,7 +74,8 @@ public struct CLContext: CLReferenceCountable {
         properties.baseAddress, UInt32(numDevices), clDeviceIDs,
         callback.callback, callback.passRetained(), &error)
     }
-    guard CLError.setCode(error), let object_ = object_ else {
+    guard CLError.setCode(error),
+          let object_ = object_ else {
       return nil
     }
     self.init(object_)
@@ -91,7 +98,8 @@ public struct CLContext: CLReferenceCountable {
         properties.baseAddress, 1, &clDeviceID, callback.callback,
         callback.passRetained(), &error)
     }
-    guard CLError.setCode(error), let object_ = object_ else {
+    guard CLError.setCode(error),
+          let object_ = object_ else {
       return nil
     }
     self.init(object_)
@@ -99,14 +107,60 @@ public struct CLContext: CLReferenceCountable {
   
   public init?(
     type: CLDeviceType,
-    // TODO: Change [CLContextProperties] to Set<CLContextProperties> everywhere
     properties: [CLContextProperties]? = nil,
     notify: CLContextCallback.FunctionPointer? = nil
   ) {
-    // requires CLPlatform.getDevices()
-    fatalError()
+    // There is no documentation about why the C++ bindings don't set the
+    // platform on macOS. So I am setting it, then seeing if it breaks.
+    var error: Int32 = CL_SUCCESS
     
-    // Overrides the CL_CONTEXT_PLATFORM. Why is it disabled on macOS?
+    // Redefine the local variable `properties`.
+    let inputProperties = properties
+    var properties = inputProperties ?? [CLContextProperties](
+      unsafeUninitializedCapacity: 1, initializingWith: { _, _ in })
+    
+    // Get a valid platform ID as we cannot send in a blank one.
+    if !properties.contains(where: {
+      if case .platform = $0 {
+        return true
+      }
+      return false
+    }) {
+      
+      var selectedPlatform: CLPlatform?
+      guard let availablePlatforms = CLPlatform.availablePlatforms else {
+        return nil
+      }
+      for platform in availablePlatforms {
+        guard let numDevices = platform.numDevices(type: type) else {
+          return nil
+        }
+        if numDevices > 0 {
+          selectedPlatform = platform
+          break
+        }
+      }
+      guard let selectedPlatform = selectedPlatform else {
+        CLError.setCode(CL_DEVICE_NOT_FOUND, "__CREATE_CONTEXT_FROM_TYPE_ERR")
+        return nil
+      }
+      properties.append(.platform(selectedPlatform))
+    }
+    
+    let callback = CLContextCallback(notify)
+    var object_: cl_context?
+    object_ = CLContextProperties.withUnsafeTemporaryAllocation(
+      properties: properties
+    ) { properties in
+      clCreateContextFromType(
+        properties.baseAddress, type.rawValue, callback.callback,
+        callback.passRetained(), &error)
+    }
+    guard CLError.setCode(error, "__CREATE_CONTEXT_FROM_TYPE_ERR"),
+          let object_ = object_ else {
+      return nil
+    }
+    self.init(object_)
   }
 }
 

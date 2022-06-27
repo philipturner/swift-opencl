@@ -56,8 +56,6 @@ public struct CLPlatform: CLReferenceCountable {
     }
   }()
   
-  // Property getter for `availablePlatforms`
-  
   public static var availablePlatforms: [CLPlatform]? {
     var n: UInt32 = 0
     var err = clGetPlatformIDs(0, nil, &n)
@@ -85,9 +83,7 @@ public struct CLPlatform: CLReferenceCountable {
         //
         // The statement below force-unwraps the output of `CLPlatform.init`.
         // Since it doesn't reference count, there is no execution path that
-        // lets the initializer fail. TODO: Scan other code for instances where
-        // I can remove an unnecessary guard statement around
-        // `CLReferenceCountable.init`.
+        // lets the initializer fail.
         let element = CLPlatform(ids[i]!)!
         output.append(element)
       }
@@ -95,18 +91,25 @@ public struct CLPlatform: CLReferenceCountable {
     }
   }
   
-  public func devices(type: CLDeviceType) -> [CLDevice]? {
+  public func numDevices(type: CLDeviceType) -> UInt32? {
     var n: UInt32 = 0
-    var err = clGetDeviceIDs(wrapper.object, type.rawValue, 0, nil, &n)
+    let err = clGetDeviceIDs(wrapper.object, type.rawValue, 0, nil, &n)
     if err == CL_DEVICE_NOT_FOUND {
       precondition(n == 0, """
         If no OpenCL devices are found, the number of devices should be zero.
         """)
-      return []
+      return 0
     } else {
       guard CLError.setCode(err) else {
         return nil
       }
+    }
+    return n
+  }
+  
+  public func devices(type: CLDeviceType) -> [CLDevice]? {
+    guard let n = self.numDevices(type: type) else {
+      return nil
     }
     let elements = Int(n)
     
@@ -114,7 +117,7 @@ public struct CLPlatform: CLReferenceCountable {
       of: cl_device_id?.self, capacity: elements
     ) { bufferPointer in
       let ids = bufferPointer.baseAddress.unsafelyUnwrapped
-      err = clGetDeviceIDs(wrapper.object, type.rawValue, n, ids, nil)
+      let err = clGetDeviceIDs(wrapper.object, type.rawValue, n, ids, nil)
       guard CLError.setCode(err) else {
         return nil
       }

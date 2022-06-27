@@ -32,6 +32,15 @@ public struct CLDeviceType: CLBitField {
   public static let gpu = Self(CL_DEVICE_TYPE_GPU)
   public static let accelerator = Self(CL_DEVICE_TYPE_ACCELERATOR)
   public static let custom = Self(CL_DEVICE_TYPE_CUSTOM)
+  
+  // This type's raw value (0xFFFFFFFF) fills all bits, encompassing all
+  // possible device types. Do not treat it like a unique device type.
+  //
+  // Because the `CL_DEVICE_TYPE_ALL` is larger than `Int32.max`, Swift imports
+  // it as `UInt32`. This prevents me from initializing it like other device
+  // types. The explicit cast to `Self` shows that the alternative initializer
+  // cannot return `nil`.
+  public static let all = Self(rawValue: RawValue(CL_DEVICE_TYPE_ALL)) as Self
 }
 
 public struct CLDeviceFloatingPointConfig: CLBitField {
