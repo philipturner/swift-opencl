@@ -42,13 +42,11 @@ public struct CLContext: CLReferenceCountable {
       .platform: cl_context_properties(bitPattern: defaultPlatformID)
     ]) { properties in
       CLContext(
-        type: .`default`, properties: properties.baseAddress, data: nil,
-        notifyFptr: nil)
+        type: .`default`, properties: properties.baseAddress)
     }
     #else
     return CLContext(
-      type: .`default`, properties: nil, data: nil,
-      notifyFptr: nil)
+      type: .`default`, properties: nil)
     #endif
   }()
   
@@ -101,11 +99,8 @@ public struct CLContext: CLReferenceCountable {
   
   public init?(
     type: CLDeviceType,
-    properties: UnsafePointer<cl_context_properties>? = nil,
-    data: UnsafeMutableRawPointer? = nil,
-    notifyFptr: (@convention(c) (
-      UnsafePointer<Int8>?, UnsafeRawPointer?, Int, UnsafeMutableRawPointer?
-    ) -> Void)? = nil
+    properties: [CLContextProperties]? = nil,
+    notify: CLContextCallback.FunctionPointer? = nil
   ) {
     // requires CLPlatform.getDevices()
     fatalError()
