@@ -76,14 +76,42 @@ public struct CLDevice: CLReferenceCountable {
     return (deviceTimestamp, hostTimestamp)
   }
   
-  // We do not need to retain because this device is being created
-  // by the runtime.
-  
   // This differs from the C++ bindings, which use the argument label
   // `properties`. Only one property can pass in according to the OpenCL 3.0
   // specification (not explicitly stated, but implied). This code is tailored
   // for that constraint.
-//  public func subDevices(property: CLDevicePartitionProperty) -> [CLDevice]? {
-//    
-//  }
+  public func subDevices(property: CLDevicePartitionProperty) -> [CLDevice]? {
+    CLDevicePartitionProperty.withUnsafeTemporaryAllocation(
+      property: property
+    ) { bufferPointer in
+      let property = bufferPointer.baseAddress.unsafelyUnwrapped
+      var n: UInt32 = 0
+      var err = clCreateSubDevices(wrapper.object, property, 0, nil, &n)
+      guard CLError.setCode(err, "__CREATE_SUB_DEVICES_ERR") else {
+        return nil
+      }
+      let elements = Int(n)
+      
+      return withUnsafeTemporaryAllocation(
+        of: cl_device_id?.self, capacity: elements
+      ) { bufferPointer in
+        let ids = bufferPointer.baseAddress.unsafelyUnwrapped
+        err = clCreateSubDevices(wrapper.object, property, n, ids, nil)
+        guard CLError.setCode(err, "__CREATE_SUB_DEVICES_ERR") else {
+          return nil
+        }
+        
+        var output: [CLDevice] = []
+        output.reserveCapacity(elements)
+        for i in 0..<elements {
+          // We do not need to retain because this device is being created by
+          // the runtime. For why `CLDevice.init` is force-unwrapped, see the
+          // comment in `CLPlatform.availablePlatforms`.
+          let device = CLDevice(ids[i]!, retain: false)!
+          output.append(device)
+        }
+        return output
+      }
+    }
+  }
 }

@@ -262,9 +262,10 @@ extension CLProgram {
       var kernels: [CLKernel] = []
       kernels.reserveCapacity(Int(numKernels))
       for i in 0..<Int(numKernels) {
-        guard let kernel = CLKernel(value[i]!, retain: false) else {
-          return nil
-        }
+        // We do not need to retain because this kernel is being created by the
+        // runtime. For why `CLKernel.init` is force-unwrapped, see the comment
+        // in `CLPlatform.availablePlatforms`.
+        let kernel = CLKernel(value[i]!, retain: false)!
         kernels.append(kernel)
       }
       return kernels
