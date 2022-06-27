@@ -126,7 +126,6 @@ public struct CLContext: CLReferenceCountable {
       }
       return false
     }) {
-      
       var selectedPlatform: CLPlatform?
       guard let availablePlatforms = CLPlatform.availablePlatforms else {
         return nil
@@ -161,6 +160,32 @@ public struct CLContext: CLReferenceCountable {
       return nil
     }
     self.init(object_)
+  }
+  
+  // An optimization for internal code looking for just the first device. This
+  // skips creating unused object wrappers, each of which invokes `swift_retain`
+  // and `clRetainDevice` once. It also skips creating an array that would be
+  // quickly discarded.
+  //
+  // It should also not be public because it returns an optional. In
+  // SwiftOpenCL, optionals imply that something failed while fetching a
+  // property, and you should crash using `CLError.latest`. With `firstDevice`,
+  // `nil` can also mean there are zero devices. All of the callers fail no
+  // matter what `nil` means, so I don't have to distinguish between the two
+  // meanings.
+  internal var firstDevice: CLDevice? {
+    var required = 0
+    var err = getInfo(UInt32(CL_CONTEXT_DEVICES), 0, nil, &required)
+    guard CLError.setCode(err) else {
+      return nil
+    }
+    let elements = required / MemoryLayout<OpaquePointer>.stride
+    
+    return withUnsafeTemporaryAllocation(
+      of: OpaquePointer.self, capacity: elements
+    ) { bufferPointer in
+      nil
+    }
   }
 }
 
