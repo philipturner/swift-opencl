@@ -106,7 +106,6 @@ extension CLVersion {
     self.init(clPlatformID: clPlatformID)
   }
   
-  /// Initialize with the raw C pointer to the context.
   public init?(clContext: cl_context) {
     var size = 0
     var error = clGetContextInfo(

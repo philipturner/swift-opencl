@@ -80,9 +80,17 @@ public struct CLDevice: CLReferenceCountable {
   // `properties`. Only one property can pass in according to the OpenCL 3.0
   // specification (not explicitly stated, but implied). This code is tailored
   // for that constraint.
-  public func subDevices(property: CLDevicePartitionProperty) -> [CLDevice]? {
+  //
+  // Instead of naming the argument label `property`, I chose the more
+  // descriptive label `partitionType`. This creates an API similar to
+  // `CLPlatform.devices(type:)`. No other functions in SwiftOpenCL use an API
+  // like `CLPlatform.devices(property:)`, so a label similar to `type` may
+  // create a uniform naming convention.
+  public func subDevices(
+    partitionType: CLDevicePartitionProperty
+  ) -> [CLDevice]? {
     CLDevicePartitionProperty.withUnsafeTemporaryAllocation(
-      property: property
+      property: partitionType
     ) { bufferPointer in
       let property = bufferPointer.baseAddress.unsafelyUnwrapped
       var n: UInt32 = 0
