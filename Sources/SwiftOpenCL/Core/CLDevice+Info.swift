@@ -1,5 +1,5 @@
 //
-//  CLDevice+Properties.swift
+//  CLDevice+Info.swift
 //  
 //
 //  Created by Philip Turner on 5/20/22.

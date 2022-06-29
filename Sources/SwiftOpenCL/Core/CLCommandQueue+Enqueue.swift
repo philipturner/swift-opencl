@@ -1,5 +1,5 @@
 //
-//  CLCommandQueue+Methods.swift
+//  CLCommandQueue+Enqueue.swift
 //  
 //
 //  Created by Philip Turner on 6/21/22.

@@ -1,5 +1,5 @@
 //
-//  CLKernel+Properties.swift
+//  CLKernel+Info.swift
 //  
 //
 //  Created by Philip Turner on 6/22/22.
