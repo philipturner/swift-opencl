@@ -52,7 +52,8 @@ public struct CLNameVersion {
 }
 
 extension CLVersion {
-  public init?(clPlatformID: cl_platform_id) {
+  @usableFromInline
+  init?(clPlatformID: cl_platform_id) {
     var size = 0
     var error = clGetPlatformInfo(
       clPlatformID, UInt32(CL_PLATFORM_VERSION), 0, nil, &size)
@@ -94,7 +95,13 @@ extension CLVersion {
     }
   }
   
-  public init?(clDeviceID: cl_device_id) {
+  @inlinable @inline(__always)
+  public init?(platform: CLPlatform) {
+    self.init(clPlatformID: platform.clPlatformID)
+  }
+  
+  @usableFromInline
+  init?(clDeviceID: cl_device_id) {
     var clPlatformID: cl_platform_id?
     let error = clGetDeviceInfo(
       clDeviceID, UInt32(CL_DEVICE_PLATFORM),
@@ -106,7 +113,13 @@ extension CLVersion {
     self.init(clPlatformID: clPlatformID)
   }
   
-  public init?(clContext: cl_context) {
+  @inlinable @inline(__always)
+  public init?(device: CLDevice) {
+    self.init(clDeviceID: device.clDeviceID)
+  }
+  
+  @usableFromInline
+  init?(clContext: cl_context) {
     var size = 0
     var error = clGetContextInfo(
       clContext, UInt32(CL_CONTEXT_DEVICES), 0, nil, &size)
@@ -130,6 +143,11 @@ extension CLVersion {
       return nil
     }
     self.init(clDeviceID: clDeviceID)
+  }
+  
+  @inlinable @inline(__always)
+  public init?(context: CLContext) {
+    self.init(clContext: context.clContext)
   }
 }
 

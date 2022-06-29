@@ -34,8 +34,14 @@ extension CLCallback {
 
 // Minor change to the closure parameters: combining `private_info` and `cb`
 // into an `UnsafeRawBufferPointer`. Did not convert `errinfo` to `String` or
-// `private_info` to `Data` for performance reasons. Also, this should be as
-// close as possible to the bare OpenCL API.
+// `private_info` to `Data` for performance reasons. Automatically converting
+// these to higher-level Swift types might harm developer ergonomics. If the
+// user wanted to access the original function inputs with minimal overhead, it
+// would be extremely difficult to do so manually.
+//
+// I am still debating whether to convert these to higher-level Swift types.
+// Until there is a compelling reason for a change, the Swift bindings will
+// retain the same public API as the C++ bindings.
 final class CLContextCallback: CLCallback {
   typealias FunctionPointer = (
     _ errorInfo: UnsafePointer<Int8>?,
