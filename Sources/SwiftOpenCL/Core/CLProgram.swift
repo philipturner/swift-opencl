@@ -172,123 +172,96 @@ public struct CLProgram: CLReferenceCountable {
     self.init(context: context, il: il)
   }
   
-  // Remove this comment once I'm sure it's useless (also preserve it in a Git
-  // commit).
-//   Copies the contents of `binaries` before passing them into the C function.
-//   See the comment on `init?(context:sources:)` for performance implications
-//   of this copying behavior. Here, using `withUnsafeTemporaryAllocation` could
-//   eliminate 6 function calls instead of 4. In addition, using three separate
-//   temporary buffers triples the chance they will allocate on the stack.
-  //
   // Unlike `init?(context:sources:)`, this function can get away with not
-  // copying the contents of `binaries`. This is nominally unsafe, but should
-  // be fine if each `Data` is never mutated. As a precaution, I ensured that
-  // `binaries` does not deallocate until the relevant code has finished.
-//  @usableFromInline
-//  internal init?(
-//    context: CLContext,
-//    devices: [CLDevice],
-//    binaries: [Data],
-//    binaryStatus: inout [Int32]?,
-//    usingBinaryStatus: Bool
-//  ) {
-//    var error: Int32 = CL_SUCCESS
-//    let numDevices = devices.count
-//    guard binaries.count == devices.count else {
-//      CLError.setCode(CL_INVALID_VALUE, "__CREATE_PROGRAM_WITH_BINARY_ERR")
-//      return nil
-//    }
-//    
-//    var object_: cl_program?
-//    withExtendedLifetime(binaries) {
-//    
-//    withUnsafeTemporaryAllocation(
-//      of: Int.self, capacity: numDevices
-//    ) { bufferPointer in
-//      let lengths = bufferPointer.baseAddress.unsafelyUnwrapped
-//      
-//    withUnsafeTemporaryAllocation(
-//      of: UnsafePointer<UInt8>?.self, capacity: numDevices
-//    ) { bufferPointer in
-//      let images = bufferPointer.baseAddress.unsafelyUnwrapped
-//      for i in 0..<numDevices {
-//        let binary = binaries[i]
-//        let image =
-//        binary.withUnsafeBytes {
-//          let binary: UnsafeMutablePointer
-//        }
-//      }
-//      
-//    withUnsafeTemporaryAllocation(
-//      of: cl_device_id?.self, capacity: numDevices
-//    ) { bufferPointer in
-//      let clDeviceIDs = bufferPointer.baseAddress.unsafelyUnwrapped
-//      
-//      // Filling `clDeviceIDs` in a different loop than `lengths` and `images`
-//      // to maximize the chance that LLVM vectorizes the memory copying.
-//      
-//      
-//    }
-//    }
-//    }
-//    }
-//    
-//    var lengths: [Int] = []
-//    lengths.reserveCapacity(numDevices)
-//    var images: [UnsafePointer<UInt8>?] = []
-//    images.reserveCapacity(numDevices)
-//    var clDeviceIDs: [cl_device_id?] = []
-//    clDeviceIDs.reserveCapacity(numDevices)
-//    
-//    for i in 0..<numDevices {
-//      let binary = binaries[i]
-//      binary.withUnsafeBytes { bufferPointer in
-//        lengths.append(bufferPointer.count)
-//        images.append(
-//          bufferPointer.baseAddress.unsafelyUnwrapped
-//            .assumingMemoryBound(to: UInt8.self))
-//      }
-//      clDeviceIDs.append(devices[i].clDeviceID)
-//    }
-//    
-//    
-//    if usingBinaryStatus {
-//      binaryStatus = Array(repeating: 0, count: numDevices)
-//      object_ = clCreateProgramWithBinary(context.clContext, UInt32(numDevices), clDeviceIDs, lengths, &images, &binaryStatus!, &error)
-//    } else {
-//      object_ = clCreateProgramWithBinary(context.clContext, UInt32(numDevices), clDeviceIDs, lengths, &images, nil, &error)
-//    }
-//    
-//    guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_BINARY_ERR"),
-//          let object_ = object_ else {
-//      return nil
-//    }
-//    self.init(object_)
-//  }
-//  
-//  @inlinable @inline(__always)
-//  public init?(
-//    context: CLContext,
-//    devices: [CLDevice],
-//    binaries: [Data]
-//  ) {
-//    var ignoredBinaryStatus: [Int32]?
-//    self.init(
-//      context: context, devices: devices, binaries: binaries,
-//      binaryStatus: &ignoredBinaryStatus, usingBinaryStatus: false)
-//  }
-//  
-//  @inlinable @inline(__always)
-//  public init?(
-//    context: CLContext,
-//    devices: [CLDevice],
-//    binaries: [Data],
-//    binaryStatus: inout [Int32]?
-//  ) {
-//    self.init(
-//      context: context, devices: devices, binaries: binaries,
-//      binaryStatus: &binaryStatus, usingBinaryStatus: true)
-//  }
+  // copying the contents of `binaries`. Apple's documentation warns to never
+  // use the `Data`'s pointer outside the closure's scope, but I'm fine as long
+  // as the `Data` is never mutated or deallocated. As a precaution, I ensured
+  // that `binaries` does not deallocate until the relevant code has finished.
+  @usableFromInline
+  internal init?(
+    context: CLContext,
+    devices: [CLDevice],
+    binaries: [Data],
+    binaryStatus: inout [Int32]?,
+    usingBinaryStatus: Bool
+  ) {
+    var error: Int32 = CL_SUCCESS
+    let numDevices = devices.count
+    guard binaries.count == devices.count else {
+      CLError.setCode(CL_INVALID_VALUE, "__CREATE_PROGRAM_WITH_BINARY_ERR")
+      return nil
+    }
+    
+    var object_: cl_program?
+    withExtendedLifetime(binaries) {
+    
+    withUnsafeTemporaryAllocation(
+      of: Int.self, capacity: numDevices
+    ) { bufferPointer in
+      let lengths = bufferPointer.baseAddress.unsafelyUnwrapped
+      
+    withUnsafeTemporaryAllocation(
+      of: UnsafePointer<UInt8>?.self, capacity: numDevices
+    ) { bufferPointer in
+      let images = bufferPointer.baseAddress.unsafelyUnwrapped
+      
+    withUnsafeTemporaryAllocation(
+      of: cl_device_id?.self, capacity: numDevices
+    ) { bufferPointer in
+      let clDeviceIDs = bufferPointer.baseAddress.unsafelyUnwrapped
+      for i in 0..<numDevices {
+        binaries[i].withUnsafeBytes {
+          lengths[i] = $0.count
+          images[i] = $0.baseAddress?.assumingMemoryBound(to: UInt8.self)
+        }
+        clDeviceIDs[i] = devices[i].clDeviceID
+      }
+      
+      if usingBinaryStatus {
+        binaryStatus = Array(repeating: 0, count: numDevices)
+        object_ = clCreateProgramWithBinary(
+          context.clContext, UInt32(numDevices), clDeviceIDs, lengths, images,
+          &binaryStatus!, &error)
+      } else {
+        object_ = clCreateProgramWithBinary(
+          context.clContext, UInt32(numDevices), clDeviceIDs, lengths, images,
+          nil, &error)
+      }
+    }
+    }
+    }
+    }
+    
+    guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_BINARY_ERR"),
+          let object_ = object_ else {
+      return nil
+    }
+    self.init(object_)
+  }
+  
+  @inlinable @inline(__always)
+  public init?(
+    context: CLContext,
+    devices: [CLDevice],
+    binaries: [Data]
+  ) {
+    var ignoredBinaryStatus: [Int32]?
+    self.init(
+      context: context, devices: devices, binaries: binaries,
+      binaryStatus: &ignoredBinaryStatus, usingBinaryStatus: false)
+  }
+  
+  @inlinable @inline(__always)
+  public init?(
+    context: CLContext,
+    devices: [CLDevice],
+    binaries: [Data],
+    binaryStatus: inout [Int32]?
+  ) {
+    self.init(
+      context: context, devices: devices, binaries: binaries,
+      binaryStatus: &binaryStatus, usingBinaryStatus: true)
+  }
   
   public init?(context: CLContext, devices: [CLDevice], kernelNames: String) {
     var error: Int32 = CL_SUCCESS
