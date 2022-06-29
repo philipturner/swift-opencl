@@ -51,7 +51,11 @@ public struct CLEvent: CLReferenceCountable {
   }
   
   // Renaming the C++ `waitForEvents` to `wait(for: events)` at the function's
-  // call site.
+  // call site. This seems a bit unprofessional because no other API call maps
+  // the C function name so literally to an English sentence. However, I did not
+  // see a better choice. I could put no argument label, which seems ambiguous.
+  // The best alternative is `on:`, which I subjectively assign the same amount
+  // of merit.
   public static func wait(`for` events: [CLEvent]) throws {
     var error: Int32 = CL_SUCCESS
     let numEvents = events.count
