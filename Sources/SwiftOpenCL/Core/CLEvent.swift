@@ -66,7 +66,7 @@ public struct CLEvent: CLReferenceCountable {
         of: cl_event?.self, capacity: numEvents
       ) { bufferPointer in
         let clEvents = bufferPointer.baseAddress.unsafelyUnwrapped
-        error = clWaitForEvents(cl_uint(numEvents), clEvents)
+        error = clWaitForEvents(UInt32(numEvents), clEvents)
       }
     } else {
       error = clWaitForEvents(0, nil)

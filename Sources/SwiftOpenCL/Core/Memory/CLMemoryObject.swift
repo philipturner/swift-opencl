@@ -31,6 +31,15 @@ public struct CLMemoryObject: CLReferenceCountable {
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseMemObject(object)
   }
+  
+  public mutating func setDestructorCallback(
+    _ notify: @escaping (_ memoryObject: CLMemoryObject) -> Void
+  ) throws {
+    let callback = CLMemoryObjectDestructorCallback(notify)
+    let error = clSetMemObjectDestructorCallback(
+      wrapper.object, callback.callback, callback.passRetained())
+    try CLError.throwCode(error, "__SET_MEM_OBJECT_DESTRUCTOR_CALLBACK_ERR")
+  }
 }
 
 extension CLMemoryObject {

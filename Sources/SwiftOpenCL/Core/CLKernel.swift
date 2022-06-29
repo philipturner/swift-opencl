@@ -42,7 +42,21 @@ public struct CLKernel: CLReferenceCountable {
   
   // Should these be raw pointers? Or should they be a special kind of object?
   // public mutating func setSVMPointers(_: [UnsafeMutableRawPointer])
-  // public mutating func setFineGrainedSystemSVM(enabled:)
+  
+  // Prepends `set` to the C++ function `enableFineGrainedSystemSVM`. This shows
+  // that the argument is the object of the verb `set`. Look at the comment
+  // above `CLEvent.setCallback` for more on this naming convention.
+  public mutating func setEnableFineGrainedSystemSVM(
+    _ svmEnabled: Bool
+  ) throws {
+    let svmEnabled_: cl_bool = svmEnabled ? 1 : 0
+    #if !canImport(Darwin)
+    let error = clSetKernelExecInfo(
+      wrapper.object, UInt32(CL_KERNEL_EXEC_INFO_SVM_FINE_GRAIN_SYSTEM),
+      MemoryLayout.stride(ofValue: svmEnabled_), &svmEnabled_)
+    try CLError.throwCode(error)
+    #endif
+  }
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
   public func clone() -> CLKernel? {
