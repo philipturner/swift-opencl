@@ -209,6 +209,13 @@ public struct CLContext: CLReferenceCountable {
   }
   
   // TODO: clSetContextDestructorCallback?
+  
+  // This function is not in the C++ bindings. Perhaps because the `cl_context`
+  // is no longer valid at this point. Unless there's a reason not to, I will
+  // add `clSetContextDestructorCallback` to the bindings.
+  //
+  // Look at `CLEvent.setCallback` for why `notify` has no argument label.
+//  public mutating func setDestructorCallback(
 }
 
 extension CLContext {

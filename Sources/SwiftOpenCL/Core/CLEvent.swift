@@ -38,11 +38,19 @@ public struct CLEvent: CLReferenceCountable {
     try CLError.throwCode(error, "__WAIT_FOR_EVENTS_ERR")
   }
   
+  // `notify` does not have an argument label here because it's the object of
+  // the verb `set`. `CLProgram.setSpecializationConstant` also follows this
+  // naming convention. This differs from functions such as `CLProgram.build`,
+  // which use an argument label when `notify` is one of multiple equally
+  // important parameters. The parameters `notify` and `type` are rearranged to
+  // to emphasize that this function is a setter, but that prohibits passing in
+  // a trailing closure. Perhaps Swift 6 will allow a trailing closure:
+  // https://github.com/apple/swift-evolution/blob/master/proposals/0286-forward-scan-trailing-closures.md
   public mutating func setCallback(
-    type: CLCommandExecutionStatus,
-    notify: @escaping (
+    _ notify: @escaping (
       _ event: CLEvent,
-      _ eventCommandStatus: CLCommandExecutionStatus) -> Void
+      _ eventCommandStatus: CLCommandExecutionStatus) -> Void,
+    type: CLCommandExecutionStatus
   ) throws {
     let callback = CLEventCallback(notify)
     let error = clSetEventCallback(

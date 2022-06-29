@@ -70,6 +70,27 @@ final class CLContextCallback: CLCallback {
   }
 }
 
+final class CLContextDestructorCallback: CLCallback {
+  typealias FunctionPointer = (
+    _ context: CLContext) -> Void
+  var functionPointer: FunctionPointer?
+  init(_ functionPointer: FunctionPointer?) {
+    self.functionPointer = functionPointer
+  }
+  
+  static let unwrappedCallback: @convention(c) (
+    _ context: cl_context?,
+    _ user_info: UnsafeMutableRawPointer?
+  ) -> Void = {
+    let context = CLContext($0!)!
+    let userInfo = $1
+    
+    let reconstructedObject = Unmanaged<CLContextDestructorCallback>
+      .fromOpaque(userInfo!).takeRetainedValue()
+    reconstructedObject.functionPointer!(context)
+  }
+}
+
 final class CLEventCallback: CLCallback {
   typealias FunctionPointer = (
     _ event: CLEvent,
