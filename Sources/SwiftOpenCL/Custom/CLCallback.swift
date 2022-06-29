@@ -6,6 +6,7 @@
 //
 
 import COpenCL
+import struct Foundation.Data
 
 protocol CLCallback: AnyObject {
   associatedtype FunctionPointer
@@ -32,20 +33,10 @@ extension CLCallback {
   }
 }
 
-// Minor change to the closure parameters: combining `private_info` and `cb`
-// into an `UnsafeRawBufferPointer`. Did not convert `errinfo` to `String` or
-// `private_info` to `Data` for performance reasons. Automatically converting
-// these to higher-level Swift types might harm developer ergonomics. If the
-// user wanted to access the original function inputs with minimal overhead, it
-// would be extremely difficult to do so manually.
-//
-// I am still debating whether to convert these to higher-level Swift types.
-// Until there is a compelling reason for a change, the Swift bindings will
-// retain the same public API as the C++ bindings.
 final class CLContextCallback: CLCallback {
   typealias FunctionPointer = (
-    _ errorInfo: UnsafePointer<Int8>?,
-    _ privateInfo: UnsafeRawBufferPointer) -> Void
+    _ errorInfo: String,
+    _ privateInfo: Data) -> Void
   var functionPointer: FunctionPointer?
   init(_ functionPointer: FunctionPointer?) {
     self.functionPointer = functionPointer
@@ -57,8 +48,20 @@ final class CLContextCallback: CLCallback {
     _ cb: Int,
     _ user_info: UnsafeMutableRawPointer?
   ) -> Void) = {
-    let errorInfo = $0
-    let privateInfo = UnsafeRawBufferPointer(start: $1, count: $2)
+    // The OpenCL 3.0 specification does not explicitly ensure that `errinfo`
+    // and `private_info` are never null.
+    var errorInfo: String
+    if let errinfo = $0 {
+      errorInfo = String(cString: errinfo)
+    } else {
+      errorInfo = ""
+    }
+    var privateInfo: Data
+    if let private_info = $1 {
+      privateInfo = Data(bytes: private_info, count: $2)
+    } else {
+      privateInfo = Data()
+    }
     let userInfo = $3
     
     let reconstructedObject = Unmanaged<CLContextCallback>
@@ -69,7 +72,7 @@ final class CLContextCallback: CLCallback {
 
 final class CLEventCallback: CLCallback {
   typealias FunctionPointer = (
-    _ event: cl_event?,
+    _ event: CLEvent,
     _ eventCommandStatus: CLCommandExecutionStatus) -> Void
   var functionPointer: FunctionPointer?
   init(_ functionPointer: FunctionPointer?) {
@@ -81,7 +84,7 @@ final class CLEventCallback: CLCallback {
     _ event_command_status: Int32,
     _ user_info: UnsafeMutableRawPointer?
   ) -> Void = {
-    let event = $0
+    let event = CLEvent($0!)!
     let eventCommandStatus = CLCommandExecutionStatus(rawValue: $1)
     let userInfo = $2
     
@@ -93,7 +96,7 @@ final class CLEventCallback: CLCallback {
 
 final class CLProgramCallback: CLCallback {
   typealias FunctionPointer = (
-    _ program: cl_program?) -> Void
+    _ program: CLProgram) -> Void
   var functionPointer: FunctionPointer?
   init(_ functionPointer: FunctionPointer?) {
     self.functionPointer = functionPointer
@@ -103,7 +106,7 @@ final class CLProgramCallback: CLCallback {
     _ program: cl_program?,
     _ user_info: UnsafeMutableRawPointer?
   ) -> Void = {
-    let program = $0
+    let program = CLProgram($0!)!
     let userInfo = $1
     
     let reconstructedObject = Unmanaged<CLProgramCallback>

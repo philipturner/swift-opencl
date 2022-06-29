@@ -41,7 +41,7 @@ public struct CLEvent: CLReferenceCountable {
   public mutating func setCallback(
     type: CLCommandExecutionStatus,
     notify: @escaping (
-      _ event: cl_event?,
+      _ event: CLEvent,
       _ eventCommandStatus: CLCommandExecutionStatus) -> Void
   ) throws {
     let callback = CLEventCallback(notify)

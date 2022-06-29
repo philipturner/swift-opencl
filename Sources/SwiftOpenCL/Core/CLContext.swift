@@ -6,6 +6,7 @@
 //
 
 import COpenCL
+import struct Foundation.Data
 
 public struct CLContext: CLReferenceCountable {
   @usableFromInline
@@ -60,8 +61,8 @@ public struct CLContext: CLReferenceCountable {
     devices: [CLDevice],
     properties: [CLContextProperty]? = nil,
     notify: ((
-      _ errorInfo: UnsafePointer<Int8>?,
-      _ privateInfo: UnsafeRawBufferPointer) -> Void)? = nil
+      _ errorInfo: String,
+      _ privateInfo: Data) -> Void)? = nil
   ) {
     var error: Int32 = CL_SUCCESS
     let numDevices = devices.count
@@ -87,8 +88,8 @@ public struct CLContext: CLReferenceCountable {
     device: CLDevice,
     properties: [CLContextProperty]? = nil,
     notify: ((
-      _ errorInfo: UnsafePointer<Int8>?,
-      _ privateInfo: UnsafeRawBufferPointer) -> Void)? = nil
+      _ errorInfo: String,
+      _ privateInfo: Data) -> Void)? = nil
   ) {
     var error: Int32 = CL_SUCCESS
     var clDeviceID: cl_device_id? = device.clDeviceID
@@ -113,8 +114,8 @@ public struct CLContext: CLReferenceCountable {
     type: CLDeviceType,
     properties: [CLContextProperty]? = nil,
     notify: ((
-      _ errorInfo: UnsafePointer<Int8>?,
-      _ privateInfo: UnsafeRawBufferPointer) -> Void)? = nil
+      _ errorInfo: String,
+      _ privateInfo: Data) -> Void)? = nil
   ) {
     // There is no documentation about why the C++ bindings don't set the
     // platform on macOS. So I am setting it, then seeing if it breaks.
@@ -206,6 +207,8 @@ public struct CLContext: CLReferenceCountable {
       return CLDevice(value[0], retain: true)
     }
   }
+  
+  // TODO: clSetContextDestructorCallback?
 }
 
 extension CLContext {
