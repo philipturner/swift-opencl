@@ -50,13 +50,7 @@ public struct CLEvent: CLReferenceCountable {
     try CLError.throwCode(error, "__SET_EVENT_CALLBACK_ERR")
   }
   
-  // Renaming the C++ `waitForEvents` to `wait(for: events)` at the function's
-  // call site. This seems a bit unprofessional because no other API call maps
-  // the C function name so literally to an English sentence. However, I did not
-  // see a better choice. I could put no argument label, which seems ambiguous.
-  // The best alternative is `on:`, which I subjectively assign the same amount
-  // of merit.
-  public static func wait(`for` events: [CLEvent]) throws {
+  public static func waitForEvents(_ events: [CLEvent]) throws {
     var error: Int32 = CL_SUCCESS
     let numEvents = events.count
     if numEvents > 0 {

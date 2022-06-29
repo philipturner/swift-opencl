@@ -31,4 +31,16 @@ public struct CLKernel: CLReferenceCountable {
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseKernel(object)
   }
+  
+  // Document how this name differs from the C++ bindings.
+  // @available(macOS, unavailable, message: "...")
+  // mutating func setArgumentSVMPointer(_: UnsafeMutableRawPointer, index: UInt32)
+  
+  // Create a protocol called `CLResource` to encapsulate every possible argument.
+  // mutating func setArgument<T: CLResource>(_:index:)
+  // mutating func setArgument(bytes:count/size:index:)
+  
+  // Should these be raw pointers? Or should they be a special kind of object?
+  // mutating func setSVMPointers(_: [UnsafeMutableRawPointer])
+  // mutating func setFineGrainedSystemSVM(enabled:)
 }
