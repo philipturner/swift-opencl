@@ -323,6 +323,7 @@ extension CLProgram {
     }
   }
   
+  // Change `notify` to a single-line type declaration.
   public mutating func build(
     devices: [CLDevice],
     options: UnsafePointer<Int8>? = nil,

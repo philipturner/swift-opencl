@@ -208,14 +208,22 @@ public struct CLContext: CLReferenceCountable {
     }
   }
   
-  // TODO: clSetContextDestructorCallback?
-  
   // This function is not in the C++ bindings. Perhaps because the `cl_context`
   // is no longer valid at this point. Unless there's a reason not to, I will
   // add `clSetContextDestructorCallback` to the bindings.
   //
   // Look at `CLEvent.setCallback` for why `notify` has no argument label.
-//  public mutating func setDestructorCallback(
+  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
+  public mutating func setDestructorCallback(
+    _ notify: @escaping (_ context: CLContext) -> Void
+  ) throws {
+    let callback = CLContextDestructorCallback(notify)
+    #if !canImport(Darwin)
+    let error = clSetContextDestructorCallback(
+      wrapper.object, callback.callback, callback.passRetained())
+    try CLError.throwCode(error)
+    #endif
+  }
 }
 
 extension CLContext {
