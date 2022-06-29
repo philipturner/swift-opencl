@@ -212,8 +212,15 @@ extension CLDevice {
     getInfo_String(CL_DEVICE_VERSION, getInfo)
   }
   
-  public var extensions: String? {
-    getInfo_String(CL_DEVICE_EXTENSIONS, getInfo)
+  public var extensions: [String]? {
+    if let combined = getInfo_String(CL_DEVICE_EXTENSIONS, getInfo) {
+      // Separated by spaces.
+      let substrings = combined.split(
+        separator: " ", omittingEmptySubsequences: false)
+      return substrings.map(String.init)
+    } else {
+      return nil
+    }
   }
   
   // OpenCL 1.1
@@ -322,8 +329,16 @@ extension CLDevice {
     getInfo_CLMacro(CL_DEVICE_PARTITION_AFFINITY_DOMAIN, getInfo)
   }
   
-  public var builtInKernels: String? {
-    getInfo_String(CL_DEVICE_BUILT_IN_KERNELS, getInfo)
+  // Parses the string returned by OpenCL and creates an array of kernels.
+  public var builtInKernels: [String]? {
+    if let combined = getInfo_String(CL_DEVICE_BUILT_IN_KERNELS, getInfo) {
+      // Separated by semicolons.
+      let substrings = combined.split(
+        separator: ";", omittingEmptySubsequences: false)
+      return substrings.map(String.init)
+    } else {
+      return nil
+    }
   }
   
   public var printfBufferSize: Int? {
@@ -334,8 +349,8 @@ extension CLDevice {
   // `CL_DEVICE_QUEUE_ON_HOST_PROPERTIES`, but it's the only way to fetch that
   // info on macOS. Both macros have the same raw value, 0x102A. The new macro
   // was introduced in OpenCL 2.0, but its functionality existed in OpenCL 1.2.
-  // Therefore, this property is accessible on macOS with a name that doesn't
-  // match its macro.
+  // Therefore, I exposed this property on macOS with a name that doesn't match
+  // its macro.
   public var queueOnHostProperties: CLCommandQueueProperties? {
     #if canImport(Darwin)
     getInfo_CLMacro(CL_DEVICE_QUEUE_PROPERTIES, getInfo)
@@ -510,6 +525,7 @@ extension CLDevice {
     assert(CL_DEVICE_IL_VERSION == name)
     #endif
     if let combined = getInfo_String(name, getInfo) {
+      // Separated by spaces.
       let substrings = combined.split(
         separator: " ", omittingEmptySubsequences: false)
       return substrings.map(String.init)

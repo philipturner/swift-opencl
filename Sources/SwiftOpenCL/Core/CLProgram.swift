@@ -102,7 +102,7 @@ public struct CLProgram: CLReferenceCountable {
       let strings = bufferPointer.baseAddress.unsafelyUnwrapped
       
       // Copying these strings is the only way to pass them into the C function.
-      // This creates several function calls to `malloc`, `memcpy`, and `free`.
+      // This creates several function calls to `malloc`, and `free`.
       // `withUnsafeTemporaryAllocation` may eliminate 4 function calls on top
       // of that, but only as a one-time performance improvement. If `sources`
       // is very large, the overhead of copying strings could dwarf the
@@ -111,13 +111,15 @@ public struct CLProgram: CLReferenceCountable {
       for i in 0..<sources.count {
         let source = sources[i]
         let count = source.utf8.count
-        lengths[i] = count
-        
         source.withCString {
           let cString: UnsafeMutablePointer<Int8> = .allocate(capacity: count)
-          cString.assign(from: $0, count: count)
+          
+          // Should not create a function call into `memcpy` because it lowers
+          // to `Builtin.copyArray`.
+          cString.initialize(from: $0, count: count)
           strings[i] = UnsafePointer(cString)
         }
+        lengths[i] = count
       }
       defer {
         for i in 0..<sources.count {
@@ -263,12 +265,46 @@ public struct CLProgram: CLReferenceCountable {
       binaryStatus: &binaryStatus, usingBinaryStatus: true)
   }
   
-  public init?(context: CLContext, devices: [CLDevice], kernelNames: String) {
+  // Differs from the C++ bindings, which make you combine `kernelNames` into
+  // one string.
+  public init?(context: CLContext, devices: [CLDevice], kernelNames: [String]) {
     var error: Int32 = CL_SUCCESS
-    let clDeviceIDs: [cl_device_id?] = devices.map(\.clDeviceID)
-    let object_ = clCreateProgramWithBuiltInKernels(
-      context.clContext, UInt32(devices.count), clDeviceIDs, kernelNames,
-      &error)
+    var object_: cl_program?
+    withUnsafeTemporaryAllocation(
+      of: cl_device_id?.self, capacity: devices.count
+    ) { bufferPointer in
+      let clDeviceIDs = bufferPointer.baseAddress.unsafelyUnwrapped
+      for i in 0..<devices.count {
+        clDeviceIDs[i] = devices[i].clDeviceID
+      }
+      
+      // +1 for every semicolon in between kernels, +1 for the null terminator.
+      var cStringLength = max(1, kernelNames.count)
+      cStringLength += kernelNames.reduce(0) { $0 + $1.count }
+      withUnsafeTemporaryAllocation(
+        of: Int8.self, capacity: cStringLength
+      ) { bufferPointer in
+        var byteStream = bufferPointer.baseAddress.unsafelyUnwrapped
+        for kernelName in kernelNames {
+          let count = kernelName.utf8.count
+          kernelName.withCString {
+            // Should not create a function call into `memcpy` because it lowers
+            // to `Builtin.copyArray`.
+            byteStream.initialize(from: $0, count: count)
+          }
+          byteStream[count] = 0x3B /* Unicode for ';' */
+          byteStream += count + 1
+        }
+        
+        // Add a null terminator, potentially overwriting a semicolon added in
+        // the last loop iteration above.
+        let kernelNames = bufferPointer.baseAddress.unsafelyUnwrapped
+        kernelNames[cStringLength - 1] = 0
+        object_ = clCreateProgramWithBuiltInKernels(
+          context.clContext, UInt32(devices.count), clDeviceIDs, kernelNames,
+          &error)
+      }
+    }
     
     let message = "__CREATE_PROGRAM_WITH_BUILT_IN_KERNELS_ERR"
     guard CLError.setCode(error, message),
