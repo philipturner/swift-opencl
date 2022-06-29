@@ -33,14 +33,26 @@ public struct CLProgram: CLReferenceCountable {
     clReleaseProgram(object)
   }
   
-  public init?(source: String, build: Bool = false) {
-    guard let context = CLContext.defaultContext else {
-      return nil
-    }
-    self.init(context: context, source: source, build: build)
-  }
-  
-  public init?(context: CLContext, source: String, build: Bool = false) {
+  // Removing the C++ bindings option for building the program while
+  // initializing. This feature was only available in some constructors, and was
+  // deactivated in 2013. In 2015, Khronos added the automatic selection of
+  // "-cl-std=CL2.0" to this niche build pathway, but not to explicit
+  // `Program::build` members. On devices that don't support OpenCL 2.0, the
+  // OpenCL C compiler would fail as described in the OpenCL 3.0 specification.
+  // This build pathway will not be part of SwiftOpenCL because it's opaque to
+  // the developer and could cause an unintentional bug.
+  //
+  // If you're concerned about the overhead of separating initialization and
+  // building into two function calls, you can just call the underlying C
+  // functions manually.
+  //
+  // I am also keeping the option to build with one source instead of an array
+  // of sources. This creates multiple ways of accomplishing the same thing, but
+  // has some benefits. For example, the developer could pass a string literal
+  // into `source:`. Most importantly, this feature is in the C++ bindings.
+  // Unless there is a compelling reason, the API should not change when
+  // translating from C++ to Swift.
+  public init?(context: CLContext, source: String) {
     var error: Int32 = CL_SUCCESS
     var object_: cl_program?
     source.utf8CString.withUnsafeBufferPointer { bufferPointer in
@@ -54,24 +66,13 @@ public struct CLProgram: CLReferenceCountable {
       return nil
     }
     self.init(object_)
-    
-    if build {
-      // This initializer will fail on devices that don't support OpenCL 2.0. To
-      // bypass this error, delay building until after initialization and do not
-      // specify "-cl-std".
-      error = clBuildProgram(object_, 0, nil, "-cl-std=CL2.0", nil, nil)
-      guard CLError.setCode(error, "__BUILD_PROGRAM_ERR"),
-            buildLogHasNoErrors() else {
-        return nil
-      }
-    }
   }
   
-  public init?(sources: [String]) {
+  public init?(source: String) {
     guard let context = CLContext.defaultContext else {
       return nil
     }
-    self.init(context: context, sources: sources)
+    self.init(context: context, source: source)
   }
   
   public init?(context: CLContext, sources: [String]) {
@@ -95,6 +96,13 @@ public struct CLProgram: CLReferenceCountable {
       return nil
     }
     self.init(object_)
+  }
+  
+  public init?(sources: [String]) {
+    guard let context = CLContext.defaultContext else {
+      return nil
+    }
+    self.init(context: context, sources: sources)
   }
   
   @usableFromInline
