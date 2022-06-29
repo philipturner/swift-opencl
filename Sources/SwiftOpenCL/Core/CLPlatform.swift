@@ -133,11 +133,6 @@ public struct CLPlatform: CLReferenceCountable {
       return output
     }
   }
-  
-  public func unloadCompiler() throws {
-    let error = clUnloadPlatformCompiler(wrapper.object)
-    try CLError.throwCode(error)
-  }
 }
 
 extension CLPlatform {

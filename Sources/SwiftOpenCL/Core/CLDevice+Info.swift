@@ -212,6 +212,7 @@ extension CLDevice {
     getInfo_String(CL_DEVICE_VERSION, getInfo)
   }
   
+  // Parses the string returned by OpenCL and creates an array of extensions.
   public var extensions: [String]? {
     if let combined = getInfo_String(CL_DEVICE_EXTENSIONS, getInfo) {
       // Separated by spaces.

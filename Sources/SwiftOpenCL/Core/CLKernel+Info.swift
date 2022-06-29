@@ -82,8 +82,6 @@ extension CLKernel {
 }
 
 extension CLKernel {
-  // TODO: Go through man.opencl.org and see what parameters are ignored.
-  
   @inline(__always)
   private func getWorkGroupInfo(device: CLDevice) -> GetInfoClosure {
     // `clKernel` instead of `wrapper.object` to prevent exceeding 80 spaces.

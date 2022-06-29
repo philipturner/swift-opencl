@@ -115,24 +115,24 @@ final class CLEventCallback: CLCallback {
   }
 }
 
-final class CLMemoryObjectDestructorCallback: CLCallback {
+final class CLMemoryDestructorCallback: CLCallback {
   typealias FunctionPointer = (
-    _ memoryObject: CLMemoryObject) -> Void
+    _ memory: CLMemory) -> Void
   var functionPointer: FunctionPointer?
   init(_ functionPointer: FunctionPointer?) {
     self.functionPointer = functionPointer
   }
   
   static let unwrappedCallback: @convention(c) (
-    _ memobj: cl_mem?,
+    _ mem: cl_mem?,
     _ user_info: UnsafeMutableRawPointer?
   ) -> Void = {
-    let memoryObject = CLMemoryObject($0!)!
+    let memory = CLMemory($0!)!
     let userInfo = $1
     
-    let reconstructedObject = Unmanaged<CLMemoryObjectDestructorCallback>
+    let reconstructedObject = Unmanaged<CLMemoryDestructorCallback>
       .fromOpaque(userInfo!).takeRetainedValue()
-    reconstructedObject.functionPointer!(memoryObject)
+    reconstructedObject.functionPointer!(memory)
   }
 }
 
