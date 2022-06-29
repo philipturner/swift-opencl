@@ -20,6 +20,9 @@ public struct CLDeviceCommandQueue {
     self.commandQueue = commandQueue
   }
   
+  // Differs from the C++ bindings, which say `updateDefault`. This is just like
+  // a property setter, and `setDefault` matches the underlying C function's
+  // name.
   public static func setDefault(
     _ queue: CLDeviceCommandQueue,
     context: CLContext,

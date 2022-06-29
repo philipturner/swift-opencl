@@ -39,21 +39,29 @@ public struct CLEvent: CLReferenceCountable {
   }
   
   public mutating func setCallback(
-    type: Int32,
-    userData: UnsafeMutableRawPointer? = nil,
-    notifyFptr: @escaping (@convention(c) (
-      cl_event?, Int32, UnsafeMutableRawPointer?
-    ) -> Void)
+    type: CLCommandExecutionStatus,
+    notify: @escaping (
+      _ event: cl_event?,
+      _ eventCommandStatus: CLCommandExecutionStatus) -> Void
   ) throws {
-    let error = clSetEventCallback(wrapper.object, type, notifyFptr, userData)
+    let callback = CLEventCallback(notify)
+    let error = clSetEventCallback(
+      wrapper.object, type.rawValue, callback.callback, callback.passRetained())
     try CLError.throwCode(error, "__SET_EVENT_CALLBACK_ERR")
   }
   
-  public static func waitForEvents(_ events: [CLEvent]) throws {
-    var error: Int32
-    if events.count > 0 {
-      let clEvents: [cl_event?] = events.map(\.event)
-      error = clWaitForEvents(cl_uint(events.count), clEvents)
+  // Renaming the C++ `waitForEvents` to `wait(for: events)` at the function's
+  // call site.
+  public static func wait(`for` events: [CLEvent]) throws {
+    var error: Int32 = CL_SUCCESS
+    let numEvents = events.count
+    if numEvents > 0 {
+      withUnsafeTemporaryAllocation(
+        of: cl_event?.self, capacity: numEvents
+      ) { bufferPointer in
+        let clEvents = bufferPointer.baseAddress.unsafelyUnwrapped
+        error = clWaitForEvents(cl_uint(numEvents), clEvents)
+      }
     } else {
       error = clWaitForEvents(0, nil)
     }

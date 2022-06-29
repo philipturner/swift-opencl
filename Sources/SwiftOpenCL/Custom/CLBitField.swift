@@ -155,9 +155,8 @@ public struct CLMemoryFlags: CLBitField {
   public static let kernelReadAndWrite = Self(1 << 12)
 }
 
-// Not all `cl_mem_flags` from "cl.h" are actually SVM mem flags. Only the ones
-// documented in https://man.opencl.org/clSVMAlloc.html are. This is the same as
-// what the OpenCL 3.0 specification says.
+// Not all `cl_mem_flags` from "cl.h" are SVM memory flags. Only flags described
+// in the OpenCL 3.0 specification under `clSVMAlloc` are.
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public struct CLSVMMemoryFlags: CLBitField {
   public let rawValue: cl_svm_mem_flags
@@ -231,7 +230,7 @@ public struct CLChannelOrder: CLMacro {
   
   // Part of OpenCL 2.0, but also part of an extension Apple made to earlier
   // versions. Not including it yet because I haven't decided on the naming
-  // semantics.
+  // semantics, if it (or any Apple extension) should be included at all.
 //  #if canImport(Darwin)
 //  public static let abgr = Self(CL_ABGR_APPLE)
 //  #else

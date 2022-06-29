@@ -21,6 +21,7 @@ extension CLCallback {
   func passRetained() -> UnsafeMutableRawPointer {
     Unmanaged.passRetained(self).toOpaque()
   }
+  
   @inline(__always)
   var callback: CallbackFunctionPointer? {
     if functionPointer != nil {
@@ -31,11 +32,14 @@ extension CLCallback {
   }
 }
 
+// Minor change to the closure parameters: combining `private_info` and `cb`
+// into an `UnsafeRawBufferPointer`. Did not convert `errinfo` to `String` or
+// `private_info` to `Data` for performance reasons. Also, this should be as
+// close as possible to the bare OpenCL API.
 final class CLContextCallback: CLCallback {
   typealias FunctionPointer = (
-    _ errinfo: UnsafePointer<Int8>?,
-    _ private_info: UnsafeRawPointer?,
-    _ cb: Int) -> Void
+    _ errorInfo: UnsafePointer<Int8>?,
+    _ privateInfo: UnsafeRawBufferPointer) -> Void
   var functionPointer: FunctionPointer?
   init(_ functionPointer: FunctionPointer?) {
     self.functionPointer = functionPointer
@@ -47,16 +51,20 @@ final class CLContextCallback: CLCallback {
     _ cb: Int,
     _ user_info: UnsafeMutableRawPointer?
   ) -> Void) = {
+    let errorInfo = $0
+    let privateInfo = UnsafeRawBufferPointer(start: $1, count: $2)
+    let userInfo = $3
+    
     let reconstructedObject = Unmanaged<CLContextCallback>
-      .fromOpaque($3!).takeRetainedValue()
-    reconstructedObject.functionPointer!($0, $1, $2)
+      .fromOpaque(userInfo!).takeRetainedValue()
+    reconstructedObject.functionPointer!(errorInfo, privateInfo)
   }
 }
 
 final class CLEventCallback: CLCallback {
   typealias FunctionPointer = (
     _ event: cl_event?,
-    _ event_command_status: Int32?) -> Void
+    _ eventCommandStatus: CLCommandExecutionStatus) -> Void
   var functionPointer: FunctionPointer?
   init(_ functionPointer: FunctionPointer?) {
     self.functionPointer = functionPointer
@@ -67,9 +75,13 @@ final class CLEventCallback: CLCallback {
     _ event_command_status: Int32,
     _ user_info: UnsafeMutableRawPointer?
   ) -> Void = {
+    let event = $0
+    let eventCommandStatus = CLCommandExecutionStatus(rawValue: $1)
+    let userInfo = $2
+    
     let reconstructedObject = Unmanaged<CLEventCallback>
-      .fromOpaque($2!).takeRetainedValue()
-    reconstructedObject.functionPointer!($0, $1)
+      .fromOpaque(userInfo!).takeRetainedValue()
+    reconstructedObject.functionPointer!(event, eventCommandStatus)
   }
 }
 
@@ -85,8 +97,11 @@ final class CLProgramCallback: CLCallback {
     _ program: cl_program?,
     _ user_info: UnsafeMutableRawPointer?
   ) -> Void = {
+    let program = $0
+    let userInfo = $1
+    
     let reconstructedObject = Unmanaged<CLProgramCallback>
-      .fromOpaque($1!).takeRetainedValue()
-    reconstructedObject.functionPointer!($0)
+      .fromOpaque(userInfo!).takeRetainedValue()
+    reconstructedObject.functionPointer!(program)
   }
 }
