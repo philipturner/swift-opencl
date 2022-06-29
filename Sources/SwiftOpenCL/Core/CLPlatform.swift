@@ -164,8 +164,15 @@ extension CLPlatform {
     getInfo_String(CL_PLATFORM_VENDOR, getInfo)
   }
   
-  public var extensions: String? {
-    getInfo_String(CL_PLATFORM_EXTENSIONS, getInfo)
+  // Parses the string returned by OpenCL and creates an array of extensions.
+  public var extensions: [String]? {
+    if let combined = getInfo_String(CL_PLATFORM_EXTENSIONS, getInfo) {
+      let substrings = combined.split(
+        separator: " ", omittingEmptySubsequences: false)
+      return substrings.map(String.init)
+    } else {
+      return nil
+    }
   }
   
   // OpenCL 2.1

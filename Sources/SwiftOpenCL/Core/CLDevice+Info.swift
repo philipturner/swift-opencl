@@ -498,12 +498,24 @@ extension CLDevice {
     return getInfo_Int(name, getInfo)
   }
   
-  public var ilVersion: String? {
+  // Parses the string returned by OpenCL and creates an array of IL versions.
+  // This property's name differs from the singular `IL_VERSION` in the macro.
+  // When it was first introduced, the macro may have indicated just one
+  // version. It could be repurposed to mean multiple versions, combining them
+  // into one string for backward-compability. Regardless of the history, this
+  // property should be plural because it is an array.
+  public var ilVersions: [String]? {
     let name: Int32 = 0x105B
     #if !canImport(Darwin)
     assert(CL_DEVICE_IL_VERSION == name)
     #endif
-    return getInfo_String(name, getInfo)
+    if let combined = getInfo_String(name, getInfo) {
+      let substrings = combined.split(
+        separator: " ", omittingEmptySubsequences: false)
+      return substrings.map(String.init)
+    } else {
+      return nil
+    }
   }
   
   public var subGroupIndependentForwardProgress: Bool? {
