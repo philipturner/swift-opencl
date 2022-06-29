@@ -56,6 +56,9 @@ public struct CLProgram: CLReferenceCountable {
     self.init(object_)
     
     if build {
+      // This initializer will fail on devices that don't support OpenCL 2.0. To
+      // bypass this error, delay building until after initialization and do not
+      // specify "-cl-std".
       error = clBuildProgram(object_, 0, nil, "-cl-std=CL2.0", nil, nil)
       guard CLError.setCode(error, "__BUILD_PROGRAM_ERR"),
             buildLogHasNoErrors() else {
