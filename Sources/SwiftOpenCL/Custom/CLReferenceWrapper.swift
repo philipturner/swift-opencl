@@ -43,6 +43,8 @@ final class CLReferenceWrapper<T: CLReferenceCountable> {
     CLError.setCode(T.release(object), "__RELEASE_ERR")
   }
   
+  // I don't know whether `@inlinable` is required to force-inline `deinit` in
+  // a module importing SwiftOpenCL, but I won't risk it.
   @inlinable @inline(__always)
   deinit {
     if shouldRetain {
