@@ -42,19 +42,22 @@ public struct CLProgram: CLReferenceCountable {
   // This build pathway will not be part of SwiftOpenCL because it's opaque to
   // the developer and could cause an unintentional bug.
   //
-  // If you're concerned about the overhead of separating initialization and
-  // building into two function calls, you can just call the underlying C
-  // functions manually.
+  // If you're concerned about the CPU-side overhead of separating
+  // initialization and building into two function calls, you can just call the
+  // underlying C functions manually.
   //
   // I am also keeping the option to build with one source instead of an array
   // of sources. This creates multiple ways of accomplishing the same thing, but
-  // has some benefits. For example, the developer could pass a string literal
-  // into `source:`. Most importantly, this feature is in the C++ bindings.
-  // Unless there is a compelling reason, the API should not change when
-  // translating from C++ to Swift.
+  // has some benefits. For example, it eliminates the CPU-side overhead of
+  // dynamically allocating array memory. Most importantly, this feature is in
+  // the C++ bindings. Unless there is a compelling reason, the API should not
+  // change when translating from C++ to Swift.
   public init?(context: CLContext, source: String) {
     var error: Int32 = CL_SUCCESS
     var object_: cl_program?
+    
+    // This will copy the source's contents before passing it into the C
+    // function. There is no alternative approach that's easy to implement.
     source.utf8CString.withUnsafeBufferPointer { bufferPointer in
       var string = bufferPointer.baseAddress
       var length = bufferPointer.count
@@ -77,27 +80,62 @@ public struct CLProgram: CLReferenceCountable {
   
   public init?(context: CLContext, sources: [String]) {
     var error: Int32 = CL_SUCCESS
-    let n = sources.count
-    var lengths: [Int] = []
-    lengths.reserveCapacity(n)
-    var strings: [UnsafePointer<Int8>?] = []
-    strings.reserveCapacity(n)
+    var object_: cl_kernel?
     
-    for source in sources {
-      lengths.append(source.utf8.count)
-      source.withCString {
-        strings.append($0)
+    // Instead of creating one large allocation and dividing it in two, I create
+    // separate allocations for `strings` and `lengths`. This doubles the
+    // chance that it will allocate on the stack instead of the heap.
+    //
+    // Violating the practice of indenting code after entering a new scope. This
+    // bypasses the "pyramid of doom", which would make the code difficult to
+    // read.
+    let n = sources.count
+    withUnsafeTemporaryAllocation(
+      of: UnsafePointer<Int8>?.self, capacity: n
+    ) { bufferPointer in
+      let strings = bufferPointer.baseAddress.unsafelyUnwrapped
+      
+    withUnsafeTemporaryAllocation(
+      of: Int.self, capacity: n
+    ) { bufferPointer in
+      let lengths = bufferPointer.baseAddress.unsafelyUnwrapped
+      
+      // Copying these strings is the only way to pass them into the C function.
+      // This creates several function calls to `malloc`, `memcpy`, and `free`.
+      // `withUnsafeTemporaryAllocation` may eliminate 4 function calls on top
+      // of that, but only as a one-time performance improvement. If `sources`
+      // is very large, the overhead of copying strings could dwarf the
+      // performance gains from temporary buffers. If `sources` is very small,
+      // temporary buffers should measurably impact performance.
+      for i in 0..<sources.count {
+        let source = sources[i]
+        let count = source.utf8.count
+        lengths[i] = count
+        
+        source.withCString {
+          let cString: UnsafeMutablePointer<CChar> = .allocate(capacity: count)
+          cString.assign(from: $0, count: count)
+          strings[i] = UnsafePointer(cString)
+        }
       }
+      defer {
+        for i in 0..<sources.count {
+          strings[i]?.deallocate()
+        }
+      }
+      
+      object_ = clCreateProgramWithSource(
+        context.clContext, UInt32(n), strings, lengths, &error)
     }
-    let object_ = clCreateProgramWithSource(
-      context.clContext, UInt32(n), &strings, &lengths, &error)
+    }
+    
     guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_SOURCE_ERR"),
           let object_ = object_ else {
       return nil
     }
     self.init(object_)
   }
-  
+
   public init?(sources: [String]) {
     guard let context = CLContext.defaultContext else {
       return nil
