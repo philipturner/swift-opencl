@@ -115,7 +115,7 @@ extension CLMemory {
   // OpenCL 3.0
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-  public var memoryProperties: [CLMemoryProperty]? {
+  public var properties: [CLMemoryProperty]? {
     let name: Int32 = 0x110A
     #if !canImport(Darwin)
     assert(CL_MEM_PROPERTIES == name)

@@ -116,11 +116,32 @@ public enum CLMemoryProperty: CLProperty {
   }
   
   init(key: Key.RawValue, value: Key.RawValue) {
-    fatalError("`CLMemoryProperties` does not have any cases.")
+    fatalError("`CLMemoryProperty` does not have any cases.")
   }
   
   func serialized() -> (Key.RawValue, Key.RawValue) {
-    fatalError("`CLMemoryProperties` does not have any cases.")
+    fatalError("`CLMemoryProperty` does not have any cases.")
+  }
+}
+
+@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+public enum CLPipeProperty: CLProperty {
+  struct Key: CLMacro {
+    let rawValue: cl_pipe_properties
+    init(rawValue: cl_pipe_properties) {
+      self.rawValue = rawValue
+    }
+    
+    // From the OpenCL 3.0 specification:
+    // "Currently, in all OpenCL versions, properties must be NULL."
+  }
+  
+  init(key: Key.RawValue, value: Key.RawValue) {
+    fatalError("`CLPipeProperty` does not have any cases.")
+  }
+  
+  func serialized() -> (Key.RawValue, Key.RawValue) {
+    fatalError("`CLPipeProperty` does not have any cases.")
   }
 }
 
