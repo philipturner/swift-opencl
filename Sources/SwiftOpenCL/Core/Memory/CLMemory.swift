@@ -46,7 +46,9 @@ public struct CLMemory: CLReferenceCountable {
 protocol CLMemoryProtocol {
   var memory: CLMemory { get }
   
-  // TODO: Add comment explaining why this is unsafe.
+  /// Anything conforming to `CLMemoryProtocol` is a subset of `CLMemory`. The
+  /// first parameter is unsafe because its type is not checked internally.
+  /// Use `init?(memory:)` when the type is unknown.
   init(_unsafeMemory memory: CLMemory)
   
   init?(memory: CLMemory)

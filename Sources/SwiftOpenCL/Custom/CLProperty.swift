@@ -14,6 +14,7 @@ protocol CLProperty {
   
   func serialized() -> (Key.RawValue, Key.RawValue)
 }
+
 extension CLProperty {
   @inline(__always)
   @discardableResult
@@ -259,9 +260,7 @@ public enum CLDevicePartitionProperty {
   // without creating an error. To prevent possibly two meanings of `nil` (one
   // being error, the other being nothing), the function calling this
   // initializer should be creating a special kind of error to describe this
-  // case. Also, documentation should say that you can skip crashing upon
-  // encountering this error. When the error mechanism gets warnings, throw one
-  // of those instead of a full error.
+  // case.
   init?(buffer: UnsafePointer<Key.RawValue>) {
     let key = buffer[0]
     if key == 0 {

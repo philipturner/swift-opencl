@@ -26,4 +26,28 @@ public struct CLBuffer: CLMemoryProtocol {
     }
     self.init(_unsafeMemory: memory)
   }
+  
+  // After changing to a dynamic linking mechanism, make `[CLMemoryProperty]` an
+  // argument. Do the same for image and pipe objects.
+  public init?(
+    context: CLContext,
+    flags: CLMemoryFlags,
+    size: Int,
+    hostPointer: UnsafeMutableRawPointer? = nil
+  ) {
+    var error: Int32 = CL_SUCCESS
+    let object_ = clCreateBuffer(
+      context.clContext, flags.rawValue, size, hostPointer, &error)
+    guard CLError.setCode(error, "__CREATE_BUFFER_ERR"),
+          let object_ = object_,
+          let memory = CLMemory(object_) else {
+      return nil
+    }
+    self.init(_unsafeMemory: memory)
+  }
+  
+  // Removing the initializer with `IteratorType`. SwiftOpenCL exposes the bare
+  // functionality of OpenCL, and does not create new higher-level functions for
+  // convenience. The developer must explicitly specify the commands for sharing
+  // or copying host memory.
 }

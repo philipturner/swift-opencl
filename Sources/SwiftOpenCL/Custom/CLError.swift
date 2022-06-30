@@ -11,9 +11,6 @@ import protocol Foundation.LocalizedError
 // TODO: Make a custom error description, store the underlying code in `Storage`
 // along with the enumeration or just make the computed property return the
 // enumeration.
-//
-// TODO: Allow for a simple warning instead of a full error. Look at the note in
-// `CLDevicePartitionProperty.init`.
 public struct CLError: LocalizedError {
   // Use reference counted storage to improve memory safety if SwiftOpenCL ever
   // writes to `CLError.latest` from two threads simultaneously.

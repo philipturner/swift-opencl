@@ -124,18 +124,20 @@ public struct CLDevice: CLReferenceCountable {
       property: partitionType
     ) { bufferPointer in
       let property = bufferPointer.baseAddress.unsafelyUnwrapped
-      var n: UInt32 = 0
-      var error = clCreateSubDevices(wrapper.object, property, 0, nil, &n)
+      var numDevices: UInt32 = 0
+      var error = clCreateSubDevices(
+        wrapper.object, property, 0, nil, &numDevices)
       guard CLError.setCode(error, "__CREATE_SUB_DEVICES_ERR") else {
         return nil
       }
-      let elements = Int(n)
+      let elements = Int(numDevices)
       
       return withUnsafeTemporaryAllocation(
         of: cl_device_id?.self, capacity: elements
       ) { bufferPointer in
         let ids = bufferPointer.baseAddress.unsafelyUnwrapped
-        error = clCreateSubDevices(wrapper.object, property, n, ids, nil)
+        error = clCreateSubDevices(
+          wrapper.object, property, numDevices, ids, nil)
         guard CLError.setCode(error, "__CREATE_SUB_DEVICES_ERR") else {
           return nil
         }

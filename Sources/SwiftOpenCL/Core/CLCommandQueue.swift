@@ -44,7 +44,7 @@ public struct CLCommandQueue: CLReferenceCountable {
   public init?(
     context: CLContext,
     device: CLDevice,
-    properties: CLCommandQueueProperties
+    properties: CLCommandQueueProperties = []
   ) {
     var error: Int32 = CL_SUCCESS
     var useWithProperties = false

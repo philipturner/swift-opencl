@@ -73,7 +73,6 @@ public struct CLProgram: CLReferenceCountable {
   
   public init?(context: CLContext, sources: [String]) {
     var error: Int32 = CL_SUCCESS
-    let n = sources.count
     
     // Instead of creating one large allocation and dividing it in two, I create
     // separate allocations for `strings` and `lengths`. This doubles the
@@ -84,12 +83,12 @@ public struct CLProgram: CLReferenceCountable {
     // read.
     var object_: cl_kernel?
     withUnsafeTemporaryAllocation(
-      of: Int.self, capacity: n
+      of: Int.self, capacity: sources.count
     ) { bufferPointer in
       let lengths = bufferPointer.baseAddress.unsafelyUnwrapped
       
     withUnsafeTemporaryAllocation(
-      of: UnsafePointer<Int8>?.self, capacity: n
+      of: UnsafePointer<Int8>?.self, capacity: sources.count
     ) { bufferPointer in
       let strings = bufferPointer.baseAddress.unsafelyUnwrapped
       
@@ -120,7 +119,7 @@ public struct CLProgram: CLReferenceCountable {
       }
       
       object_ = clCreateProgramWithSource(
-        context.clContext, UInt32(n), strings, lengths, &error)
+        context.clContext, UInt32(sources.count), strings, lengths, &error)
     }
     }
     

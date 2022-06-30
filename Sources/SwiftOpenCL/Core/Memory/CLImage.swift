@@ -7,6 +7,33 @@
 
 import COpenCL
 
+public struct CLImageFormat {
+  public var channelOrder: CLChannelOrder
+  public var channelType: CLChannelType
+  
+  public init(channelOrder: CLChannelOrder, channelType: CLChannelType) {
+    self.channelOrder = channelOrder
+    self.channelType = channelType
+  }
+}
+
+// `CLImageDescriptor` doesn't need to be public, so it's okay that the raw
+// `clMemory` pointer is part of it.
+internal struct CLImageDescriptor {
+  var type: CLMemoryObjectType
+  var width: Int = 0
+  var height: Int = 0
+  var depth: Int = 0
+  var arraySize: Int = 0
+  var rowPitch: Int = 0
+  var slicePitch: Int = 0
+  var numMipLevels: UInt32 = 0
+  
+  // The property `buffer` seems deprecated. I'm not including it because
+  // `memory` is more generic.
+  var clMemory: cl_mem?
+}
+
 public struct CLImage: CLMemoryProtocol {
   public let memory: CLMemory
   
@@ -25,7 +52,6 @@ public struct CLImage: CLMemoryProtocol {
       return nil
     }
     self.init(_unsafeMemory: memory)
-
   }
 }
 
@@ -33,16 +59,6 @@ public struct CLImage: CLMemoryProtocol {
 protocol CLImageProtocol: CLMemoryProtocol {
   var image: CLImage { get }
   init?(image: CLImage)
-}
-
-public struct CLImageFormat {
-  public var channelOrder: CLChannelOrder
-  public var channelType: CLChannelType
-  
-  public init(channelOrder: CLChannelOrder, channelType: CLChannelType) {
-    self.channelOrder = channelOrder
-    self.channelType = channelType
-  }
 }
 
 extension CLImage {
