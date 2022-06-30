@@ -60,11 +60,12 @@ extension CLProgram {
           Data(bytesNoCopy: binaryPointer, count: size, deallocator: .free))
         binariesPointers[i] = binaryPointer
       }
-      let err = clGetProgramInfo(
+      
+      let error = clGetProgramInfo(
         wrapper.object, UInt32(CL_PROGRAM_BINARIES),
         numBinaries * MemoryLayout<UnsafeMutablePointer<Int8>>.stride,
         binariesPointers, nil)
-      guard CLError.setCode(err, "__GET_PROGRAM_INFO_ERR") else {
+      guard CLError.setCode(error, "__GET_PROGRAM_INFO_ERR") else {
         return nil
       }
       return output

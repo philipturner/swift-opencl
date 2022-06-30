@@ -74,7 +74,7 @@ extension CLMemory {
   
   public var hostPointer: UnsafeMutableRawPointer? {
     if let bitPattern: Int = getInfo_Int(CL_MEM_HOST_PTR, getInfo) {
-      return UnsafeMutableRawPointer(bitPattern: bitPattern) as Optional
+      return UnsafeMutableRawPointer(bitPattern: bitPattern)!
     } else {
       return nil
     }

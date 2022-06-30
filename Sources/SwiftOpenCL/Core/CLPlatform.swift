@@ -58,6 +58,7 @@ public struct CLPlatform: CLReferenceCountable {
   
   /// Gets a list of available platforms.
   public static var all: [CLPlatform]? {
+    // TODO: Change all "n" to "numDevices"
     var n: UInt32 = 0
     var err = clGetPlatformIDs(0, nil, &n)
     guard CLError.setCode(err, "__GET_PLATFORM_IDS_ERR") else {

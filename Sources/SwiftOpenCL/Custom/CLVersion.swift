@@ -54,22 +54,22 @@ public struct CLNameVersion {
 extension CLVersion {
   @usableFromInline
   init?(clPlatformID: cl_platform_id) {
-    var size = 0
+    var required = 0
     var error = clGetPlatformInfo(
-      clPlatformID, UInt32(CL_PLATFORM_VERSION), 0, nil, &size)
+      clPlatformID, UInt32(CL_PLATFORM_VERSION), 0, nil, &required)
     guard CLError.setCode(error),
-          size > 7 else {
+          required > 7 else {
       return nil
     }
     
     major = 0
     minor = 0
     withUnsafeTemporaryAllocation(
-      of: Int8.self, capacity: size
+      byteCount: required, alignment: MemoryLayout<Int8>.alignment
     ) { bufferPointer in
-      let versionInfo = bufferPointer.baseAddress.unsafelyUnwrapped
+      let versionInfo = bufferPointer.getInfoBound(to: Int8.self)
       error = clGetPlatformInfo(
-        clPlatformID, UInt32(CL_PLATFORM_VERSION), size, versionInfo, nil)
+        clPlatformID, UInt32(CL_PLATFORM_VERSION), required, versionInfo, nil)
       
       // In these loops, each integer operation likely adds 1 cycle of overhead
       // because Swift guards against overflows, unless you prefix the ops with
@@ -120,22 +120,24 @@ extension CLVersion {
   
   @usableFromInline
   init?(clContext: cl_context) {
-    var size = 0
+    var required = 0
     var error = clGetContextInfo(
-      clContext, UInt32(CL_CONTEXT_DEVICES), 0, nil, &size)
-    guard CLError.setCode(error),
-          size > 0 else {
+      clContext, UInt32(CL_CONTEXT_DEVICES), 0, nil, &required)
+    guard CLError.setCode(error) else {
       return nil
     }
-    let numDevices = size / MemoryLayout<cl_device_id?>.stride
+    guard required > 0 else {
+      CLError.setCode(CLErrorCode.deviceNotFound.rawValue)
+      return nil
+    }
     
     var clDeviceID: cl_device_id?
     withUnsafeTemporaryAllocation(
-      of: cl_device_id?.self, capacity: numDevices
+      byteCount: required, alignment: MemoryLayout<cl_device_id?>.alignment
     ) { bufferPointer in
-      let devices = bufferPointer.baseAddress.unsafelyUnwrapped
+      let devices = bufferPointer.getInfoBound(to: cl_device_id?.self)
       error = clGetContextInfo(
-        clContext, UInt32(CL_CONTEXT_DEVICES), size, devices, nil)
+        clContext, UInt32(CL_CONTEXT_DEVICES), required, devices, nil)
       clDeviceID = devices[0]
     }
     guard CLError.setCode(error),

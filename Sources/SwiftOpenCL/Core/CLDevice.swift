@@ -52,6 +52,9 @@ public struct CLDevice: CLReferenceCountable {
     // skips creating unused object wrappers, each of which invokes
     // `swift_retain` and `clRetainDevice` once. It also skips creating an array
     // that would be quickly discarded.
+    //
+    // This is similar to what happens inside `CLVersion.init?(clContext:)`. I
+    // could share code between the two functions, but choose not to.
     var required = 0
     var error = clGetContextInfo(
       context.clContext, UInt32(CL_CONTEXT_DEVICES), 0, nil, &required)
@@ -64,16 +67,17 @@ public struct CLDevice: CLReferenceCountable {
     }
     
     return withUnsafeTemporaryAllocation(
-      byteCount: required, alignment: MemoryLayout<cl_device_id>.stride
+      byteCount: required, alignment: MemoryLayout<cl_device_id?>.alignment
     ) { bufferPointer in
-      let value = bufferPointer.getInfoRebound(to: cl_device_id.self)
+      let value = bufferPointer.getInfoBound(to: cl_device_id?.self)
       error = clGetContextInfo(
         context.clContext, UInt32(CL_CONTEXT_DEVICES), required, value, nil)
-      guard CLError.setCode(error) else {
+      guard CLError.setCode(error),
+            let clDeviceID = value[0] else {
         return nil
       }
       
-      return CLDevice(value[0], retain: true)
+      return CLDevice(clDeviceID, retain: true)
     }
   }()
   

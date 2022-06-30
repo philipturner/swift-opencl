@@ -20,9 +20,9 @@ typealias GetInfoClosure = (
 func getInfo_Bool(_ name: Int32, _ getInfo: GetInfoClosure) -> Bool? {
   // cl_bool is a typealias of `UInt32`, which is 4 bytes.
   var output: cl_bool = 0
-  let err = getInfo(
+  let error = getInfo(
     UInt32(name), MemoryLayout.stride(ofValue: output), &output, nil)
-  guard CLError.setCode(err) else {
+  guard CLError.setCode(error) else {
     return nil
   }
   return output == CL_TRUE
@@ -44,9 +44,9 @@ func getInfo_CLReferenceCountable<T: CLReferenceCountable>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> T? {
   var value: OpaquePointer? = nil
-  let err = getInfo(
+  let error = getInfo(
     UInt32(name), MemoryLayout.stride(ofValue: value), &value, nil)
-  guard CLError.setCode(err),
+  guard CLError.setCode(error),
         let value = value else {
     return nil
   }
@@ -61,9 +61,9 @@ func getInfo_CLSize(_ name: Int32, _ getInfo: GetInfoClosure) -> CLSize? {
   }
   
   return withUnsafeTemporaryAllocation(
-    byteCount: required, alignment: MemoryLayout<Int>.stride
+    byteCount: required, alignment: MemoryLayout<Int>.alignment
   ) { bufferPointer in
-    let value = bufferPointer.getInfoRebound(to: Int.self)
+    let value = bufferPointer.getInfoBound(to: Int.self)
     error = getInfo(UInt32(name), required, value, nil)
     guard CLError.setCode(error) else {
       return nil
@@ -82,20 +82,20 @@ func getInfo_CLSize(_ name: Int32, _ getInfo: GetInfoClosure) -> CLSize? {
 // practically share code between the two functions.
 func getInfo_Data(_ name: Int32, _ getInfo: GetInfoClosure) -> Data? {
   var required = 0
-  var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.setCode(err) else {
+  var error = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(error) else {
     return nil
   }
   
   if required > 0 {
     var value: UnsafeMutableRawPointer = .allocate(
-      byteCount: required, alignment: 1)
-    err = getInfo(UInt32(name), required, &value, nil)
-    guard CLError.setCode(err) else {
+      byteCount: required, alignment: MemoryLayout<UInt8>.alignment)
+    error = getInfo(UInt32(name), required, &value, nil)
+    guard CLError.setCode(error) else {
       value.deallocate()
       return nil
     }
-    return Data(bytesNoCopy: value, count: required, deallocator: .free) as Data
+    return Data(bytesNoCopy: value, count: required, deallocator: .free)
   } else {
     return Data()
   }
@@ -106,9 +106,9 @@ func getInfo_Int<T: BinaryInteger>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> T? {
   var output: T = 0
-  let err = getInfo(
+  let error = getInfo(
     UInt32(name), MemoryLayout.stride(ofValue: output), &output, nil)
-  guard CLError.setCode(err) else {
+  guard CLError.setCode(error) else {
     return nil
   }
   return output
@@ -116,16 +116,16 @@ func getInfo_Int<T: BinaryInteger>(
 
 func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {
   var required = 0
-  var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.setCode(err) else {
+  var error = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(error) else {
     return nil
   }
   
   if required > 0 {
     var value: UnsafeMutableRawPointer = .allocate(
-      byteCount: required, alignment: 1)
-    err = getInfo(UInt32(name), required, &value, nil)
-    guard CLError.setCode(err) else {
+      byteCount: required, alignment: MemoryLayout<UInt8>.alignment)
+    error = getInfo(UInt32(name), required, &value, nil)
+    guard CLError.setCode(error) else {
       value.deallocate()
       return nil
     }
@@ -141,8 +141,8 @@ func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {
 
 func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
   var required = 0
-  var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.setCode(err) else {
+  var error = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(error) else {
     return nil
   }
   let elements = required / MemoryLayout<T>.stride
@@ -151,9 +151,9 @@ func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
     unsafeUninitializedCapacity: elements
   ) { buffer, initializedCount in
     initializedCount = elements
-    err = getInfo(UInt32(name), required, buffer.baseAddress, nil)
+    error = getInfo(UInt32(name), required, buffer.baseAddress, nil)
   }
-  guard CLError.setCode(err) else {
+  guard CLError.setCode(error) else {
     return nil
   }
   return localData
@@ -170,21 +170,18 @@ func getInfo_ArrayOfCLNameVersion(
   guard CLError.setCode(error) else {
     return nil
   }
-  let elementStride = MemoryLayout<cl_version>.stride + 64
-  let elements = required / elementStride
-  precondition(required % elementStride == 0,
-    "`required` was not a multiple of \(elementStride).")
   
   return withUnsafeTemporaryAllocation(
-    byteCount: required, alignment: MemoryLayout<cl_version>.stride
+    byteCount: required, alignment: MemoryLayout<cl_version>.alignment
   ) { bufferPointer in
-    var value = bufferPointer.baseAddress.unsafelyUnwrapped
-      .assumingMemoryBound(to: Int8.self)
+    var value = bufferPointer.getInfoBound(to: Int8.self)
     error = getInfo(UInt32(name), required, value, nil)
     guard CLError.setCode(error) else {
       return nil
     }
     
+    let elementStride = MemoryLayout<cl_version>.stride + 64
+    let elements = required / elementStride
     var output: [CLNameVersion] = []
     output.reserveCapacity(elements)
     for _ in 0..<elements {
@@ -205,24 +202,25 @@ func getInfo_ArrayOfCLProperty<T: CLProperty>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> [T]? {
   var required = 0
-  var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.setCode(err) else {
+  var error = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(error) else {
     return nil
   }
-  typealias RawValue = T.Key.RawValue
-  let elements = required / MemoryLayout<RawValue>.stride
   
+  typealias RawValue = T.Key.RawValue
   return withUnsafeTemporaryAllocation(
-    of: RawValue.self, capacity: elements
+    byteCount: required, alignment: MemoryLayout<RawValue>.alignment
   ) { bufferPointer in
-    let value = bufferPointer.baseAddress.unsafelyUnwrapped
-    err = getInfo(UInt32(name), required, value, nil)
-    guard CLError.setCode(err) else {
+    let value = bufferPointer.getInfoBound(to: RawValue.self)
+//    let value = bufferPointer.baseAddress.unsafelyUnwrapped
+    error = getInfo(UInt32(name), required, value, nil)
+    guard CLError.setCode(error) else {
       return nil
     }
     
     // The array is a series of key-value pairs ending in 0, so the count should
     // be odd.
+    let elements = required / MemoryLayout<RawValue>.stride
     precondition(elements & 1 == 1, """
       Attempted to create an array of `CLProperties`, but its count was even.
       """)
@@ -244,21 +242,21 @@ func getInfo_ArrayOfCLReferenceCountable<T: CLReferenceCountable>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> [T]? {
   var required = 0
-  var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.setCode(err) else {
+  var error = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(error) else {
     return nil
   }
-  let elements = required / MemoryLayout<OpaquePointer>.stride
   
   return withUnsafeTemporaryAllocation(
-    of: OpaquePointer.self, capacity: elements
+    byteCount: required, alignment: MemoryLayout<OpaquePointer>.alignment
   ) { bufferPointer in
-    let value = bufferPointer.baseAddress.unsafelyUnwrapped
-    err = getInfo(UInt32(name), required, value, nil)
-    guard CLError.setCode(err) else {
+    let value = bufferPointer.getInfoBound(to: OpaquePointer.self)
+    error = getInfo(UInt32(name), required, value, nil)
+    guard CLError.setCode(error) else {
       return nil
     }
     
+    let elements = required / MemoryLayout<OpaquePointer>.stride
     var output: [T] = []
     output.reserveCapacity(elements)
     for i in 0..<elements {

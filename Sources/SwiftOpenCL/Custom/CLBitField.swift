@@ -38,9 +38,8 @@ public struct CLDeviceType: CLBitField {
   //
   // Because the `CL_DEVICE_TYPE_ALL` is larger than `Int32.max`, Swift imports
   // it as `UInt32`. This prevents me from initializing it like other device
-  // types. The explicit cast to `Self` shows that the alternative initializer
-  // cannot return `nil`.
-  public static let all = Self(rawValue: RawValue(CL_DEVICE_TYPE_ALL)) as Self
+  // types.
+  public static let all = Self(rawValue: RawValue(CL_DEVICE_TYPE_ALL))
 }
 
 public struct CLDeviceFloatingPointConfig: CLBitField {

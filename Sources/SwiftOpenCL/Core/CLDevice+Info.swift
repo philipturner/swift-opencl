@@ -290,23 +290,22 @@ extension CLDevice {
   
   public var partitionType: CLDevicePartitionProperty? {
     var required = 0
-    var err = getInfo(UInt32(CL_DEVICE_PARTITION_TYPE), 0, nil, &required)
-    guard CLError.setCode(err) else {
+    var error = getInfo(UInt32(CL_DEVICE_PARTITION_TYPE), 0, nil, &required)
+    guard CLError.setCode(error) else {
       return nil
     }
     guard required > 0 else {
       CLError.setCode(CL_INVALID_PROPERTY)
       return nil
     }
-    typealias RawValue = CLDevicePartitionProperty.Key.RawValue
-    let elements = required / MemoryLayout<RawValue>.stride
     
+    typealias RawValue = CLDevicePartitionProperty.Key.RawValue
     return withUnsafeTemporaryAllocation(
-      of: RawValue.self, capacity: elements
+      byteCount: required, alignment: MemoryLayout<RawValue>.alignment
     ) { bufferPointer in
-      let value = bufferPointer.baseAddress.unsafelyUnwrapped
-      err =  getInfo(UInt32(CL_DEVICE_PARTITION_TYPE), required, value, nil)
-      guard CLError.setCode(err) else {
+      let value = bufferPointer.getInfoBound(to: RawValue.self)
+      error =  getInfo(UInt32(CL_DEVICE_PARTITION_TYPE), required, value, nil)
+      guard CLError.setCode(error) else {
         return nil
       }
       
