@@ -7,6 +7,8 @@
 
 import COpenCL
 
+// Remove the concrete type and replace with it as a protocol
+
 public struct CLMemory: CLReferenceCountable {
   @usableFromInline
   var wrapper: CLReferenceWrapper<Self>
@@ -32,6 +34,7 @@ public struct CLMemory: CLReferenceCountable {
     clReleaseMemObject(object)
   }
   
+  // Change `CLMemory` to `Self` and `CLMemoryDestructorCallback` to a generic.
   public mutating func setDestructorCallback(
     _ notify: @escaping (_ memory: CLMemory) -> Void
   ) throws {

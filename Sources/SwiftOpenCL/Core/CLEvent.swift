@@ -7,6 +7,8 @@
 
 import COpenCL
 
+// Make all of thie functionality part of `CLEventProtocol`.
+
 public struct CLEvent: CLReferenceCountable {
   @usableFromInline
   var wrapper: CLReferenceWrapper<Self>

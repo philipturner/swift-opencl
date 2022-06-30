@@ -7,6 +7,8 @@
 
 import COpenCL
 
+// Make all of thie functionality part of `CLCommandQueueProtocol`.
+
 public struct CLCommandQueue: CLReferenceCountable {
   @usableFromInline
   var wrapper: CLReferenceWrapper<Self>

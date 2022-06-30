@@ -23,32 +23,32 @@ final class CLReferenceWrapper<T: CLReferenceCountable> {
   var shouldRetain: Bool
   
   @usableFromInline @inline(never)
-  func retainReturningSuccess() -> Bool {
+  func retain() -> Bool {
     CLError.setCode(T.retain(object), "__RETAIN_ERR")
+  }
+  
+  @usableFromInline @inline(never)
+  func release() -> Bool {
+    CLError.setCode(T.release(object), "__RELEASE_ERR")
   }
   
   @inline(__always)
   init?(_ object: OpaquePointer, _ shouldRetain: Bool) {
     self.object = object
     self.shouldRetain = shouldRetain
-    if shouldRetain {
-      guard retainReturningSuccess() else {
+    if _slowPath(shouldRetain) {
+      guard retain() else {
         return nil
       }
     }
-  }
-  
-  @usableFromInline @inline(never)
-  func release() {
-    CLError.setCode(T.release(object), "__RELEASE_ERR")
   }
   
   // I don't know whether `@inlinable` is required to force-inline `deinit` in
   // a module importing SwiftOpenCL, but I won't risk it.
   @inlinable @inline(__always)
   deinit {
-    if shouldRetain {
-      release()
+    if _slowPath(shouldRetain) {
+      _ = release()
     }
   }
 }

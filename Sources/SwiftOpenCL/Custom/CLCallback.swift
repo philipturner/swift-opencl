@@ -17,15 +17,12 @@ class CLCallbackStorage<T> {
 
 protocol CLCallback {
   associatedtype FunctionPointer
+  associatedtype CallbackFunctionPointer
+  static var unwrappedCallback: CallbackFunctionPointer { get }
+  
   typealias Storage = CLCallbackStorage<FunctionPointer>
   var storage: Storage? { get }
-  
-  // I don't know whether this force-inline is necessary, but I won't risk it.
-  @inline(__always)
   init(storage: Storage?)
-  
-  associatedtype CallbackFunctionPointer // Must not be an optional type.
-  static var unwrappedCallback: CallbackFunctionPointer { get }
 }
 
 extension CLCallback {
