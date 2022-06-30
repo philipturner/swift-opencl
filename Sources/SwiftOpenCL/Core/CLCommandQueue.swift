@@ -49,6 +49,7 @@ public struct CLCommandQueue: CLReferenceCountable {
     var error: Int32 = CL_SUCCESS
     var useWithProperties = false
     #if !canImport(Darwin)
+    // Is this version check necessary? I don't think so.
     if let version = CLVersion(clContext: context.clContext) {
       useWithProperties = version.major >= 2
     }
