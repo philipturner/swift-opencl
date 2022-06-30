@@ -172,8 +172,34 @@ public struct CLContext: CLReferenceCountable {
     self.init(object_)
   }
   
-  // Create this property once I have implemented OpenCL memory objects.
-//  public var supportedImageFormats: [CLImageFormat]?
+  public func supportedImageFormats(
+    flags: CLMemoryFlags, type: CLMemoryObjectType
+  ) -> [CLImageFormat]? {
+    var numEntries: UInt32 = 0
+    var error = clGetSupportedImageFormats(
+      wrapper.object, flags.rawValue, type.rawValue, 0, nil, &numEntries)
+    guard CLError.setCode(error, "__GET_SUPPORTED_IMAGE_FORMATS_ERR") else {
+      return nil
+    }
+    if numEntries == 0 {
+      return []
+    }
+    let elements = Int(numEntries)
+    
+    let output = Array<CLImageFormat>(
+      unsafeUninitializedCapacity: elements
+    ) { bufferPointer, initializedCount in
+      let rebound = UnsafeMutableRawBufferPointer(bufferPointer)
+        .getInfoBound(to: cl_image_format.self)
+      error = clGetSupportedImageFormats(
+        wrapper.object, flags.rawValue, type.rawValue, numEntries, rebound, nil)
+      initializedCount = elements
+    }
+    guard CLError.setCode(error, "__GET_SUPPORTED_IMAGE_FORMATS_ERR") else {
+      return nil
+    }
+    return output
+  }
   
   // This function is not in the C++ bindings. Perhaps because the `cl_context`
   // is no longer valid at this point. Unless there's a reason not to, I will

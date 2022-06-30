@@ -29,9 +29,9 @@ public struct CLDeviceCommandQueue {
     device: CLDevice
   ) throws {
     #if !canImport(Darwin)
-    let err = clSetDefaultDeviceCommandQueue(
+    let error = clSetDefaultDeviceCommandQueue(
       context.clContext, device.clDeviceID, queue.commandQueue.clCommandQueue)
-    try CLError.throwCode(err, "__SET_DEFAULT_DEVICE_COMMAND_QUEUE_ERR")
+    try CLError.throwCode(error, "__SET_DEFAULT_DEVICE_COMMAND_QUEUE_ERR")
     #endif
   }
   

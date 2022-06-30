@@ -313,10 +313,10 @@ extension CLProgram {
       }
       
       let callback = CLProgramCallback(notify)
-      let buildError = clBuildProgram(
+      let error = clBuildProgram(
         wrapper.object, UInt32(devices.count), clDeviceIDs, options,
         callback.callback, callback.passRetained())
-      try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
+      try throwBuildCode(error, "__BUILD_PROGRAM_ERR")
     }
   }
   
@@ -327,10 +327,10 @@ extension CLProgram {
   ) throws {
     var clDeviceID: cl_device_id? = device.clDeviceID
     let callback = CLProgramCallback(notify)
-    let buildError = clBuildProgram(
+    let error = clBuildProgram(
       wrapper.object, 1, &clDeviceID, options, callback.callback,
       callback.passRetained())
-    try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
+    try throwBuildCode(error, "__BUILD_PROGRAM_ERR")
   }
   
   public mutating func build(
@@ -338,10 +338,10 @@ extension CLProgram {
     notify: ((CLProgram) -> Void)? = nil
   ) throws {
     let callback = CLProgramCallback(notify)
-    let buildError = clBuildProgram(
+    let error = clBuildProgram(
       wrapper.object, 0, nil, options, callback.callback,
       callback.passRetained())
-    try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
+    try throwBuildCode(error, "__BUILD_PROGRAM_ERR")
   }
   
   public mutating func compile(
@@ -349,16 +349,16 @@ extension CLProgram {
     notify: ((CLProgram) -> Void)? = nil
   ) throws {
     let callback = CLProgramCallback(notify)
-    let buildError = clCompileProgram(
+    let error = clCompileProgram(
       wrapper.object, 0, nil, options, 0, nil, nil, callback.callback,
       callback.passRetained())
-    try throwBuildCode(buildError, "__COMPILE_PROGRAM_ERR")
+    try throwBuildCode(error, "__COMPILE_PROGRAM_ERR")
   }
   
   public func createKernels() -> [CLKernel]? {
     var numKernels: UInt32 = 0
-    var err = clCreateKernelsInProgram(wrapper.object, 0, nil, &numKernels)
-    guard CLError.setCode(err, "__CREATE_KERNELS_IN_PROGRAM_ERR") else {
+    var error = clCreateKernelsInProgram(wrapper.object, 0, nil, &numKernels)
+    guard CLError.setCode(error, "__CREATE_KERNELS_IN_PROGRAM_ERR") else {
       return nil
     }
     
@@ -366,8 +366,8 @@ extension CLProgram {
       of: cl_kernel?.self, capacity: Int(numKernels)
     ) { bufferPointer in
       let value = bufferPointer.baseAddress.unsafelyUnwrapped
-      err = clCreateKernelsInProgram(wrapper.object, numKernels, value, nil)
-      guard CLError.setCode(err, "__CREATE_KERNELS_IN_PROGRAM_ERR") else {
+      error = clCreateKernelsInProgram(wrapper.object, numKernels, value, nil)
+      guard CLError.setCode(error, "__CREATE_KERNELS_IN_PROGRAM_ERR") else {
         return nil
       }
       
@@ -388,7 +388,7 @@ extension CLProgram {
   public mutating func setSpecializationConstant(
     _ value: Bool, index: UInt32
   ) throws {
-    var ucValue = value ? UInt8.max : 0
+    var ucValue: UInt8 = value ? .max : 0
     let error = clSetProgramSpecializationConstant(
       wrapper.object, index, MemoryLayout.stride(ofValue: ucValue), &ucValue)
     try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")

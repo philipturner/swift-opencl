@@ -85,8 +85,8 @@ public struct CLDevice: CLReferenceCountable {
   public var currentHostTimer: UInt64? {
     var hostTimestamp: UInt64 = 0
     #if !canImport(Darwin)
-    let err = clGetHostTimer(wrapper.object, &hostTimestamp)
-    guard CLError.setCode(err, "__GET_HOST_TIMER_ERR") else {
+    let error = clGetHostTimer(wrapper.object, &hostTimestamp)
+    guard CLError.setCode(error, "__GET_HOST_TIMER_ERR") else {
       return nil
     }
     #endif
@@ -98,9 +98,9 @@ public struct CLDevice: CLReferenceCountable {
     var deviceTimestamp: UInt64 = 0
     var hostTimestamp: UInt64 = 0
     #if !canImport(Darwin)
-    let err = clGetDeviceAndHostTimer(
+    let error = clGetDeviceAndHostTimer(
       wrapper.object, &deviceTimestamp, &hostTimestamp)
-    guard CLError.setCode(err, "__GET_DEVICE_AND_HOST_TIMER_ERR") else {
+    guard CLError.setCode(error, "__GET_DEVICE_AND_HOST_TIMER_ERR") else {
       return nil
     }
     #endif
@@ -125,8 +125,8 @@ public struct CLDevice: CLReferenceCountable {
     ) { bufferPointer in
       let property = bufferPointer.baseAddress.unsafelyUnwrapped
       var n: UInt32 = 0
-      var err = clCreateSubDevices(wrapper.object, property, 0, nil, &n)
-      guard CLError.setCode(err, "__CREATE_SUB_DEVICES_ERR") else {
+      var error = clCreateSubDevices(wrapper.object, property, 0, nil, &n)
+      guard CLError.setCode(error, "__CREATE_SUB_DEVICES_ERR") else {
         return nil
       }
       let elements = Int(n)
@@ -135,8 +135,8 @@ public struct CLDevice: CLReferenceCountable {
         of: cl_device_id?.self, capacity: elements
       ) { bufferPointer in
         let ids = bufferPointer.baseAddress.unsafelyUnwrapped
-        err = clCreateSubDevices(wrapper.object, property, n, ids, nil)
-        guard CLError.setCode(err, "__CREATE_SUB_DEVICES_ERR") else {
+        error = clCreateSubDevices(wrapper.object, property, n, ids, nil)
+        guard CLError.setCode(error, "__CREATE_SUB_DEVICES_ERR") else {
           return nil
         }
         

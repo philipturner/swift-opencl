@@ -147,16 +147,16 @@ func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
   }
   let elements = required / MemoryLayout<T>.stride
   
-  let localData = Array<T>.init(
+  let output = Array<T>(
     unsafeUninitializedCapacity: elements
-  ) { buffer, initializedCount in
+  ) { bufferPointer, initializedCount in
+    error = getInfo(UInt32(name), required, bufferPointer.baseAddress, nil)
     initializedCount = elements
-    error = getInfo(UInt32(name), required, buffer.baseAddress, nil)
   }
   guard CLError.setCode(error) else {
     return nil
   }
-  return localData
+  return output
 }
 
 // The OpenCL 3.0 specification says each name string is null-terminated, with a
@@ -212,16 +212,15 @@ func getInfo_ArrayOfCLProperty<T: CLProperty>(
     byteCount: required, alignment: MemoryLayout<RawValue>.alignment
   ) { bufferPointer in
     let value = bufferPointer.getInfoBound(to: RawValue.self)
-//    let value = bufferPointer.baseAddress.unsafelyUnwrapped
     error = getInfo(UInt32(name), required, value, nil)
     guard CLError.setCode(error) else {
       return nil
     }
     
-    // The array is a series of key-value pairs ending in 0, so the count should
-    // be odd.
+    // The array is a series of key-value pairs ending with 0, so the count
+    // should be odd.
     let elements = required / MemoryLayout<RawValue>.stride
-    precondition(elements & 1 == 1, """
+    precondition(elements & 1 != 0, """
       Attempted to create an array of `CLProperties`, but its count was even.
       """)
     let numProperties = elements >> 1 // (array.count - 1) / 2

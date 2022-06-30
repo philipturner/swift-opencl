@@ -55,13 +55,9 @@ extension CLImage {
   
   public var format: CLImageFormat? {
     if let rawValue: UInt64 = getInfo_Int(CL_IMAGE_FORMAT, getInfo) {
-      let vector = unsafeBitCast(rawValue, to: SIMD2<UInt32>.self)
-      guard let channelOrder = CLChannelOrder(rawValue: vector[0]),
-            let channelType = CLChannelType(rawValue: vector[1]) else {
-        CLError.setCode(CLErrorCode.imageFormatNotSupported.rawValue)
-        return nil
-      }
-      return CLImageFormat(channelOrder: channelOrder, channelType: channelType)
+      // `CLImageFormat` has a different alignment than `rawValue`, but that
+      // should not be an issue because the alignment is smaller (4 < 8).
+      return unsafeBitCast(rawValue, to: CLImageFormat.self)
     } else {
       return nil
     }

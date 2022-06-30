@@ -35,8 +35,8 @@ public struct CLPlatform: CLReferenceCountable {
   
   public static var `default`: CLPlatform? = {
     var n: UInt32 = 0
-    var err = clGetPlatformIDs(0, nil, &n)
-    guard CLError.setCode(err) else {
+    var error = clGetPlatformIDs(0, nil, &n)
+    guard CLError.setCode(error) else {
       return nil
     }
     if n == 0 {
@@ -48,8 +48,8 @@ public struct CLPlatform: CLReferenceCountable {
       of: cl_platform_id?.self, capacity: Int(n)
     ) { bufferPointer in
       let ids = bufferPointer.baseAddress.unsafelyUnwrapped
-      err = clGetPlatformIDs(n, ids, nil)
-      guard CLError.setCode(err) else {
+      error = clGetPlatformIDs(n, ids, nil)
+      guard CLError.setCode(error) else {
         return nil
       }
       return CLPlatform(ids[0]!)
@@ -60,8 +60,8 @@ public struct CLPlatform: CLReferenceCountable {
   public static var all: [CLPlatform]? {
     // TODO: Change all "n" to "numDevices"
     var n: UInt32 = 0
-    var err = clGetPlatformIDs(0, nil, &n)
-    guard CLError.setCode(err, "__GET_PLATFORM_IDS_ERR") else {
+    var error = clGetPlatformIDs(0, nil, &n)
+    guard CLError.setCode(error, "__GET_PLATFORM_IDS_ERR") else {
       return nil
     }
     let elements = Int(n)
@@ -70,8 +70,8 @@ public struct CLPlatform: CLReferenceCountable {
       of: cl_platform_id?.self, capacity: elements
     ) { bufferPointer in
       let ids = bufferPointer.baseAddress.unsafelyUnwrapped
-      err = clGetPlatformIDs(n, ids, nil)
-      guard CLError.setCode(err) else {
+      error = clGetPlatformIDs(n, ids, nil)
+      guard CLError.setCode(error) else {
         return nil
       }
       
@@ -95,14 +95,14 @@ public struct CLPlatform: CLReferenceCountable {
   
   public func numDevices(type: CLDeviceType) -> UInt32? {
     var n: UInt32 = 0
-    let err = clGetDeviceIDs(wrapper.object, type.rawValue, 0, nil, &n)
-    if err == CL_DEVICE_NOT_FOUND {
+    let error = clGetDeviceIDs(wrapper.object, type.rawValue, 0, nil, &n)
+    if error == CL_DEVICE_NOT_FOUND {
       precondition(n == 0, """
         If no OpenCL devices are found, the number of devices should be zero.
         """)
       return 0
     } else {
-      guard CLError.setCode(err) else {
+      guard CLError.setCode(error) else {
         return nil
       }
     }
@@ -119,8 +119,8 @@ public struct CLPlatform: CLReferenceCountable {
       of: cl_device_id?.self, capacity: elements
     ) { bufferPointer in
       let ids = bufferPointer.baseAddress.unsafelyUnwrapped
-      let err = clGetDeviceIDs(wrapper.object, type.rawValue, n, ids, nil)
-      guard CLError.setCode(err) else {
+      let error = clGetDeviceIDs(wrapper.object, type.rawValue, n, ids, nil)
+      guard CLError.setCode(error) else {
         return nil
       }
       
