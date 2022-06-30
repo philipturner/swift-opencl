@@ -44,11 +44,38 @@ public struct CLDevice: CLReferenceCountable {
   }
   
   public static var `default`: CLDevice? = {
-    guard let context = CLContext.default,
-          let device = context.firstDevice else {
+    guard let context = CLContext.default else {
       return nil
     }
-    return device
+    
+    // Manually fetches the devices instead of querying `context.devices`. This
+    // skips creating unused object wrappers, each of which invokes
+    // `swift_retain` and `clRetainDevice` once. It also skips creating an array
+    // that would be quickly discarded.
+    var required = 0
+    var err = clGetContextInfo(
+      context.clContext, UInt32(CL_CONTEXT_DEVICES), 0, nil, &required)
+    guard CLError.setCode(err) else {
+      return nil
+    }
+    guard required > 0 else {
+      CLError.setCode(CLErrorCode.deviceNotFound.rawValue)
+      return nil
+    }
+    
+    return withUnsafeTemporaryAllocation(
+      byteCount: required, alignment: MemoryLayout<cl_device_id>.stride
+    ) { bufferPointer in
+      let value = bufferPointer.baseAddress.unsafelyUnwrapped
+        .assumingMemoryBound(to: cl_device_id.self)
+      err = clGetContextInfo(
+        context.clContext, UInt32(CL_CONTEXT_DEVICES), required, value, nil)
+      guard CLError.setCode(err) else {
+        return nil
+      }
+      
+      return CLDevice(value[0], retain: true)
+    }
   }()
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")

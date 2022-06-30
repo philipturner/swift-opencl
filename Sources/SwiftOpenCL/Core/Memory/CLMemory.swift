@@ -54,7 +54,7 @@ protocol CLMemoryProtocol {
 
 extension CLMemory {
   @inline(__always)
-  internal var getInfo: GetInfoClosure {
+  private var getInfo: GetInfoClosure {
     { clGetMemObjectInfo(wrapper.object, $0, $1, $2, $3) }
   }
   

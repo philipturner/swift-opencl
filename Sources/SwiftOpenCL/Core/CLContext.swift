@@ -175,45 +175,6 @@ public struct CLContext: CLReferenceCountable {
   // Create this property once I have implemented OpenCL memory objects.
 //  public var supportedImageFormats: [CLImageFormat]?
   
-  // An optimization for internal code looking for just the first device. This
-  // skips creating unused object wrappers, each of which invokes `swift_retain`
-  // and `clRetainDevice` once. It also skips creating an array that would be
-  // quickly discarded.
-  //
-  // It should also not be public because it returns an optional. In
-  // SwiftOpenCL, optionals imply that something failed while fetching a
-  // property, and you should crash using `CLError.latest`. With `firstDevice`,
-  // `nil` can also mean there are zero devices. All of the callers fail no
-  // matter what `nil` means, so I don't have to distinguish between the two
-  // meanings.
-  //
-  // TODO: Refactor so this happens inside the creation of `CLDevice.default`.
-  // There are no longer multiple callers.
-  @usableFromInline
-  internal var firstDevice: CLDevice? {
-    var required = 0
-    var err = getInfo(UInt32(CL_CONTEXT_DEVICES), 0, nil, &required)
-    guard CLError.setCode(err) else {
-      return nil
-    }
-    let elements = required / MemoryLayout<OpaquePointer>.stride
-    guard elements > 0 else {
-      return nil
-    }
-    
-    return withUnsafeTemporaryAllocation(
-      of: OpaquePointer.self, capacity: elements
-    ) { bufferPointer in
-      let value = bufferPointer.baseAddress.unsafelyUnwrapped
-      err = getInfo(UInt32(CL_CONTEXT_DEVICES), required, value, nil)
-      guard CLError.setCode(err) else {
-        return nil
-      }
-      
-      return CLDevice(value[0], retain: true)
-    }
-  }
-  
   // This function is not in the C++ bindings. Perhaps because the `cl_context`
   // is no longer valid at this point. Unless there's a reason not to, I will
   // add `clSetContextDestructorCallback` to the bindings.
