@@ -7,24 +7,23 @@
 
 import COpenCL
 
-// public struct CLBuffer: CLMemoryProtocol
-
-//public struct CLBuffer {
-//  private var _memory: CLMemory
-//  public internal(set) var memory: CLMemory {
-//     get {
-//      _memory
-//    }
-//    @usableFromInline
-//    set {
-//      _memory = newValue
-//    }
-//  }
-//
-////  @usableFromInline
-////  internal(set) public var memory: CLMemory
-//  @inlinable
-//  public init(memory: CLMemory) {
-//    self._memory = memory
-//  }
-//}
+public struct CLBuffer: CLMemoryProtocol {
+  public let memory: CLMemory
+  
+  @_transparent
+  public init(_unsafeMemory memory: CLMemory) {
+    self.memory = memory
+  }
+  
+  @inlinable
+  public init?(memory: CLMemory) {
+    guard let type = memory.type else {
+      return nil
+    }
+    guard type == .buffer else {
+      CLError.setCode(CLErrorCode.invalidMemoryObject.rawValue)
+      return nil
+    }
+    self.init(_unsafeMemory: memory)
+  }
+}

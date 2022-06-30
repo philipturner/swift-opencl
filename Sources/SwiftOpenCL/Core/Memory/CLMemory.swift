@@ -7,9 +7,6 @@
 
 import COpenCL
 
-// Conform the concrete type to the protocol, but expose all of its public
-// members through a protocol extension
-
 public struct CLMemory: CLReferenceCountable {
   @usableFromInline
   var wrapper: CLReferenceWrapper<Self>
@@ -35,7 +32,6 @@ public struct CLMemory: CLReferenceCountable {
     clReleaseMemObject(object)
   }
   
-  // Change `CLMemory` to `Self` and `CLMemoryDestructorCallback` to a generic.
   public mutating func setDestructorCallback(
     _ notify: @escaping (_ memory: CLMemory) -> Void
   ) throws {
@@ -44,6 +40,15 @@ public struct CLMemory: CLReferenceCountable {
       wrapper.object, callback.callback, callback.passRetained())
     try CLError.throwCode(error, "__SET_MEM_OBJECT_DESTRUCTOR_CALLBACK_ERR")
   }
+}
+
+// Serves no purpose besides organization, ensuring all sub-types conform.
+protocol CLMemoryProtocol {
+  var memory: CLMemory { get }
+  init?(memory: CLMemory)
+  
+  // TODO: Add comment explaining why this is unsafe.
+  init(_unsafeMemory memory: CLMemory)
 }
 
 extension CLMemory {

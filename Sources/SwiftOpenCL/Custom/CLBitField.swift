@@ -71,14 +71,9 @@ public struct CLDeviceMemoryCacheType: CLBitField {
   public static let readWriteCache = Self(CL_READ_WRITE_CACHE)
 }
 
-public struct CLDeviceLocalMemoryType: CLMacro {
-  public let rawValue: cl_device_local_mem_type
-  public init(rawValue: cl_device_local_mem_type) {
-    self.rawValue = rawValue
-  }
-  
-  public static let local = Self(CL_LOCAL)
-  public static let global = Self(CL_GLOBAL)
+public enum CLDeviceLocalMemoryType: cl_device_local_mem_type, CLMacro {
+  case local = 0x1
+  case global = 0x2
 }
 
 public struct CLDeviceExecutionCapabilities: CLBitField {
@@ -182,27 +177,22 @@ public struct CLMemoryMigrationFlags: CLBitField {
     CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED)
 }
 
-public struct CLChannelOrder: CLMacro {
-  public let rawValue: cl_channel_order
-  public init(rawValue: cl_channel_order) {
-    self.rawValue = rawValue
-  }
-  
-  public static let r = Self(CL_R)
-  public static let a = Self(CL_A)
-  public static let rg = Self(CL_RG)
-  public static let ra = Self(CL_RA)
-  public static let rgb = Self(CL_RGB)
-  public static let rgba = Self(CL_RGBA)
-  public static let bgra = Self(CL_BGRA)
-  public static let argb = Self(CL_ARGB)
-  public static let intensity = Self(CL_INTENSITY)
-  public static let luminance = Self(CL_LUMINANCE)
-  public static let rx = Self(CL_Rx)
-  public static let rgx = Self(CL_RGx)
-  public static let rgbx = Self(CL_RGBx)
-  public static let depth = Self(CL_DEPTH)
-  public static let depthStencil = Self(CL_DEPTH_STENCIL)
+public enum CLChannelOrder: cl_channel_order, CLMacro {
+  case r = 0x10B0
+  case a = 0x10B1
+  case rg = 0x10B2
+  case ra = 0x10B3
+  case rgb = 0x10B4
+  case rgba = 0x10B5
+  case bgra = 0x10B6
+  case argb = 0x10B7
+  case intensity = 0x10B8
+  case luminance = 0x10B9
+  case rx = 0x10BA
+  case rgx = 0x10BB
+  case rgbx = 0x10BC
+  case depth = 0x10BD
+  case depthStencil = 0x10BE
   
   // Making all characters lowercase. This looks like it violates the naming
   // convention used elsewhere, but it doesn't. `sRGB` is one word, similar to
@@ -220,92 +210,85 @@ public struct CLChannelOrder: CLMacro {
   // would sabotage our already finite efforts to make Swift something taken
   // seriously on Windows.
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let srgb = Self(0x10BF)
+  case srgb = 0x10BF
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let srgbx = Self(0x10C0)
+  case srgbx = 0x10C0
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let srgba = Self(0x10C1)
+  case srgba = 0x10C1
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let sbgra = Self(0x10C2)
+  case sbgra = 0x10C2
   
   // Part of OpenCL 2.0, but also part of an extension Apple made to earlier
   // versions. Not including it yet because I haven't decided on the naming
   // semantics, if it (or any Apple extension) should be included at all.
 //  #if canImport(Darwin)
-//  public static let abgr = Self(CL_ABGR_APPLE)
+//  case abgr = CL_ABGR_APPLE // replace with macro's raw value
 //  #else
-//  public static let abgr = Self(CL_ABGR)
+//  case abgr = CL_ABGR // replace with macro's raw value
 //  #endif
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let abgr = Self(0x10C2)
+  case abgr = 0x10C3
 }
 
-public struct CLChannelType: CLMacro {
-  public let rawValue: cl_channel_type
-  public init(rawValue: cl_channel_type) {
-    self.rawValue = rawValue
-  }
-  
-  public static let snormInt8 = Self(CL_SNORM_INT8)
-  public static let snormInt16 = Self(CL_SNORM_INT16)
-  public static let unormInt8 = Self(CL_UNORM_INT8)
-  public static let unormInt16 = Self(CL_UNORM_INT16)
-  public static let unormShort565 = Self(CL_UNORM_SHORT_565)
-  public static let unormShort555 = Self(CL_UNORM_SHORT_555)
-  public static let unormInt101010 = Self(CL_UNORM_INT_101010)
-  public static let signedInt8 = Self(CL_SIGNED_INT8)
-  public static let signedInt16 = Self(CL_SIGNED_INT16)
-  public static let signedInt32 = Self(CL_SIGNED_INT32)
-  public static let unsignedInt8 = Self(CL_UNSIGNED_INT8)
-  public static let unsignedInt16 = Self(CL_UNSIGNED_INT16)
-  public static let unsignedInt32 = Self(CL_UNSIGNED_INT32)
-  public static let halfFloat = Self(CL_HALF_FLOAT)
-  public static let float = Self(CL_FLOAT)
-  public static let unormInt24 = Self(CL_UNORM_INT24)
+public enum CLChannelType: cl_channel_type, CLMacro {
+  case snormInt8 = 0x10D0
+  case snormInt16 = 0x10D1
+  case unormInt8 = 0x10D2
+  case unormInt16 = 0x10D3
+  case unormShort565 = 0x10D4
+  case unormShort555 = 0x10D5
+  case unormInt101010 = 0x10D6
+  case signedInt8 = 0x10D7
+  case signedInt16 = 0x10D8
+  case signedInt32 = 0x10D9
+  case unsignedInt8 = 0x10DA
+  case unsignedInt16 = 0x10DB
+  case unsignedInt32 = 0x10DC
+  case halfFloat = 0x10DD
+  case float = 0x10DE
+  case unormInt24 = 0x10DF
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
-  public static let unormInt1010102 = Self(0x10E0)
+  case unormInt1010102 = 0x10E0
 }
 
-public struct CLMemoryObjectType: CLMacro {
-  public let rawValue: cl_mem_object_type
-  public init(rawValue: cl_mem_object_type) {
-    self.rawValue = rawValue
-  }
-  
-  public static let buffer = Self(CL_MEM_OBJECT_BUFFER)
-  public static let image2D = Self(CL_MEM_OBJECT_IMAGE2D)
-  public static let image3D = Self(CL_MEM_OBJECT_IMAGE3D)
-  public static let image2DArray = Self(CL_MEM_OBJECT_IMAGE2D_ARRAY)
-  public static let image1D = Self(CL_MEM_OBJECT_IMAGE1D)
-  public static let image1DArray = Self(CL_MEM_OBJECT_IMAGE1D_ARRAY)
-  public static let image1DBuffer = Self(CL_MEM_OBJECT_IMAGE1D_BUFFER)
+public enum CLMemoryObjectType: cl_mem_object_type, CLMacro {
+  case buffer = 0x10F0
+  case image2D = 0x10F1
+  case image3D = 0x10F2
+  case image2DArray = 0x10F3
+  case image1D = 0x10F4
+  case image1DArray = 0x10F5
+  case image1DBuffer = 0x10F6
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let pipe = Self(0x10F7)
+  case pipe = 0x10F7
+  
+  @inlinable
+  public var isImage: Bool {
+    switch self {
+    case .buffer:
+      return false
+    case .image2D, .image3D, .image2DArray: fallthrough
+    case .image1D, .image1DArray, .image1DBuffer:
+      return true
+    case .pipe:
+      return false
+    }
+  }
 }
 
-public struct CLAddressingMode: CLMacro {
-  public let rawValue: cl_addressing_mode
-  public init(rawValue: cl_addressing_mode) {
-    self.rawValue = rawValue
-  }
-  
-  public static let none = Self(CL_ADDRESS_NONE)
-  public static let clampToEdge = Self(CL_ADDRESS_CLAMP_TO_EDGE)
-  public static let clamp = Self(CL_ADDRESS_CLAMP)
-  public static let `repeat` = Self(CL_ADDRESS_REPEAT)
-  public static let mirroredRepeat = Self(CL_ADDRESS_MIRRORED_REPEAT)
+public enum CLAddressingMode: cl_addressing_mode, CLMacro {
+  case none = 0x1130
+  case clampToEdge = 0x1131
+  case clamp = 0x1132
+  case `repeat` = 0x1133
+  case mirroredRepeat = 0x1134
 }
 
-public struct CLFilterMode: CLMacro {
-  public let rawValue: cl_filter_mode
-  public init(rawValue: cl_filter_mode) {
-    self.rawValue = rawValue
-  }
-  
-  public static let nearest = Self(CL_FILTER_NEAREST)
-  public static let linear = Self(CL_FILTER_LINEAR)
+public enum CLFilterMode: cl_filter_mode, CLMacro {
+  case nearest = 0x1140
+  case linear = 0x1141
 }
 
 public struct CLMapFlags: CLBitField {
@@ -319,53 +302,36 @@ public struct CLMapFlags: CLBitField {
   public static let writeInvalidateRegion = Self(CL_MAP_WRITE_INVALIDATE_REGION)
 }
 
-public struct CLProgramBinaryType: CLMacro {
-  public let rawValue: cl_program_binary_type
-  public init(rawValue: cl_program_binary_type) {
-    self.rawValue = rawValue
-  }
-  
-  public static let none = Self(CL_PROGRAM_BINARY_TYPE_NONE)
-  public static let compiledProject = Self(
-    CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT)
-  public static let library = Self(CL_PROGRAM_BINARY_TYPE_LIBRARY)
-  public static let executable = Self(CL_PROGRAM_BINARY_TYPE_EXECUTABLE)
+public enum CLProgramBinaryType: cl_program_binary_type, CLMacro {
+  case none = 0x0
+  case compiledObject = 0x1
+  case library = 0x2
+  case executable = 0x4
 }
 
-public struct CLBuildStatus: CLMacro {
-  public let rawValue: cl_build_status
-  public init(rawValue: cl_build_status) {
-    self.rawValue = rawValue
-  }
-  
-  public static let success = Self(CL_BUILD_SUCCESS)
-  public static let none = Self(CL_BUILD_NONE)
-  public static let error = Self(CL_BUILD_ERROR)
-  public static let inProgress = Self(CL_BUILD_IN_PROGRESS)
+public enum CLBuildStatus: cl_build_status, CLMacro {
+  case success = 0
+  case none = -1
+  case error = -2
+  case inProgress = -3
 }
 
-public struct CLKernelArgumentAddressQualifier: CLMacro {
-  public let rawValue: cl_kernel_arg_address_qualifier
-  public init(rawValue: cl_kernel_arg_address_qualifier) {
-    self.rawValue = rawValue
-  }
-  
-  public static let global = Self(CL_KERNEL_ARG_ADDRESS_GLOBAL)
-  public static let local = Self(CL_KERNEL_ARG_ADDRESS_LOCAL)
-  public static let constant = Self(CL_KERNEL_ARG_ADDRESS_CONSTANT)
-  public static let `private` = Self(CL_KERNEL_ARG_ADDRESS_PRIVATE)
+public enum CLKernelArgumentAddressQualifier:
+  cl_kernel_arg_address_qualifier, CLMacro
+{
+  case global = 0x119B
+  case local = 0x119C
+  case constant = 0x119D
+  case `private` = 0x119E
 }
 
-public struct CLKernelArgumentAccessQualifier: CLMacro {
-  public let rawValue: cl_kernel_arg_access_qualifier
-  public init(rawValue: cl_kernel_arg_access_qualifier) {
-    self.rawValue = rawValue
-  }
-  
-  public static let readOnly = Self(CL_KERNEL_ARG_ACCESS_READ_ONLY)
-  public static let writeOnly = Self(CL_KERNEL_ARG_ACCESS_WRITE_ONLY)
-  public static let readWrite = Self(CL_KERNEL_ARG_ACCESS_READ_WRITE)
-  public static let none = Self(CL_KERNEL_ARG_ACCESS_NONE)
+public enum CLKernelArgumentAccessQualifier:
+  cl_kernel_arg_access_qualifier, CLMacro
+{
+  case readOnly = 0x11A0
+  case writeOnly = 0x11A1
+  case readWrite = 0x11A2
+  case none = 0x11A3
 }
 
 public struct CLKernelArgumentTypeQualifier: CLBitField {
@@ -383,82 +349,67 @@ public struct CLKernelArgumentTypeQualifier: CLBitField {
   public static let pipe = Self(1 << 3)
 }
 
-public struct CLCommandType: CLMacro {
-  public let rawValue: cl_command_type
-  public init(rawValue: cl_command_type) {
-    self.rawValue = rawValue
-  }
-  
+public enum CLCommandType: cl_command_type, CLMacro {
   // Choosing `ndrange` instead of `ndRange` because it's one word, just like
   // "NDArray". Apple does something similar with
   // `MPSGraphTensorData.mpsndarray()`.
-  public static let ndrangeKernel = Self(CL_COMMAND_NDRANGE_KERNEL)
-  public static let task = Self(CL_COMMAND_TASK)
-  public static let nativeKernel = Self(CL_COMMAND_NATIVE_KERNEL)
-  public static let readBuffer = Self(CL_COMMAND_READ_BUFFER)
-  public static let writeBuffer = Self(CL_COMMAND_WRITE_BUFFER)
-  public static let copyBuffer = Self(CL_COMMAND_COPY_BUFFER)
-  public static let readImage = Self(CL_COMMAND_READ_IMAGE)
-  public static let writeImage = Self(CL_COMMAND_WRITE_IMAGE)
-  public static let copyImage = Self(CL_COMMAND_COPY_IMAGE)
-  public static let copyImageToBuffer = Self(CL_COMMAND_COPY_IMAGE_TO_BUFFER)
-  public static let copyBufferToImage = Self(CL_COMMAND_COPY_BUFFER_TO_IMAGE)
-  public static let mapBuffer = Self(CL_COMMAND_MAP_BUFFER)
-  public static let mapImage = Self(CL_COMMAND_MAP_IMAGE)
-  public static let unmapMemoryObject = Self(CL_COMMAND_UNMAP_MEM_OBJECT)
-  public static let marker = Self(CL_COMMAND_MARKER)
-  public static let acquireGLObjects = Self(CL_COMMAND_ACQUIRE_GL_OBJECTS)
-  public static let releaseGLObjects = Self(CL_COMMAND_RELEASE_GL_OBJECTS)
-  public static let readBufferRectangle = Self(CL_COMMAND_READ_BUFFER_RECT)
-  public static let writeBufferRectangle = Self(CL_COMMAND_WRITE_BUFFER_RECT)
-  public static let copyBufferRectangle = Self(CL_COMMAND_COPY_BUFFER_RECT)
-  public static let user = Self(CL_COMMAND_USER)
-  public static let barrier = Self(CL_COMMAND_BARRIER)
-  public static let migrateMemoryObjects = Self(CL_COMMAND_MIGRATE_MEM_OBJECTS)
-  public static let fillBuffer = Self(CL_COMMAND_FILL_BUFFER)
-  public static let fillImage = Self(CL_COMMAND_FILL_IMAGE)
+  case ndrangeKernel = 0x11F0
+  case task = 0x11F1
+  case nativeKernel = 0x11F2
+  case readBuffer = 0x11F3
+  case writeBuffer = 0x11F4
+  case copyBuffer = 0x11F5
+  case readImage = 0x11F6
+  case writeImage = 0x11F7
+  case copyImage = 0x11F8
+  case copyImageToBuffer = 0x11F9
+  case copyBufferToImage = 0x11FA
+  case mapBuffer = 0x11FB
+  case mapImage = 0x11FC
+  case unmapMemoryObject = 0x11FD
+  case marker = 0x11FE
+  case acquireGLObjects = 0x11FF
+  case releaseGLObjects = 0x1200
+  case readBufferRectangle = 0x1201
+  case writeBufferRectangle = 0x1202
+  case copyBufferRectangle = 0x1203
+  case user = 0x1204
+  case barrier = 0x1205
+  case migrateMemoryObjects = 0x1206
+  case fillBuffer = 0x1207
+  case fillImage = 0x1208
   
   // Not expanding `memfill` to `memoryFill` because then I must expand
   // `memcpy` to `memoryCopy`. "memcpy" is a widely known C function, along with
   // "free". I think the SVM is trying to emulate basic C memory manipulation
   // here.
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let svmFree = Self(0x1209)
+  case svmFree = 0x1209
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let svmMemcpy = Self(0x120A)
+  case svmMemcpy = 0x120A
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let svmMemfill = Self(0x120B)
+  case svmMemfill = 0x120B
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let svmMap = Self(0x120C)
+  case svmMap = 0x120C
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let svmUnmap = Self(0x120D)
+  case svmUnmap = 0x120D
   
   @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-  public static let svmMigrateMemory = Self(0x120E)
+  case svmMigrateMemory = 0x120E
 }
 
 // No associated C typedef or enumeration in COpenCL. SwiftOpenCL synthesizes
 // this new type for developer ergonomics. Should this declaration be `public`
 // or `internal`?
-public struct CLCommandExecutionStatus: CLMacro {
-  public let rawValue: Int32
-  public init(rawValue: Int32) {
-    self.rawValue = rawValue
-  }
-  
-  public static let complete = Self(CL_COMPLETE)
-  public static let running = Self(CL_RUNNING)
-  public static let submitted = Self(CL_SUBMITTED)
-  public static let queued = Self(CL_QUEUED)
+public enum CLCommandExecutionStatus: Int32, CLMacro {
+  case complete = 0x0
+  case running = 0x1
+  case submitted = 0x2
+  case queued = 0x3
 }
 
-public struct CLBufferCreateType: CLMacro {
-  public let rawValue: cl_buffer_create_type
-  public init(rawValue: cl_buffer_create_type) {
-    self.rawValue = rawValue
-  }
-  
-  public static let region = Self(CL_BUFFER_CREATE_TYPE_REGION)
+public enum CLBufferCreateType: cl_buffer_create_type, CLMacro {
+  case region = 0x1220
 }
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")

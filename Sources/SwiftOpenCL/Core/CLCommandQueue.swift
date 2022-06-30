@@ -7,8 +7,6 @@
 
 import COpenCL
 
-// Make all of thie functionality part of `CLCommandQueueProtocol`.
-
 public struct CLCommandQueue: CLReferenceCountable {
   @usableFromInline
   var wrapper: CLReferenceWrapper<Self>
@@ -165,7 +163,7 @@ extension CLCommandQueue {
     assert(CL_QUEUE_DEVICE_DEFAULT == name)
     #endif
     if let queue: CLCommandQueue = getInfo_CLReferenceCountable(name, getInfo) {
-      return CLDeviceCommandQueue(unsafeCommandQueue: queue)
+      return CLDeviceCommandQueue(_unsafeCommandQueue: queue)
     } else {
       return nil
     }

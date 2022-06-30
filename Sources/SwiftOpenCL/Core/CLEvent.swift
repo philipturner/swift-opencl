@@ -7,8 +7,6 @@
 
 import COpenCL
 
-// Make all of thie functionality part of `CLEventProtocol`.
-
 public struct CLEvent: CLReferenceCountable {
   @usableFromInline
   var wrapper: CLReferenceWrapper<Self>
@@ -78,12 +76,12 @@ public struct CLEvent: CLReferenceCountable {
 }
 
 public struct CLUserEvent {
-  public var event: CLEvent
+  public let event: CLEvent
   
   /// `CLUserEvent` is a subset of `CLEvent`. The first parameter is unsafe
   /// because it cannot be checked internally to ensure it is a user event.
   @_transparent
-  public init(unsafeEvent event: CLEvent) {
+  public init(_unsafeEvent event: CLEvent) {
     self.event = event
   }
   

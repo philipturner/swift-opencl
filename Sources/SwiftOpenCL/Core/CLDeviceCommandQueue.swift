@@ -9,14 +9,14 @@ import COpenCL
 
 @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public struct CLDeviceCommandQueue {
-  public var commandQueue: CLCommandQueue
+  public let commandQueue: CLCommandQueue
   
   /// `CLDeviceCommandQueue` is a subset of `CLCommandQueue`. The first
   /// parameter is unsafe because it is not checked internally to ensure it is a
   /// device command queue. You can check it manually by querying
   /// `CLCommandQueue.propertiesArray`.
   @_transparent
-  public init(unsafeCommandQueue commandQueue: CLCommandQueue) {
+  public init(_unsafeCommandQueue commandQueue: CLCommandQueue) {
     self.commandQueue = commandQueue
   }
   
@@ -76,7 +76,7 @@ public struct CLDeviceCommandQueue {
           let queue = CLCommandQueue(object_) else {
       return nil
     }
-    self.init(unsafeCommandQueue: queue)
+    self.init(_unsafeCommandQueue: queue)
   }
   
   // The following two initializers differ from the C++ bindings. Instead of

@@ -120,7 +120,7 @@ struct CLEventCallback: CLCallback {
     _ user_info: UnsafeMutableRawPointer?
   ) -> Void = {
     let event = CLEvent($0!)!
-    let eventCommandStatus = CLCommandExecutionStatus(rawValue: $1)
+    let eventCommandStatus = CLCommandExecutionStatus(rawValue: $1)!
     let userInfo = $2
     extractClosure(userInfo)(event, eventCommandStatus)
   }
