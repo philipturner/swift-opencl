@@ -44,14 +44,6 @@ public struct CLPipe: CLMemoryProtocol {
     }
     self.init(_unsafeMemory: memory)
   }
-  
-  @inlinable
-  public init?(packetSize: UInt32, maxPackets: UInt32) {
-    guard let context = CLContext.defaultContext else {
-      return nil
-    }
-    self.init(context: context, packetSize: packetSize, maxPackets: maxPackets)
-  }
 }
 
 // OpenCL 2.0

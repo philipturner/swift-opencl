@@ -71,14 +71,6 @@ public struct CLProgram: CLReferenceCountable {
     self.init(object_)
   }
   
-  @inlinable
-  public init?(source: String) {
-    guard let context = CLContext.defaultContext else {
-      return nil
-    }
-    self.init(context: context, source: source)
-  }
-  
   public init?(context: CLContext, sources: [String]) {
     var error: Int32 = CL_SUCCESS
     let n = sources.count
@@ -139,14 +131,6 @@ public struct CLProgram: CLReferenceCountable {
     self.init(object_)
   }
   
-  @inlinable
-  public init?(sources: [String]) {
-    guard let context = CLContext.defaultContext else {
-      return nil
-    }
-    self.init(context: context, sources: sources)
-  }
-  
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
   public init?(context: CLContext, il: Data) {
     var error: Int32 = CL_SUCCESS
@@ -163,15 +147,6 @@ public struct CLProgram: CLReferenceCountable {
       return nil
     }
     self.init(object_)
-  }
-  
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
-  @inlinable
-  public init?(il: Data) {
-    guard let context = CLContext.defaultContext else {
-      return nil
-    }
-    self.init(context: context, il: il)
   }
   
   // Unlike `init?(context:sources:)`, this function can get away with not

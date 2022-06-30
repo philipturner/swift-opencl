@@ -62,8 +62,6 @@ public struct CLSampler: CLReferenceCountable {
     }
     self.init(object_)
   }
-  
-  // Why isn't there a convenience initializer that selects the default context?
 }
 
 extension CLSampler {

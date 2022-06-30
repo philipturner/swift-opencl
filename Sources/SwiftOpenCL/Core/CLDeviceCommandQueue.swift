@@ -78,36 +78,4 @@ public struct CLDeviceCommandQueue {
     }
     self.init(_unsafeCommandQueue: queue)
   }
-  
-  // The following two initializers differ from the C++ bindings. Instead of
-  // fetching `CLDevice.deviceDefault`, they retrieve the device like in
-  // `CLCommandQueue.init(properties:)`. This ensures that the regular and
-  // device command queues have similar APIs. You can still emulate the behavior
-  // of the C++ bindings by manually fetching `CLDevice.deviceDefault`.
-  
-  @inlinable
-  public init?(
-    context: CLContext,
-    properties: CLCommandQueueProperties = [],
-    size queueSize: UInt32? = nil
-  ) {
-    guard let device = context.firstDevice else {
-      return nil
-    }
-    self.init(
-      context: context, device: device, properties: properties, size: queueSize)
-  }
-  
-  @inlinable
-  public init?(
-    properties: CLCommandQueueProperties = [],
-    size queueSize: UInt32? = nil
-  ) {
-    guard let context = CLContext.defaultContext,
-          let device = context.firstDevice else {
-      return nil
-    }
-    self.init(
-      context: context, device: device, properties: properties, size: queueSize)
-  }
 }

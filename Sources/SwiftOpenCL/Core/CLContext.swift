@@ -33,11 +33,11 @@ public struct CLContext: CLReferenceCountable {
     clReleaseContext(object)
   }
   
-  public static var defaultContext: CLContext? = {
+  public static var `default`: CLContext? = {
     // There is no documentation about why the C++ bindings don't set the
     // platform on macOS. So I am setting it, then seeing if it breaks.
     var error: Int32 = CL_SUCCESS
-    guard let p = CLPlatform.defaultPlatform else {
+    guard let p = CLPlatform.default else {
       return nil
     }
     let defaultPlatformID = p.clPlatformID
@@ -130,13 +130,14 @@ public struct CLContext: CLReferenceCountable {
     
     // Get a valid platform ID as we cannot send in a blank one.
     if !properties.contains(where: {
+      // Returns true is a platform is in the list.
       if case .platform = $0 {
         return true
       }
       return false
     }) {
       var selectedPlatform: CLPlatform?
-      guard let availablePlatforms = CLPlatform.availablePlatforms else {
+      guard let availablePlatforms = CLPlatform.all else {
         return nil
       }
       for platform in availablePlatforms {
@@ -185,6 +186,9 @@ public struct CLContext: CLReferenceCountable {
   // `nil` can also mean there are zero devices. All of the callers fail no
   // matter what `nil` means, so I don't have to distinguish between the two
   // meanings.
+  //
+  // TODO: Refactor so this happens inside the creation of `CLDevice.default`.
+  // There are no longer multiple callers.
   @usableFromInline
   internal var firstDevice: CLDevice? {
     var required = 0

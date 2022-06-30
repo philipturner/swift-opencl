@@ -43,8 +43,8 @@ public struct CLDevice: CLReferenceCountable {
     clReleaseDevice(object)
   }
   
-  public static var defaultDevice: CLDevice? = {
-    guard let context = CLContext.defaultContext,
+  public static var `default`: CLDevice? = {
+    guard let context = CLContext.default,
           let device = context.firstDevice else {
       return nil
     }

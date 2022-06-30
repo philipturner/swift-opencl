@@ -33,7 +33,7 @@ public struct CLPlatform: CLReferenceCountable {
     return CL_SUCCESS
   }
   
-  public static var defaultPlatform: CLPlatform? = {
+  public static var `default`: CLPlatform? = {
     var n: UInt32 = 0
     var err = clGetPlatformIDs(0, nil, &n)
     guard CLError.setCode(err) else {
@@ -56,7 +56,8 @@ public struct CLPlatform: CLReferenceCountable {
     }
   }()
   
-  public static var availablePlatforms: [CLPlatform]? {
+  /// Gets a list of available platforms.
+  public static var all: [CLPlatform]? {
     var n: UInt32 = 0
     var err = clGetPlatformIDs(0, nil, &n)
     guard CLError.setCode(err, "__GET_PLATFORM_IDS_ERR") else {
@@ -132,6 +133,11 @@ public struct CLPlatform: CLReferenceCountable {
       }
       return output
     }
+  }
+  
+  public func unloadCompiler() throws {
+    let error = clUnloadPlatformCompiler(wrapper.object)
+    try CLError.throwCode(error)
   }
 }
 

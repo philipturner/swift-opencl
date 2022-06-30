@@ -32,10 +32,10 @@ public struct CLCommandQueue: CLReferenceCountable {
     clReleaseCommandQueue(object)
   }
   
-  public static var defaultCommandQueue: CLCommandQueue? = {
+  public static var `default`: CLCommandQueue? = {
     var error: Int32 = CL_SUCCESS
-    guard let context = CLContext.defaultContext,
-          let device = CLDevice.defaultDevice else {
+    guard let context = CLContext.default,
+          let device = CLDevice.default else {
       return nil
     }
     return CLCommandQueue(context: context, device: device, properties: [])
@@ -84,29 +84,6 @@ public struct CLCommandQueue: CLReferenceCountable {
       }
     }
     self.init(object_!)
-  }
-  
-  @inlinable
-  public init?(context: CLContext, properties: CLCommandQueueProperties) {
-    guard let device = context.firstDevice else {
-      return nil
-    }
-    self.init(context: context, device: device, properties: properties)
-  }
-  
-  // Does the same thing as calling `init(context:properties)` with the
-  // default context.
-  @inlinable
-  public init?(properties: CLCommandQueueProperties) {
-    guard let context = CLContext.defaultContext,
-          let device = context.firstDevice else {
-      return nil
-    }
-    
-    // Skipping the call to `init(context:properties)` and going straight to
-    // `init(context:device:properties)`. This prevents an unnecessary function
-    // call.
-    self.init(context: context, device: device, properties: properties)
   }
   
   public mutating func flush() throws {
