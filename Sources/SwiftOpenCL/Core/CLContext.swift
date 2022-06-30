@@ -43,10 +43,10 @@ public struct CLContext: CLReferenceCountable {
     let defaultPlatformID = p.clPlatformID
     
     var object_: cl_context?
-    object_ = CLContextProperty.withUnsafeTemporaryAllocation(properties: [
+    CLContextProperty.withUnsafeTemporaryAllocation(properties: [
       .platform: cl_context_properties(bitPattern: defaultPlatformID)
     ]) { properties in
-      clCreateContextFromType(
+      object_ = clCreateContextFromType(
         properties.baseAddress, CLDeviceType.`default`.rawValue, nil, nil,
         &error)
     }
@@ -96,12 +96,12 @@ public struct CLContext: CLReferenceCountable {
     var error: Int32 = CL_SUCCESS
     var clDeviceID: cl_device_id? = device.clDeviceID
     
-    let callback = CLContextCallback(notify)
-    let object_: cl_context?
-    object_ = CLContextProperty.withUnsafeTemporaryAllocation(
+    var object_: cl_context?
+    CLContextProperty.withUnsafeTemporaryAllocation(
       properties: properties
     ) { properties in
-      clCreateContext(
+      let callback = CLContextCallback(notify)
+      object_ = clCreateContext(
         properties.baseAddress, 1, &clDeviceID, callback.callback,
         callback.passRetained(), &error)
     }
@@ -155,12 +155,12 @@ public struct CLContext: CLReferenceCountable {
       properties.append(.platform(selectedPlatform))
     }
     
-    let callback = CLContextCallback(notify)
     var object_: cl_context?
-    object_ = CLContextProperty.withUnsafeTemporaryAllocation(
+    CLContextProperty.withUnsafeTemporaryAllocation(
       properties: properties
     ) { properties in
-      clCreateContextFromType(
+      let callback = CLContextCallback(notify)
+      object_ = clCreateContextFromType(
         properties.baseAddress, type.rawValue, callback.callback,
         callback.passRetained(), &error)
     }

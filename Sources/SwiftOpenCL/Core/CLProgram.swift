@@ -437,41 +437,40 @@ extension CLProgram {
   }
   #endif
   
-//  public static func link(
-//    _ input1: CLProgram,
-//    _ input2: CLProgram,
-//    options: String? = nil,
-//    notify: ((CLProgram) -> Void)? = nil
-//  ) -> CLProgram? {
-//    var error: Int32 = CL_SUCCESS
-//    guard let ctx = input1.context else {
-//      CLError.latest!.message = "__LINK_PROGRAM_ERR"
-//      return nil
-//    }
-//
-//    let prog: cl_program? = withUnsafeTemporaryAllocation(
-//      of: cl_program?.self, capacity: 2
-//    ) { clPrograms in
-//      clPrograms[0] = input1.clProgram
-//      clPrograms[1] = input2.clProgram
-//      return clLinkProgram(
-//        ctx.clContext, 0, nil, options, 2, clPrograms.baseAddress, notifyFptr,
-//        data, &error)
-//    }
-//    guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
-//          let prog = prog else {
-//      return nil
-//    }
-//    return CLProgram(prog)
-//  }
+  public static func link(
+    _ input1: CLProgram,
+    _ input2: CLProgram,
+    options: String? = nil,
+    notify: ((CLProgram) -> Void)? = nil
+  ) -> CLProgram? {
+    var error: Int32 = CL_SUCCESS
+    guard let ctx = input1.context else {
+      CLError.latest!.message = "__LINK_PROGRAM_ERR"
+      return nil
+    }
+
+    let prog: cl_program? = withUnsafeTemporaryAllocation(
+      of: cl_program?.self, capacity: 2
+    ) { clPrograms in
+      clPrograms[0] = input1.clProgram
+      clPrograms[1] = input2.clProgram
+      
+      let callback = CLProgramCallback(notify)
+      return clLinkProgram(
+        ctx.clContext, 0, nil, options, 2, clPrograms.baseAddress,
+        callback.callback, callback.passRetained(), &error)
+    }
+    guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
+          let prog = prog else {
+      return nil
+    }
+    return CLProgram(prog)
+  }
   
   public static func link(
     _ inputPrograms: [CLProgram],
     options: String? = nil,
-    data: UnsafeMutableRawPointer? = nil,
-    notifyFptr: (@convention(c) (
-      cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil
+    notify: ((CLProgram) -> Void)? = nil
   ) -> CLProgram? {
     var error: Int32 = CL_SUCCESS
     let clPrograms: [cl_program?] = inputPrograms.map(\.clProgram)
@@ -484,9 +483,10 @@ extension CLProgram {
       clContext = ctx.clContext
     }
     
+    let callback = CLProgramCallback(notify)
     let prog = clLinkProgram(
       clContext, 0, nil, options, UInt32(inputPrograms.count), clPrograms,
-      notifyFptr, data, &error)
+      callback.callback, callback.passRetained(), &error)
     guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
           let prog = prog else {
       return nil
