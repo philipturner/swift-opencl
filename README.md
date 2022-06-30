@@ -46,4 +46,6 @@ func inList(device: CLDevice, names: [String]) -> Bool {
 }
 ```
 
-`CLError` produces a name collision with Apple’s CoreLocation framework. You can work around it by stating `CoreLocation.CLError` and `SwiftOpenCL.CLError` explicitly.
+Because SwiftOpenCL dynamically loads OpenCL symbols at runtime, it can import OpenCL on macOS without depending on the Objective-C framework. This means SwiftOpenCL's Swift module can be named `OpenCL`. If you use SwiftOpenCL, ensure the system framework named `OpenCL` is not in your dependency chain.
+
+`CLError` produces a name collision with Apple’s CoreLocation framework. You can work around it by stating `CoreLocation.CLError` and `OpenCL.CLError` explicitly.

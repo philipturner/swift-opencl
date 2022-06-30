@@ -139,6 +139,7 @@ internal struct CLImageDescriptor {
   var rowPitch: Int = 0
   var slicePitch: Int = 0
   var numMipLevels: UInt32 = 0
+  var numSamples: UInt32 = 0
   
   // The property `buffer` seems deprecated. I'm not including it because
   // `memory` is more generic.

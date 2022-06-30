@@ -15,10 +15,10 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "COpenCL",
+      name: "COpenCL", // This module will eventually be removed.
       dependencies: []),
     .target(
-      name: "SwiftOpenCL",
+      name: "SwiftOpenCL", // This module will eventually be renamed to OpenCL.
       dependencies: ["COpenCL"]),
     .testTarget(
       name: "SwiftOpenCLTests",

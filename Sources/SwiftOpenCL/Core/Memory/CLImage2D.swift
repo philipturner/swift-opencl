@@ -82,16 +82,61 @@ public struct CLImage2D: CLImageProtocol {
     height: Int,
     rowPitch: Int = 0
   ) {
-    fatalError()
+    var error: Int32 = CL_SUCCESS
+    var descriptor = CLImageDescriptor(type: .image2D)
+    descriptor.width = width
+    descriptor.height = height
+    descriptor.rowPitch = rowPitch
+    descriptor.clMemory = sourceBuffer.memory.clMemory
+    
+    var formatCopy = unsafeBitCast(format, to: cl_image_format.self)
+    var descriptorCopy = unsafeBitCast(descriptor, to: cl_image_desc.self)
+    let object_ = clCreateImage(
+      context.clContext, 0, &formatCopy, &descriptorCopy, nil, &error)
+    guard CLError.setCode(error),
+          let object_ = object_,
+          let memory = CLMemory(object_) else {
+      return nil
+    }
+    self.init(_unsafeMemory: memory)
   }
   
   // Renaming the argument label `order` to `channelOrder`.
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   public init?(
     context: CLContext,
-    order: CLChannelOrder,
+    channelOrder: CLChannelOrder,
     sourceImage: CLImage
   ) {
-    fatalError()
+    guard let sourceWidth = sourceImage.width,
+          let sourceHeight = sourceImage.height,
+          let sourceRowPitch = sourceImage.rowPitch,
+          let sourceNumMipLevels = sourceImage.numMipLevels,
+          let sourceNumSamples = sourceImage.numSamples,
+          var sourceFormat = sourceImage.format else {
+      return nil
+    }
+    
+    var error: Int32 = CL_SUCCESS
+    var descriptor = CLImageDescriptor(type: .image2D)
+    descriptor.width = sourceWidth
+    descriptor.height = sourceHeight
+    descriptor.rowPitch = sourceRowPitch
+    descriptor.numMipLevels = sourceNumMipLevels
+    descriptor.numSamples = sourceNumSamples
+    descriptor.clMemory = sourceImage.memory.clMemory
+    
+    sourceFormat.channelOrder = channelOrder
+    
+    var formatCopy = unsafeBitCast(sourceFormat, to: cl_image_format.self)
+    var descriptorCopy = unsafeBitCast(descriptor, to: cl_image_desc.self)
+    let object_ = clCreateImage(
+      context.clContext, 0, &formatCopy, &descriptorCopy, nil, &error)
+    guard CLError.setCode(error),
+          let object_ = object_,
+          let memory = CLMemory(object_) else {
+      return nil
+    }
+    self.init(_unsafeMemory: memory)
   }
 }
