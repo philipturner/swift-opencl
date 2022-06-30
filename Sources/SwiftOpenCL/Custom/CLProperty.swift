@@ -194,6 +194,54 @@ public enum CLQueueProperty: CLProperty {
   }
 }
 
+// As with `CLQueueProperties`, this enum is not explicitly defined in "cl.h".
+// It takes some keys from `cl_sampler_info`, just like `CLQueueProperties`
+// takes keys from `cl_command_queue_info`.
+@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
+public enum CLSamplerProperty: CLProperty {
+  case normalizedCoords(Bool)
+  case addressingMode(CLAddressingMode)
+  case filterMode(CLFilterMode)
+  
+  struct Key: CLMacro {
+    let rawValue: cl_sampler_properties
+    init(rawValue: cl_sampler_properties) {
+      self.rawValue = rawValue
+    }
+    
+    static let normalizedCoords = Self(CL_SAMPLER_NORMALIZED_COORDS)
+    static let addressingMode = Self(CL_SAMPLER_ADDRESSING_MODE)
+    static let filterMode = Self(CL_SAMPLER_FILTER_MODE)
+  }
+  
+  init(key: Key.RawValue, value: Key.RawValue) {
+    switch key {
+    case Key.normalizedCoords.rawValue:
+      let clBool: UInt32 = cl_bool(value)
+      self = .normalizedCoords(clBool == CL_TRUE)
+    case Key.addressingMode.rawValue:
+      let rawValue: UInt32 = cl_addressing_mode(value)
+      self = .addressingMode(CLAddressingMode(rawValue: rawValue)!)
+    case Key.filterMode.rawValue:
+      let rawValue: UInt32 = cl_filter_mode(value)
+      self = .filterMode(CLFilterMode(rawValue: rawValue)!)
+    default:
+      fatalError("Encountered unexpected key \(key) with value \(value).")
+    }
+  }
+  
+  func serialized() -> (Key.RawValue, Key.RawValue) {
+    switch self {
+    case .normalizedCoords(let normalizedCoords):
+      return (Key.normalizedCoords.rawValue, normalizedCoords ? 1 : 0)
+    case .addressingMode(let addressingMode):
+      return (Key.addressingMode.rawValue, .init(addressingMode.rawValue))
+    case .filterMode(let filterMode):
+      return (Key.filterMode.rawValue, .init(filterMode.rawValue))
+    }
+  }
+}
+
 // MARK: - Custom Property Types
 
 // One of the associated values is an array, which cannot be represented by an

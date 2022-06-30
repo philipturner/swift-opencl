@@ -45,10 +45,11 @@ public struct CLMemory: CLReferenceCountable {
 // Serves no purpose besides organization, ensuring all sub-types conform.
 protocol CLMemoryProtocol {
   var memory: CLMemory { get }
-  init?(memory: CLMemory)
   
   // TODO: Add comment explaining why this is unsafe.
   init(_unsafeMemory memory: CLMemory)
+  
+  init?(memory: CLMemory)
 }
 
 extension CLMemory {
