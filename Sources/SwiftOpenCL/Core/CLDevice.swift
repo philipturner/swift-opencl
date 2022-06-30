@@ -53,9 +53,9 @@ public struct CLDevice: CLReferenceCountable {
     // `swift_retain` and `clRetainDevice` once. It also skips creating an array
     // that would be quickly discarded.
     var required = 0
-    var err = clGetContextInfo(
+    var error = clGetContextInfo(
       context.clContext, UInt32(CL_CONTEXT_DEVICES), 0, nil, &required)
-    guard CLError.setCode(err) else {
+    guard CLError.setCode(error) else {
       return nil
     }
     guard required > 0 else {
@@ -66,11 +66,10 @@ public struct CLDevice: CLReferenceCountable {
     return withUnsafeTemporaryAllocation(
       byteCount: required, alignment: MemoryLayout<cl_device_id>.stride
     ) { bufferPointer in
-      let value = bufferPointer.baseAddress.unsafelyUnwrapped
-        .assumingMemoryBound(to: cl_device_id.self)
-      err = clGetContextInfo(
+      let value = bufferPointer.getInfoRebound(to: cl_device_id.self)
+      error = clGetContextInfo(
         context.clContext, UInt32(CL_CONTEXT_DEVICES), required, value, nil)
-      guard CLError.setCode(err) else {
+      guard CLError.setCode(error) else {
         return nil
       }
       

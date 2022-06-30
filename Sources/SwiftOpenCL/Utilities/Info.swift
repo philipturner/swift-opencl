@@ -55,26 +55,27 @@ func getInfo_CLReferenceCountable<T: CLReferenceCountable>(
 
 func getInfo_CLSize(_ name: Int32, _ getInfo: GetInfoClosure) -> CLSize? {
   var required = 0
-  var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.setCode(err) else {
+  var error = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(error) else {
     return nil
   }
-  let elements = required / MemoryLayout<Int>.stride
   
-  var output = CLSize.zero
-  withUnsafeTemporaryAllocation(
-    of: Int.self, capacity: elements
+  return withUnsafeTemporaryAllocation(
+    byteCount: required, alignment: MemoryLayout<Int>.stride
   ) { bufferPointer in
-    let pointer = bufferPointer.baseAddress.unsafelyUnwrapped
-    err = getInfo(UInt32(name), required, pointer, nil)
-    for i in 0..<min(elements, 3) {
-      output[i] = pointer[i]
+    let value = bufferPointer.getInfoRebound(to: Int.self)
+    error = getInfo(UInt32(name), required, value, nil)
+    guard CLError.setCode(error) else {
+      return nil
     }
+    
+    var output = CLSize.zero
+    let elements = required / MemoryLayout<Int>.stride
+    for i in 0..<min(elements, 3) {
+      output[i] = value[i]
+    }
+    return output
   }
-  guard CLError.setCode(err) else {
-    return nil
-  }
-  return output
 }
 
 // Shares a lot of duplicated code with `getInfo_String`, but no way to
@@ -165,8 +166,8 @@ func getInfo_ArrayOfCLNameVersion(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> [CLNameVersion]? {
   var required = 0
-  var err = getInfo(UInt32(name), 0, nil, &required)
-  guard CLError.setCode(err) else {
+  var error = getInfo(UInt32(name), 0, nil, &required)
+  guard CLError.setCode(error) else {
     return nil
   }
   let elementStride = MemoryLayout<cl_version>.stride + 64
@@ -177,10 +178,10 @@ func getInfo_ArrayOfCLNameVersion(
   return withUnsafeTemporaryAllocation(
     byteCount: required, alignment: MemoryLayout<cl_version>.stride
   ) { bufferPointer in
-    var value = bufferPointer.baseAddress.unsafelyUnwrapped.assumingMemoryBound(
-      to: Int8.self)
-    err = getInfo(UInt32(name), required, value, nil)
-    guard CLError.setCode(err) else {
+    var value = bufferPointer.baseAddress.unsafelyUnwrapped
+      .assumingMemoryBound(to: Int8.self)
+    error = getInfo(UInt32(name), required, value, nil)
+    guard CLError.setCode(error) else {
       return nil
     }
     
@@ -190,8 +191,8 @@ func getInfo_ArrayOfCLNameVersion(
       defer {
         value += elementStride
       }
-      let rawVersion = UnsafeRawPointer(value).assumingMemoryBound(
-        to: cl_version.self).pointee
+      let rawVersion = UnsafeRawPointer(value)
+        .assumingMemoryBound(to: cl_version.self).pointee
       let version = CLVersion(version: rawVersion)
       let name = String(cString: value + MemoryLayout<cl_version>.stride)
       output.append(CLNameVersion(version: version, name: name))
