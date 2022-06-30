@@ -28,7 +28,11 @@ public struct CLPipe: CLMemoryProtocol {
     self.init(_unsafeMemory: memory)
   }
   
-  public init?(context: CLContext, packetSize: UInt32, maxPackets: UInt32) {
+  public init?(
+    context: CLContext,
+    packetSize: UInt32,
+    maxPackets: UInt32
+  ) {
     var error: Int32 = CL_SUCCESS
     let flags: CLMemoryFlags = [.readWrite, .hostNoAccess]
     

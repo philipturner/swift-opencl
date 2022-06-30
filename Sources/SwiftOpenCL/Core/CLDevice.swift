@@ -18,7 +18,6 @@ public struct CLDevice: CLReferenceCountable {
   public init?(_ clDeviceID: cl_device_id, retain: Bool = false) {
     var shouldRetain = false
     if retain {
-      // Is this version check necessary? I don't think so.
       guard let version = CLVersion(clDeviceID: clDeviceID) else {
         return nil
       }

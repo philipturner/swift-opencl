@@ -42,18 +42,6 @@ public struct CLMemory: CLReferenceCountable {
   }
 }
 
-// Serves no purpose besides organization, ensuring all sub-types conform.
-protocol CLMemoryProtocol {
-  var memory: CLMemory { get }
-  
-  /// Anything conforming to `CLMemoryProtocol` is a subset of `CLMemory`. The
-  /// first parameter is unsafe because its type is not checked internally.
-  /// Use `init?(memory:)` when the type is unknown.
-  init(_unsafeMemory memory: CLMemory)
-  
-  init?(memory: CLMemory)
-}
-
 extension CLMemory {
   @inline(__always)
   private var getInfo: GetInfoClosure {
@@ -125,4 +113,17 @@ extension CLMemory {
     #endif
     return getInfo_ArrayOfCLProperty(name, getInfo)
   }
+}
+
+// MARK: - CLMemoryProtocol
+
+public protocol CLMemoryProtocol {
+  var memory: CLMemory { get }
+  
+  /// Anything conforming to `CLMemoryProtocol` is a subset of `CLMemory`. The
+  /// first parameter is unsafe because its type is not checked internally. Use
+  /// `init?(memory:)` when the type is unknown.
+  init(_unsafeMemory memory: CLMemory)
+  
+  init?(memory: CLMemory)
 }
