@@ -7,7 +7,7 @@
 
 import COpenCL
 
-// Remove the concrete type and replace with it as a protocol
+// Remove the concrete type and replace it with a protocol
 
 public struct CLMemory: CLReferenceCountable {
   @usableFromInline
