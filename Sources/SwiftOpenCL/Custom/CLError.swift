@@ -29,7 +29,6 @@ public struct CLError: LocalizedError {
   
   private var storage: Storage
   
-  @inline(never)
   public init(code: Int32, message: String?) {
     storage = Storage(code: code, message: message)
   }
@@ -70,14 +69,21 @@ public struct CLError: LocalizedError {
     Swift.fatalError(expandedMessage, file: file, line: line)
   }
   
+  @inline(never)
+  private static func setLatest(code: Int32, message: () -> String?) {
+    latest = CLError(code: code, message: message())
+  }
+  
   // TODO: add #file and #line to allow reconstruction of the stack trace
   // Pass #file and #line into getInfo_XXX as well.
   // Decide whether to make this public after reforming the error mechanism.
   @inline(__always)
   @discardableResult
-  static func setCode(_ code: Int32, _ message: String? = nil) -> Bool {
-    if code != CL_SUCCESS {
-      latest = CLError(code: code, message: message)
+  static func setCode(
+    _ code: Int32, _ message: @autoclosure () -> String? = Optional(nil)
+  ) -> Bool {
+    if _slowPath(code != CL_SUCCESS) {
+      setLatest(code: code, message: message)
       return false
     } else {
       return true
@@ -86,9 +92,11 @@ public struct CLError: LocalizedError {
   
   // Decide whether to make this public after reforming the error mechanism.
   @inline(__always)
-  static func throwCode(_ code: Int32, _ message: String? = nil) throws {
-    if code != CL_SUCCESS {
-      latest = CLError(code: code, message: message)
+  static func throwCode(
+    _ code: Int32, _ message: @autoclosure () -> String? = Optional(nil)
+  ) throws {
+    if _slowPath(code != CL_SUCCESS) {
+      setLatest(code: code, message: message)
       throw latest!
     }
   }

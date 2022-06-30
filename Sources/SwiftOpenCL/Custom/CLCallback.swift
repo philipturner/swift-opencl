@@ -8,39 +8,68 @@
 import COpenCL
 import struct Foundation.Data
 
-protocol CLCallback: AnyObject {
+class CLCallbackStorage<T> {
+  var functionPointer: T
+  init(_ functionPointer: T) {
+    self.functionPointer = functionPointer
+  }
+}
+
+protocol CLCallback {
   associatedtype FunctionPointer
-  var functionPointer: FunctionPointer? { get }
-  init(_ functionPointer: FunctionPointer?)
+  typealias Storage = CLCallbackStorage<FunctionPointer>
+  var storage: Storage? { get }
   
-  // Must not be an optional type.
-  associatedtype CallbackFunctionPointer
+  // I don't know whether this force-inline is necessary, but I won't risk it.
+  @inline(__always)
+  init(storage: Storage?)
+  
+  associatedtype CallbackFunctionPointer // Must not be an optional type.
   static var unwrappedCallback: CallbackFunctionPointer { get }
 }
+
 extension CLCallback {
   @inline(__always)
-  func passRetained() -> UnsafeMutableRawPointer {
-    Unmanaged.passRetained(self).toOpaque()
+  init(_ functionPointer: FunctionPointer?) {
+    if _slowPath(functionPointer != nil) {
+      self.init(storage: Storage(functionPointer!))
+    } else {
+      self.init(storage: nil)
+    }
+  }
+  
+  @inline(__always)
+  func passRetained() -> UnsafeMutableRawPointer? {
+    if let storage = storage {
+      return Unmanaged.passRetained(storage).toOpaque()
+    } else {
+      return nil
+    }
   }
   
   @inline(__always)
   var callback: CallbackFunctionPointer? {
-    if functionPointer != nil {
+    if storage != nil {
       return Self.unwrappedCallback
     } else {
       return nil
     }
   }
+  
+  @inline(__always)
+  fileprivate static func extractClosure(
+    _ userInfo: UnsafeMutableRawPointer?
+  ) -> FunctionPointer {
+    let object = Unmanaged<Storage>.fromOpaque(userInfo!).takeRetainedValue()
+    return object.functionPointer
+  }
 }
 
-final class CLContextCallback: CLCallback {
+struct CLContextCallback: CLCallback {
   typealias FunctionPointer = (
     _ errorInfo: String,
     _ privateInfo: Data) -> Void
-  var functionPointer: FunctionPointer?
-  init(_ functionPointer: FunctionPointer?) {
-    self.functionPointer = functionPointer
-  }
+  var storage: Storage?
   
   static let unwrappedCallback: (@convention(c) (
     _ errinfo: UnsafePointer<Int8>?,
@@ -63,20 +92,14 @@ final class CLContextCallback: CLCallback {
       privateInfo = Data()
     }
     let userInfo = $3
-    
-    let reconstructedObject = Unmanaged<CLContextCallback>
-      .fromOpaque(userInfo!).takeRetainedValue()
-    reconstructedObject.functionPointer!(errorInfo, privateInfo)
+    extractClosure(userInfo)(errorInfo, privateInfo)
   }
 }
 
-final class CLContextDestructorCallback: CLCallback {
+struct CLContextDestructorCallback: CLCallback {
   typealias FunctionPointer = (
     _ context: CLContext) -> Void
-  var functionPointer: FunctionPointer?
-  init(_ functionPointer: FunctionPointer?) {
-    self.functionPointer = functionPointer
-  }
+  var storage: Storage?
   
   static let unwrappedCallback: @convention(c) (
     _ context: cl_context?,
@@ -84,21 +107,15 @@ final class CLContextDestructorCallback: CLCallback {
   ) -> Void = {
     let context = CLContext($0!)!
     let userInfo = $1
-    
-    let reconstructedObject = Unmanaged<CLContextDestructorCallback>
-      .fromOpaque(userInfo!).takeRetainedValue()
-    reconstructedObject.functionPointer!(context)
+    extractClosure(userInfo)(context)
   }
 }
 
-final class CLEventCallback: CLCallback {
+struct CLEventCallback: CLCallback {
   typealias FunctionPointer = (
     _ event: CLEvent,
     _ eventCommandStatus: CLCommandExecutionStatus) -> Void
-  var functionPointer: FunctionPointer?
-  init(_ functionPointer: FunctionPointer?) {
-    self.functionPointer = functionPointer
-  }
+  var storage: Storage?
   
   static let unwrappedCallback: @convention(c) (
     _ event: cl_event?,
@@ -108,20 +125,14 @@ final class CLEventCallback: CLCallback {
     let event = CLEvent($0!)!
     let eventCommandStatus = CLCommandExecutionStatus(rawValue: $1)
     let userInfo = $2
-    
-    let reconstructedObject = Unmanaged<CLEventCallback>
-      .fromOpaque(userInfo!).takeRetainedValue()
-    reconstructedObject.functionPointer!(event, eventCommandStatus)
+    extractClosure(userInfo)(event, eventCommandStatus)
   }
 }
 
-final class CLMemoryDestructorCallback: CLCallback {
+struct CLMemoryDestructorCallback: CLCallback {
   typealias FunctionPointer = (
     _ memory: CLMemory) -> Void
-  var functionPointer: FunctionPointer?
-  init(_ functionPointer: FunctionPointer?) {
-    self.functionPointer = functionPointer
-  }
+  var storage: Storage?
   
   static let unwrappedCallback: @convention(c) (
     _ mem: cl_mem?,
@@ -129,20 +140,14 @@ final class CLMemoryDestructorCallback: CLCallback {
   ) -> Void = {
     let memory = CLMemory($0!)!
     let userInfo = $1
-    
-    let reconstructedObject = Unmanaged<CLMemoryDestructorCallback>
-      .fromOpaque(userInfo!).takeRetainedValue()
-    reconstructedObject.functionPointer!(memory)
+    extractClosure(userInfo)(memory)
   }
 }
 
-final class CLProgramCallback: CLCallback {
+struct CLProgramCallback: CLCallback {
   typealias FunctionPointer = (
     _ program: CLProgram) -> Void
-  var functionPointer: FunctionPointer?
-  init(_ functionPointer: FunctionPointer?) {
-    self.functionPointer = functionPointer
-  }
+  var storage: Storage?
   
   static let unwrappedCallback: @convention(c) (
     _ program: cl_program?,
@@ -150,9 +155,6 @@ final class CLProgramCallback: CLCallback {
   ) -> Void = {
     let program = CLProgram($0!)!
     let userInfo = $1
-    
-    let reconstructedObject = Unmanaged<CLProgramCallback>
-      .fromOpaque(userInfo!).takeRetainedValue()
-    reconstructedObject.functionPointer!(program)
+    extractClosure(userInfo)(program)
   }
 }

@@ -65,17 +65,19 @@ public struct CLContext: CLReferenceCountable {
       _ privateInfo: Data) -> Void)? = nil
   ) {
     var error: Int32 = CL_SUCCESS
-    let numDevices = devices.count
-    let clDeviceIDs: [cl_device_id?] = devices.map(\.clDeviceID)
-    
-    let callback = CLContextCallback(notify)
     var object_: cl_context?
-    object_ = CLContextProperty.withUnsafeTemporaryAllocation(
-      properties: properties
-    ) { properties in
-      clCreateContext(
-        properties.baseAddress, UInt32(numDevices), clDeviceIDs,
-        callback.callback, callback.passRetained(), &error)
+    withUnsafeTemporaryAllocation(
+      of: cl_device_id?.self, capacity: devices.count
+    ) { bufferPointer in
+      let clDeviceIDs = bufferPointer.baseAddress.unsafelyUnwrapped
+      CLContextProperty.withUnsafeTemporaryAllocation(
+        properties: properties
+      ) { properties in
+        let callback = CLContextCallback(notify)
+        object_ = clCreateContext(
+          properties.baseAddress, UInt32(devices.count), clDeviceIDs,
+          callback.callback, callback.passRetained(), &error)
+      }
     }
     guard CLError.setCode(error),
           let object_ = object_ else {

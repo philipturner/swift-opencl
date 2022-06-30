@@ -326,54 +326,57 @@ extension CLProgram {
   // Change `notify` to a single-line type declaration.
   public mutating func build(
     devices: [CLDevice],
-    options: UnsafePointer<Int8>? = nil,
-    data: UnsafeMutableRawPointer? = nil,
-    notifyFptr: (@convention(c) (
-      cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil
+    options: String? = nil,
+    notify: ((CLProgram) -> Void)? = nil
   ) throws {
-    let clDeviceIDs: [cl_device_id?] = devices.map(\.clDeviceID)
-    let buildError = clBuildProgram(
-      wrapper.object, UInt32(devices.count), clDeviceIDs, options, notifyFptr,
-      data)
-    try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
+    try withUnsafeTemporaryAllocation(
+      of: cl_device_id?.self, capacity: devices.count
+    ) { bufferPointer in
+      let clDeviceIDs = bufferPointer.baseAddress.unsafelyUnwrapped
+      for i in 0..<devices.count {
+        clDeviceIDs[i] = devices[i].clDeviceID
+      }
+      
+      let callback = CLProgramCallback(notify)
+      let buildError = clBuildProgram(
+        wrapper.object, UInt32(devices.count), clDeviceIDs, options,
+        callback.callback, callback.passRetained())
+      try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
+    }
   }
   
   public mutating func build(
     device: CLDevice,
-    options: UnsafePointer<Int8>? = nil,
-    data: UnsafeMutableRawPointer? = nil,
-    notifyFptr: (@convention(c) (
-      cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil
+    options: String? = nil,
+    notify: ((CLProgram) -> Void)? = nil
   ) throws {
-    var clDeviceID = Optional(device.clDeviceID)
+    var clDeviceID: cl_device_id? = device.clDeviceID
+    let callback = CLProgramCallback(notify)
     let buildError = clBuildProgram(
-      wrapper.object, 1, &clDeviceID, options, notifyFptr, data)
+      wrapper.object, 1, &clDeviceID, options, callback.callback,
+      callback.passRetained())
     try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
   }
   
   public mutating func build(
-    options: UnsafePointer<Int8>? = nil,
-    data: UnsafeMutableRawPointer? = nil,
-    notifyFptr: (@convention(c) (
-      cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil
+    options: String? = nil,
+    notify: ((CLProgram) -> Void)? = nil
   ) throws {
+    let callback = CLProgramCallback(notify)
     let buildError = clBuildProgram(
-      wrapper.object, 0, nil, options, notifyFptr, data)
+      wrapper.object, 0, nil, options, callback.callback,
+      callback.passRetained())
     try throwBuildCode(buildError, "__BUILD_PROGRAM_ERR")
   }
   
   public mutating func compile(
-    options: UnsafePointer<Int8>? = nil,
-    data: UnsafeMutableRawPointer? = nil,
-    notifyFptr: (@convention(c) (
-      cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil
+    options: String? = nil,
+    notify: ((CLProgram) -> Void)? = nil
   ) throws {
+    let callback = CLProgramCallback(notify)
     let buildError = clCompileProgram(
-      wrapper.object, 0, nil, options, 0, nil, nil, notifyFptr, data)
+      wrapper.object, 0, nil, options, 0, nil, nil, callback.callback,
+      callback.passRetained())
     try throwBuildCode(buildError, "__COMPILE_PROGRAM_ERR")
   }
   
@@ -408,19 +411,20 @@ extension CLProgram {
   
   #if !canImport(Darwin)
   public mutating func setSpecializationConstant(
-    _ value: UnsafePointer<Bool>, index: UInt32
+    _ value: Bool, index: UInt32
   ) throws {
-    var ucValue = value.pointee ? UInt8.max : 0
+    var ucValue = value ? UInt8.max : 0
     let error = clSetProgramSpecializationConstant(
       wrapper.object, index, MemoryLayout.stride(ofValue: ucValue), &ucValue)
     try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   
   public mutating func setSpecializationConstant<T>(
-    _ value: UnsafePointer<T>, index: UInt32
+    _ value: T, index: UInt32
   ) throws {
+    var valueCopy = value
     let error = clSetProgramSpecializationConstant(
-      wrapper.object, index, MemoryLayout<T>.stride, value)
+      wrapper.object, index, MemoryLayout<T>.stride, valueCopy)
     try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   
@@ -433,40 +437,37 @@ extension CLProgram {
   }
   #endif
   
-  public static func link(
-    _ input1: CLProgram,
-    _ input2: CLProgram,
-    options: UnsafePointer<Int8>? = nil,
-    data: UnsafeMutableRawPointer? = nil,
-    notifyFptr: (@convention(c) (
-      cl_program?, UnsafeMutableRawPointer?
-    ) -> Void)? = nil
-  ) -> CLProgram? {
-    var error: Int32 = CL_SUCCESS
-    guard let ctx = input1.context else {
-      CLError.latest!.message = "__LINK_PROGRAM_ERR"
-      return nil
-    }
-    
-    let prog: cl_program? = withUnsafeTemporaryAllocation(
-      of: cl_program?.self, capacity: 2
-    ) { clPrograms in
-      clPrograms[0] = input1.clProgram
-      clPrograms[1] = input2.clProgram
-      return clLinkProgram(
-        ctx.clContext, 0, nil, options, 2, clPrograms.baseAddress, notifyFptr,
-        data, &error)
-    }
-    guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
-          let prog = prog else {
-      return nil
-    }
-    return CLProgram(prog)
-  }
+//  public static func link(
+//    _ input1: CLProgram,
+//    _ input2: CLProgram,
+//    options: String? = nil,
+//    notify: ((CLProgram) -> Void)? = nil
+//  ) -> CLProgram? {
+//    var error: Int32 = CL_SUCCESS
+//    guard let ctx = input1.context else {
+//      CLError.latest!.message = "__LINK_PROGRAM_ERR"
+//      return nil
+//    }
+//
+//    let prog: cl_program? = withUnsafeTemporaryAllocation(
+//      of: cl_program?.self, capacity: 2
+//    ) { clPrograms in
+//      clPrograms[0] = input1.clProgram
+//      clPrograms[1] = input2.clProgram
+//      return clLinkProgram(
+//        ctx.clContext, 0, nil, options, 2, clPrograms.baseAddress, notifyFptr,
+//        data, &error)
+//    }
+//    guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
+//          let prog = prog else {
+//      return nil
+//    }
+//    return CLProgram(prog)
+//  }
   
   public static func link(
     _ inputPrograms: [CLProgram],
-    options: UnsafePointer<Int8>? = nil,
+    options: String? = nil,
     data: UnsafeMutableRawPointer? = nil,
     notifyFptr: (@convention(c) (
       cl_program?, UnsafeMutableRawPointer?
