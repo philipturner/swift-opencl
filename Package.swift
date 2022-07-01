@@ -14,8 +14,8 @@ let package = Package(
 
   ],
   targets: [
-    // This module defines function signatures. It's too tedious to do so
-    // manually in Swift. I just copied the headers at this link:
+    // This module defines function signatures in C because doing so manually in
+    // Swift would be too tedious. I copied and edited the headers at this link:
     // https://github.com/KhronosGroup/OpenCL-Headers
     //
     // COpenCL does not link any libraries, letting me bypass the restriction
@@ -37,8 +37,8 @@ let package = Package(
       ]),
     
     // The tests compile if I exclude all the Swift code that links to COpenCL
-    // symbols in the module above. But I have to deactivate the tests until all
-    // OpenCL symbols are converted to the dynamically loaded kind.
+    // symbols in the module above. Otherwise, I must deactivate the tests until
+    // all OpenCL symbols can be loaded at runtime.
 //    .testTarget(
 //      name: "OpenCLTests",
 //      dependencies: ["OpenCL"])
