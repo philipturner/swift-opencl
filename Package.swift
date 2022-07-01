@@ -30,13 +30,17 @@ let package = Package(
     .target(
       name: "OpenCL",
       dependencies: ["COpenCL"],
-      exclude: ["Core", "Custom", "Utilities"]),
+      exclude: [
+//        "Core",
+//        "Custom",
+//        "Utilities"
+      ]),
     
     // The tests compile if I exclude all the Swift code that links to COpenCL
     // symbols in the module above. But I have to deactivate the tests until all
     // OpenCL symbols are converted to the dynamically loaded kind.
 //    .testTarget(
-//      name: "SwiftOpenCLTests",
+//      name: "OpenCLTests",
 //      dependencies: ["OpenCL"])
   ]
 )

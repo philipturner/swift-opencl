@@ -2,7 +2,7 @@
 
 > Note: This is a work in progress. Do not use it for any project except contributing to the development of this repository.
 
-A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). SwiftOpenCL runs on Linux, Windows, macOS, and Android, but not iOS\*. It automatically detect which OpenCL version you have at runtime, similarly to [PythonKit](https://github.com/pvieito/PythonKit).
+A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). SwiftOpenCL runs on Linux, Windows, macOS, and Android, but not iOS\*. It automatically detects which OpenCL version you have at runtime, similarly to [PythonKit](https://github.com/pvieito/PythonKit).
 
 > \*On macOS, OpenCL is implemented as a layer on top of Metal. Apple views OpenCL as deprecated, so it prohibits use of OpenCL on iOS. Metal runs faster than OpenCL in some situations (especially ML), similarly to how CUDA is optimized for NVIDIA devices. If you can use SwiftOpenCL, learning Metal to run GPGPU algorithms on iOS should not be a major hurdle.
 >
@@ -33,6 +33,8 @@ This package's source code has numerous comments explaining where its API struct
 Most properties of OpenCL types take a non-negligible time to retrieve, making multiple function calls under the hood. When possible, access them once and reuse the returned value. This rule of thumb may apply when using other GPU libraries, such as Metal.
 
 ```swift
+import OpenCL
+
 // ❌
 func inList(device: CLDevice, names: [String]) -> Bool {
   // Fetches the device name on potentially every iteration through `names`.
