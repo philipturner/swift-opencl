@@ -1,8 +1,8 @@
-# OpenCL<sup>TM</sup> API Swift bindings
+# SwiftOpenCL
 
 > Note: This is a work in progress. Do not use it for any project except contributing to the development of this repository.
 
-A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). These bindings run on macOS, Linux, Windows, and Android - every platform except iOS\*. They automatically detects which OpenCL version you have at runtime, requiring no special build configuration or compiler flags. The package containing the Swift bindings is called "SwiftOpenCL".
+A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). This package runs on macOS, Linux, Windows, and Android - every platform except iOS\*. It automatically detects which OpenCL version you have at runtime, requiring no special build configuration or compiler flags.
 
 > \*On macOS, OpenCL is implemented as a layer on top of Metal. Apple views OpenCL as deprecated, so it prohibits use of OpenCL on iOS. Metal runs faster than OpenCL in some situations (especially ML), similarly to how CUDA is optimized for NVIDIA devices. If you can use SwiftOpenCL, learning Metal to run GPGPU algorithms on iOS should not be a major hurdle.
 >
