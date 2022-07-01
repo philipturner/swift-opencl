@@ -73,9 +73,11 @@ public struct CLImage2D: CLImageProtocol {
     self.init(_unsafeMemory: memory)
   }
   
+  // `flags` defaults to 0 because it should be inherited from `sourceBuffer`.
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   public init?(
     context: CLContext,
+    flags: CLMemoryFlags = [],
     format: CLImageFormat,
     sourceBuffer: CLBuffer,
     width: Int,
@@ -92,7 +94,8 @@ public struct CLImage2D: CLImageProtocol {
     var formatCopy = unsafeBitCast(format, to: cl_image_format.self)
     var descriptorCopy = unsafeBitCast(descriptor, to: cl_image_desc.self)
     let object_ = clCreateImage(
-      context.clContext, 0, &formatCopy, &descriptorCopy, nil, &error)
+      context.clContext, flags.rawValue, &formatCopy, &descriptorCopy, nil,
+      &error)
     guard CLError.setCode(error),
           let object_ = object_,
           let memory = CLMemory(object_) else {
@@ -101,10 +104,12 @@ public struct CLImage2D: CLImageProtocol {
     self.init(_unsafeMemory: memory)
   }
   
+  // `flags` defaults to 0 because it should be inherited from `sourceImage`.
   // Renaming the argument label `order` to `channelOrder`.
   @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   public init?(
     context: CLContext,
+    flags: CLMemoryFlags = [],
     channelOrder: CLChannelOrder,
     sourceImage: CLImage
   ) {
@@ -131,7 +136,8 @@ public struct CLImage2D: CLImageProtocol {
     var formatCopy = unsafeBitCast(sourceFormat, to: cl_image_format.self)
     var descriptorCopy = unsafeBitCast(descriptor, to: cl_image_desc.self)
     let object_ = clCreateImage(
-      context.clContext, 0, &formatCopy, &descriptorCopy, nil, &error)
+      context.clContext, flags.rawValue, &formatCopy, &descriptorCopy, nil,
+      &error)
     guard CLError.setCode(error),
           let object_ = object_,
           let memory = CLMemory(object_) else {

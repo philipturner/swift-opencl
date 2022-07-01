@@ -14,11 +14,15 @@ let package = Package(
 
   ],
   targets: [
+    // This module will be repurposed to define function signatures. It's too
+    // tedious to do so manually in Swift. I will just modify "cl.h" from the
+    // Khronos website.
     .target(
-      name: "COpenCL", // This module will eventually be removed.
+      name: "COpenCL",
       dependencies: []),
+    // This module will eventually be renamed to OpenCL.
     .target(
-      name: "SwiftOpenCL", // This module will eventually be renamed to OpenCL.
+      name: "SwiftOpenCL",
       dependencies: ["COpenCL"]),
     .testTarget(
       name: "SwiftOpenCLTests",

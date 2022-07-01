@@ -95,7 +95,7 @@ public protocol CLImageProtocol: CLMemoryProtocol {
   /// `init?(image:)` when the type is unknown.
   init(_unsafeImage image: CLImage)
   
-//  init?(image: CLImage)
+  init?(image: CLImage)
 }
 
 extension CLImageProtocol {
@@ -111,6 +111,30 @@ extension CLImageProtocol {
   @inlinable @inline(__always)
   public init?(image: CLImage) {
     self.init(memory: image.memory)
+  }
+  
+  // Convenience initializer that reduces code size, while being optimized for
+  // how arguments are popped onto the stack during a function call.
+  internal init?(
+    context: CLContext,
+    flags: CLMemoryFlags,
+    format: CLImageFormat,
+    descriptor: UnsafePointer<CLImageDescriptor>,
+    hostPointer: UnsafeMutableRawPointer? = nil
+  ) {
+    var error: Int32 = CL_SUCCESS
+    var clFormat = unsafeBitCast(format, to: cl_image_format.self)
+    let clDescriptor = UnsafeRawPointer(descriptor)
+      .assumingMemoryBound(to: cl_image_desc.self)
+    let object_ = clCreateImage(
+      context.clContext, flags.rawValue, &clFormat, clDescriptor, hostPointer,
+      &error)
+    guard CLError.setCode(error),
+          let object_ = object_,
+          let memory = CLMemory(object_) else {
+      return nil
+    }
+    self.init(_unsafeMemory: memory)
   }
 }
 
