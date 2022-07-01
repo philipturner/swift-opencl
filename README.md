@@ -1,8 +1,8 @@
-# OpenCL API Swift bindings
+# OpenCL<sup>TM</sup> API Swift bindings
 
 > Note: This is a work in progress. Do not use it for any project except contributing to the development of this repository.
 
-A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). Abbreviated "SwiftOpenCL", this framework runs on every platform except iOS\*. It automatically detects which OpenCL version you have at runtime, similarly to [PythonKit](https://github.com/pvieito/PythonKit).
+A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). These bindings run on macOS, Linux, Windows, and Android - every platform except iOS\*. They automatically detects which OpenCL version you have at runtime, requiring no special build configuration or compiler flags. The package containing the Swift bindings is called "SwiftOpenCL".
 
 > \*On macOS, OpenCL is implemented as a layer on top of Metal. Apple views OpenCL as deprecated, so it prohibits use of OpenCL on iOS. Metal runs faster than OpenCL in some situations (especially ML), similarly to how CUDA is optimized for NVIDIA devices. If you can use SwiftOpenCL, learning Metal to run GPGPU algorithms on iOS should not be a major hurdle.
 >
@@ -48,6 +48,6 @@ func inList(device: CLDevice, names: [String]) -> Bool {
 }
 ```
 
-Because SwiftOpenCL dynamically loads OpenCL symbols at runtime, it can import OpenCL on macOS without depending on the Objective-C framework. This means SwiftOpenCL's Swift module can be named `OpenCL`. If you use SwiftOpenCL, ensure the system framework named `OpenCL` is not in your dependency chain.
+SwiftOpenCL dynamically loads OpenCL symbols at runtime like [PythonKit](https://github.com/pvieito/PythonKit), so it can import OpenCL on macOS without depending on the Objective-C framework. This means SwiftOpenCL's Swift module can be named `OpenCL`. If you use SwiftOpenCL, ensure the system framework named `OpenCL` is not in your dependency chain.
 
 `CLError` produces a name collision with Apple’s CoreLocation framework. You can work around it by stating `CoreLocation.CLError` and `OpenCL.CLError` explicitly.
