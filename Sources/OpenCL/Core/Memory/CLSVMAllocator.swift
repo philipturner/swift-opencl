@@ -6,3 +6,5 @@
 //
 
 import COpenCL
+
+// TODO: Decide how to translate the C++ templates for allocator traits.

@@ -1,5 +1,5 @@
 import XCTest
-@testable import SwiftOpenCL
+@testable import OpenCL
 
 final class SwiftOpenCLTests: XCTestCase {
   func testExample() throws {

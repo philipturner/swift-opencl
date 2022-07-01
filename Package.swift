@@ -7,25 +7,36 @@ let package = Package(
   name: "SwiftOpenCL",
   products: [
     .library(
-      name: "SwiftOpenCL",
-      targets: ["SwiftOpenCL"])
+      name: "OpenCL",
+      targets: ["OpenCL"])
   ],
   dependencies: [
 
   ],
   targets: [
-    // This module will be repurposed to define function signatures. It's too
-    // tedious to do so manually in Swift. I will just modify "cl.h" from the
-    // Khronos website.
+    // This module defines function signatures. It's too tedious to do so
+    // manually in Swift. I just copied the headers at this link:
+    // https://github.com/KhronosGroup/OpenCL-Headers
+    //
+    // COpenCL does not link any libraries, letting me bypass the restriction
+    // on overriding system module names. I can freely use `OpenCL` in Swift
+    // code while referring to SwiftOpenCL, rather than the Objective-C module
+    // that Apple created.
     .target(
       name: "COpenCL",
       dependencies: []),
-    // This module will eventually be renamed to OpenCL.
+    
+    // Where the magic happens.
     .target(
-      name: "SwiftOpenCL",
-      dependencies: ["COpenCL"]),
-    .testTarget(
-      name: "SwiftOpenCLTests",
-      dependencies: ["SwiftOpenCL"]),
+      name: "OpenCL",
+      dependencies: ["COpenCL"],
+      exclude: ["Core", "Custom", "Utilities"]),
+    
+    // The tests compile if I exclude all the Swift code that links to COpenCL
+    // symbols in the module above. But I have to deactivate the tests until all
+    // OpenCL symbols are converted to the dynamically loaded kind.
+//    .testTarget(
+//      name: "SwiftOpenCLTests",
+//      dependencies: ["OpenCL"])
   ]
 )
