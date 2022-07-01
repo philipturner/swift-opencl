@@ -32,12 +32,12 @@ public struct CLDevice: CLReferenceCountable {
     self.wrapper = wrapper
   }
   
-  @usableFromInline
+  @usableFromInline @inline(__always)
   static func retain(_ object: OpaquePointer) -> Int32 {
     clRetainDevice(object)
   }
   
-  @usableFromInline
+  @usableFromInline @inline(__always)
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseDevice(object)
   }

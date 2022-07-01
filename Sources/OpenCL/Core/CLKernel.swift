@@ -22,12 +22,12 @@ public struct CLKernel: CLReferenceCountable {
     self.wrapper = wrapper
   }
   
-  @usableFromInline
+  @usableFromInline @inline(__always)
   static func retain(_ object: OpaquePointer) -> Int32 {
     clRetainKernel(object)
   }
   
-  @usableFromInline
+  @usableFromInline @inline(__always)
   static func release(_ object: OpaquePointer) -> Int32 {
     clReleaseKernel(object)
   }

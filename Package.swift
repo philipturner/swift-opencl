@@ -31,16 +31,17 @@ let package = Package(
       name: "OpenCL",
       dependencies: ["COpenCL"],
       exclude: [
-//        "Core",
-//        "Custom",
-//        "Utilities"
+//        "C",
+        "Core",
+        "Custom",
+        "Utilities"
       ]),
     
     // The tests compile if I exclude all the Swift code that links to COpenCL
     // symbols in the module above. Otherwise, I must deactivate the tests until
     // all OpenCL symbols can be loaded at runtime.
-//    .testTarget(
-//      name: "OpenCLTests",
-//      dependencies: ["OpenCL"])
+    .testTarget(
+      name: "OpenCLTests",
+      dependencies: ["OpenCL"])
   ]
 )

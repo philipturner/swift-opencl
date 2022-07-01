@@ -1,6 +1,9 @@
-//
-//  CxxTests.swift
-//  
-//
-//  Created by Philip Turner on 6/29/22.
-//
+import XCTest
+import OpenCL
+
+// Reimplements the test suite in Khronos/OpenCL-CLHPP.
+final class CxxTests: XCTestCase {
+  func testExample() throws {
+    
+  }
+}
