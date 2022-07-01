@@ -1,4 +1,4 @@
-# OpenCL<sup>TM</sup> API Swift bindings
+# OpenCL API Swift bindings
 
 > Note: This is a work in progress. Do not use it for any project except contributing to the development of this repository.
 
