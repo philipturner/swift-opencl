@@ -17,6 +17,17 @@ import Foundation
 // Watch out for functions like `clGetExtensionFunctionAddressForPlatform`.
 // These split onto two lines, and the script can't recognize them. Modify the
 // functions so they appear on one line, like the rest.
+//
+// Set the mode by editing this file.
+// Mode 1: Create code for "OpenCLSymbols.swift"
+// Mode 2: Create code for "Tests/OpenCLTests/C/OpenCLExportsTests.swift"
+
+enum Mode: String {
+  case mode1 = "mode1"
+  case mode2 = "mode2"
+}
+
+let mode: Mode = .mode1
 
 func createCode(line inputLine: String) -> String? {
   var line = inputLine
@@ -54,30 +65,38 @@ func createCode(line inputLine: String) -> String? {
     let symbolIndex = line.index(after: spaceIndex)
     let symbol = String(line[symbolIndex...])
     
-    var argumentLabels: String
-    let fiveLabels = "_, _, _, _, _"
-    if symbol.hasSuffix("Info") {
-      // Five parameters.
-      argumentLabels = fiveLabels
-    } else if symbol.hasPrefix("clRetain") || symbol.hasPrefix("clRelease") {
-      // One parameter.
-      argumentLabels = "_"
-    } else if symbol.hasPrefix("clEnqueue") {
-      // Usually 12 or less parameters.
-      argumentLabels = "\(fiveLabels), \(fiveLabels), _, _"
-    } else {
-      // Usually 6 or less parameters.
-      argumentLabels = "\(fiveLabels), _"
-    }
-    
-    return """
-      
-      public let \(symbol): cl_api_\(symbol) =
-      load(name: "\(symbol)") ?? { \(argumentLabels) in
-        fatalError()
+    switch mode {
+    case .mode1:
+      var argumentLabels: String
+      let fiveLabels = "_, _, _, _, _"
+      if symbol.hasSuffix("Info") {
+        // Five parameters.
+        argumentLabels = fiveLabels
+      } else if symbol.hasPrefix("clRetain") || symbol.hasPrefix("clRelease") {
+        // One parameter.
+        argumentLabels = "_"
+      } else if symbol.hasPrefix("clEnqueue") {
+        // Usually 12 or less parameters.
+        argumentLabels = "\(fiveLabels), \(fiveLabels), _, _"
+      } else {
+        // Usually 6 or less parameters.
+        argumentLabels = "\(fiveLabels), _"
       }
       
-      """
+      return """
+        
+        public let \(symbol): cl_api_\(symbol) =
+        load(name: "\(symbol)") ?? { \(argumentLabels) in
+          fatalError()
+        }
+        
+        """
+    case .mode2:
+      return """
+        _ = \(symbol)
+        
+        """
+    }
   } else {
     fatalError("""
       Line '\(inputLine)' not recognized. It was stripped down to '\(line)'.

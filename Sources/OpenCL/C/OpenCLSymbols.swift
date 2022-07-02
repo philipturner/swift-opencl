@@ -26,6 +26,8 @@ fileprivate func load<T>(name: StaticString) -> T? {
   OpenCLLibrary.loadSymbol(name: name)
 }
 
+// TODO: Port Apple's extensions from their Objective-C framework.
+
 // OpenCL 1.0
 
 public let clGetPlatformIDs: cl_api_clGetPlatformIDs =
@@ -93,25 +95,16 @@ load(name: "clGetCommandQueueInfo") ?? { _, _, _, _, _ in
   fatalError()
 }
 
-public let clSetCommandQueueProperty: cl_api_clSetCommandQueueProperty =
-load(name: "clSetCommandQueueProperty") ?? { _, _, _, _ in
-  fatalError()
-}
+// Deprecated: clSetCommandQueueProperty
 
 public let clCreateBuffer: cl_api_clCreateBuffer =
 load(name: "clCreateBuffer") ?? { _, _, _, _, _ in
   fatalError()
 }
 
-public let clCreateImage2D: cl_api_clCreateImage2D =
-load(name: "clCreateImage2D") ?? { _, _, _, _, _, _, _, _ in
-  fatalError()
-}
+// Deprecated: clCreateImage2D
 
-public let clCreateImage3D: cl_api_clCreateImage3D =
-load(name: "clCreateImage3D") ?? { _, _, _, _, _, _, _, _, _, _ in
-  fatalError()
-}
+// Deprecated: clCreateImage3D
 
 public let clRetainMemObject: cl_api_clRetainMemObject =
 load(name: "clRetainMemObject") ?? { _ in
@@ -183,10 +176,7 @@ load(name: "clBuildProgram") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
-public let clUnloadCompiler: cl_api_clUnloadCompiler =
-load(name: "clUnloadCompiler") ?? {
-  fatalError()
-}
+// Deprecated: clUnloadCompiler
 
 public let clGetProgramInfo: cl_api_clGetProgramInfo =
 load(name: "clGetProgramInfo") ?? { _, _, _, _, _ in
@@ -338,25 +328,13 @@ load(name: "clEnqueueNativeKernel") ?? { _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
-public let clEnqueueMarker: cl_api_clEnqueueMarker =
-load(name: "clEnqueueMarker") ?? { _, _ in
-  fatalError()
-}
+// Deprecated: clEnqueueMarker
 
-public let clEnqueueWaitForEvents: cl_api_clEnqueueWaitForEvents =
-load(name: "clEnqueueWaitForEvents") ?? { _, _, _ in
-  fatalError()
-}
+// Deprecated: clEnqueueWaitForEvents
 
-public let clEnqueueBarrier: cl_api_clEnqueueBarrier =
-load(name: "clEnqueueBarrier") ?? { _ in
-  fatalError()
-}
+// Deprecated: clEnqueueBarrier
 
-public let clGetExtensionFunctionAddress: cl_api_clGetExtensionFunctionAddress =
-load(name: "clGetExtensionFunctionAddress") ?? { _ in
-  fatalError()
-}
+// Deprecated: clGetExtensionFunctionAddress
 
 public let clCreateFromGLBuffer: cl_api_clCreateFromGLBuffer =
 load(name: "clCreateFromGLBuffer") ?? { _, _, _, _ in
@@ -419,7 +397,8 @@ load(name: "clCreateSubBuffer") ?? { _, _, _, _, _ in
   fatalError()
 }
 
-public let clSetMemObjectDestructorCallback: cl_api_clSetMemObjectDestructorCallback =
+public let clSetMemObjectDestructorCallback:
+  cl_api_clSetMemObjectDestructorCallback =
 load(name: "clSetMemObjectDestructorCallback") ?? { _, _, _ in
   fatalError()
 }
@@ -435,17 +414,20 @@ load(name: "clSetUserEventStatus") ?? { _, _ in
 }
 
 public let clEnqueueReadBufferRect: cl_api_clEnqueueReadBufferRect =
-load(name: "clEnqueueReadBufferRect") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueReadBufferRect") ??
+{ _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueWriteBufferRect: cl_api_clEnqueueWriteBufferRect =
-load(name: "clEnqueueWriteBufferRect") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueWriteBufferRect") ??
+{ _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueCopyBufferRect: cl_api_clEnqueueCopyBufferRect =
-load(name: "clEnqueueCopyBufferRect") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueCopyBufferRect") ??
+{ _, _, _, _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
@@ -495,7 +477,8 @@ load(name: "clCreateImage") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
-public let clCreateProgramWithBuiltInKernels: cl_api_clCreateProgramWithBuiltInKernels =
+public let clCreateProgramWithBuiltInKernels:
+  cl_api_clCreateProgramWithBuiltInKernels =
 load(name: "clCreateProgramWithBuiltInKernels") ?? { _, _, _, _, _ in
   fatalError()
 }
@@ -589,7 +572,8 @@ load(name: "clCreateEventFromEGLSyncKHR") ?? { _, _, _, _ in
 
 // OpenCL 2.0
 
-public let clCreateCommandQueueWithProperties: cl_api_clCreateCommandQueueWithProperties =
+public let clCreateCommandQueueWithProperties:
+  cl_api_clCreateCommandQueueWithProperties =
 load(name: "clCreateCommandQueueWithProperties") ?? { _, _, _, _ in
   fatalError()
 }
@@ -693,7 +677,8 @@ load(name: "clGetKernelSubGroupInfo") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
-public let clSetDefaultDeviceCommandQueue: cl_api_clSetDefaultDeviceCommandQueue =
+public let clSetDefaultDeviceCommandQueue:
+  cl_api_clSetDefaultDeviceCommandQueue =
 load(name: "clSetDefaultDeviceCommandQueue") ?? { _, _, _ in
   fatalError()
 }
@@ -705,7 +690,8 @@ load(name: "clSetProgramReleaseCallback") ?? { _, _, _ in
   fatalError()
 }
 
-public let clSetProgramSpecializationConstant: cl_api_clSetProgramSpecializationConstant =
+public let clSetProgramSpecializationConstant:
+  cl_api_clSetProgramSpecializationConstant =
 load(name: "clSetProgramSpecializationConstant") ?? { _, _, _, _ in
   fatalError()
 }
@@ -722,7 +708,8 @@ load(name: "clCreateImageWithProperties") ?? { _, _, _, _, _, _, _ in
   fatalError()
 }
 
-public let clSetContextDestructorCallback: cl_api_clSetContextDestructorCallback =
+public let clSetContextDestructorCallback:
+  cl_api_clSetContextDestructorCallback =
 load(name: "clSetContextDestructorCallback") ?? { _, _, _ in
   fatalError()
 }
