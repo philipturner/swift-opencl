@@ -33,15 +33,13 @@ load(name: "clGetPlatformIDs") ?? { _, _, _ in
   fatalError()
 }
 
-/*
-
 public let clGetPlatformInfo: cl_api_clGetPlatformInfo =
 load(name: "clGetPlatformInfo") ?? { _, _, _, _, _ in
   fatalError()
 }
 
 public let clGetDeviceIDs: cl_api_clGetDeviceIDs =
-load(name: "clGetDeviceIDs") ?? { _, _, _, _, _, _, _ in
+load(name: "clGetDeviceIDs") ?? { _, _, _, _, _ in
   fatalError()
 }
 
@@ -51,12 +49,12 @@ load(name: "clGetDeviceInfo") ?? { _, _, _, _, _ in
 }
 
 public let clCreateContext: cl_api_clCreateContext =
-load(name: "clCreateContext") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateContext") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clCreateContextFromType: cl_api_clCreateContextFromType =
-load(name: "clCreateContextFromType") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateContextFromType") ?? { _, _, _, _, _ in
   fatalError()
 }
 
@@ -76,7 +74,7 @@ load(name: "clGetContextInfo") ?? { _, _, _, _, _ in
 }
 
 public let clCreateCommandQueue: cl_api_clCreateCommandQueue =
-load(name: "clCreateCommandQueue") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateCommandQueue") ?? { _, _, _, _ in
   fatalError()
 }
 
@@ -96,22 +94,22 @@ load(name: "clGetCommandQueueInfo") ?? { _, _, _, _, _ in
 }
 
 public let clSetCommandQueueProperty: cl_api_clSetCommandQueueProperty =
-load(name: "clSetCommandQueueProperty") ?? { _, _, _, _, _, _, _ in
+load(name: "clSetCommandQueueProperty") ?? { _, _, _, _ in
   fatalError()
 }
 
 public let clCreateBuffer: cl_api_clCreateBuffer =
-load(name: "clCreateBuffer") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateBuffer") ?? { _, _, _, _, _ in
   fatalError()
 }
 
 public let clCreateImage2D: cl_api_clCreateImage2D =
-load(name: "clCreateImage2D") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateImage2D") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clCreateImage3D: cl_api_clCreateImage3D =
-load(name: "clCreateImage3D") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateImage3D") ?? { _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
@@ -126,7 +124,7 @@ load(name: "clReleaseMemObject") ?? { _ in
 }
 
 public let clGetSupportedImageFormats: cl_api_clGetSupportedImageFormats =
-load(name: "clGetSupportedImageFormats") ?? { _, _, _, _, _, _, _ in
+load(name: "clGetSupportedImageFormats") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
@@ -141,7 +139,7 @@ load(name: "clGetImageInfo") ?? { _, _, _, _, _ in
 }
 
 public let clCreateSampler: cl_api_clCreateSampler =
-load(name: "clCreateSampler") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateSampler") ?? { _, _, _, _, _ in
   fatalError()
 }
 
@@ -161,7 +159,7 @@ load(name: "clGetSamplerInfo") ?? { _, _, _, _, _ in
 }
 
 public let clCreateProgramWithSource: cl_api_clCreateProgramWithSource =
-load(name: "clCreateProgramWithSource") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateProgramWithSource") ?? { _, _, _, _, _ in
   fatalError()
 }
 
@@ -181,12 +179,12 @@ load(name: "clReleaseProgram") ?? { _ in
 }
 
 public let clBuildProgram: cl_api_clBuildProgram =
-load(name: "clBuildProgram") ?? { _, _, _, _, _, _, _ in
+load(name: "clBuildProgram") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clUnloadCompiler: cl_api_clUnloadCompiler =
-load(name: "clUnloadCompiler") ?? { _, _, _, _, _, _, _ in
+load(name: "clUnloadCompiler") ?? {
   fatalError()
 }
 
@@ -196,17 +194,17 @@ load(name: "clGetProgramInfo") ?? { _, _, _, _, _ in
 }
 
 public let clGetProgramBuildInfo: cl_api_clGetProgramBuildInfo =
-load(name: "clGetProgramBuildInfo") ?? { _, _, _, _, _ in
+load(name: "clGetProgramBuildInfo") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clCreateKernel: cl_api_clCreateKernel =
-load(name: "clCreateKernel") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateKernel") ?? { _, _, _ in
   fatalError()
 }
 
 public let clCreateKernelsInProgram: cl_api_clCreateKernelsInProgram =
-load(name: "clCreateKernelsInProgram") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateKernelsInProgram") ?? { _, _, _, _ in
   fatalError()
 }
 
@@ -221,7 +219,7 @@ load(name: "clReleaseKernel") ?? { _ in
 }
 
 public let clSetKernelArg: cl_api_clSetKernelArg =
-load(name: "clSetKernelArg") ?? { _, _, _, _, _, _, _ in
+load(name: "clSetKernelArg") ?? { _, _, _, _ in
   fatalError()
 }
 
@@ -231,12 +229,12 @@ load(name: "clGetKernelInfo") ?? { _, _, _, _, _ in
 }
 
 public let clGetKernelWorkGroupInfo: cl_api_clGetKernelWorkGroupInfo =
-load(name: "clGetKernelWorkGroupInfo") ?? { _, _, _, _, _ in
+load(name: "clGetKernelWorkGroupInfo") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clWaitForEvents: cl_api_clWaitForEvents =
-load(name: "clWaitForEvents") ?? { _, _, _, _, _, _, _ in
+load(name: "clWaitForEvents") ?? { _, _ in
   fatalError()
 }
 
@@ -261,127 +259,127 @@ load(name: "clGetEventProfilingInfo") ?? { _, _, _, _, _ in
 }
 
 public let clFlush: cl_api_clFlush =
-load(name: "clFlush") ?? { _, _, _, _, _, _, _ in
+load(name: "clFlush") ?? { _ in
   fatalError()
 }
 
 public let clFinish: cl_api_clFinish =
-load(name: "clFinish") ?? { _, _, _, _, _, _, _ in
+load(name: "clFinish") ?? { _ in
   fatalError()
 }
 
 public let clEnqueueReadBuffer: cl_api_clEnqueueReadBuffer =
-load(name: "clEnqueueReadBuffer") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueReadBuffer") ?? { _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueWriteBuffer: cl_api_clEnqueueWriteBuffer =
-load(name: "clEnqueueWriteBuffer") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueWriteBuffer") ?? { _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueCopyBuffer: cl_api_clEnqueueCopyBuffer =
-load(name: "clEnqueueCopyBuffer") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueCopyBuffer") ?? { _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueReadImage: cl_api_clEnqueueReadImage =
-load(name: "clEnqueueReadImage") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueReadImage") ?? { _, _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueWriteImage: cl_api_clEnqueueWriteImage =
-load(name: "clEnqueueWriteImage") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueWriteImage") ?? { _, _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueCopyImage: cl_api_clEnqueueCopyImage =
-load(name: "clEnqueueCopyImage") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueCopyImage") ?? { _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueCopyImageToBuffer: cl_api_clEnqueueCopyImageToBuffer =
-load(name: "clEnqueueCopyImageToBuffer") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueCopyImageToBuffer") ?? { _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueCopyBufferToImage: cl_api_clEnqueueCopyBufferToImage =
-load(name: "clEnqueueCopyBufferToImage") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueCopyBufferToImage") ?? { _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueMapBuffer: cl_api_clEnqueueMapBuffer =
-load(name: "clEnqueueMapBuffer") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueMapBuffer") ?? { _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueMapImage: cl_api_clEnqueueMapImage =
-load(name: "clEnqueueMapImage") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueMapImage") ?? { _, _, _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueUnmapMemObject: cl_api_clEnqueueUnmapMemObject =
-load(name: "clEnqueueUnmapMemObject") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueUnmapMemObject") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueNDRangeKernel: cl_api_clEnqueueNDRangeKernel =
-load(name: "clEnqueueNDRangeKernel") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueNDRangeKernel") ?? { _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueTask: cl_api_clEnqueueTask =
-load(name: "clEnqueueTask") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueTask") ?? { _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueNativeKernel: cl_api_clEnqueueNativeKernel =
-load(name: "clEnqueueNativeKernel") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueNativeKernel") ?? { _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueMarker: cl_api_clEnqueueMarker =
-load(name: "clEnqueueMarker") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueMarker") ?? { _, _ in
   fatalError()
 }
 
 public let clEnqueueWaitForEvents: cl_api_clEnqueueWaitForEvents =
-load(name: "clEnqueueWaitForEvents") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueWaitForEvents") ?? { _, _, _ in
   fatalError()
 }
 
 public let clEnqueueBarrier: cl_api_clEnqueueBarrier =
-load(name: "clEnqueueBarrier") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueBarrier") ?? { _ in
   fatalError()
 }
 
 public let clGetExtensionFunctionAddress: cl_api_clGetExtensionFunctionAddress =
-load(name: "clGetExtensionFunctionAddress") ?? { _, _, _, _, _, _, _ in
+load(name: "clGetExtensionFunctionAddress") ?? { _ in
   fatalError()
 }
 
 public let clCreateFromGLBuffer: cl_api_clCreateFromGLBuffer =
-load(name: "clCreateFromGLBuffer") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateFromGLBuffer") ?? { _, _, _, _ in
   fatalError()
 }
 
 public let clCreateFromGLTexture2D: cl_api_clCreateFromGLTexture2D =
-load(name: "clCreateFromGLTexture2D") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateFromGLTexture2D") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clCreateFromGLTexture3D: cl_api_clCreateFromGLTexture3D =
-load(name: "clCreateFromGLTexture3D") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateFromGLTexture3D") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clCreateFromGLRenderbuffer: cl_api_clCreateFromGLRenderbuffer =
-load(name: "clCreateFromGLRenderbuffer") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateFromGLRenderbuffer") ?? { _, _, _, _ in
   fatalError()
 }
 
 public let clGetGLObjectInfo: cl_api_clGetGLObjectInfo =
-load(name: "clGetGLObjectInfo") ?? { _, _, _, _, _ in
+load(name: "clGetGLObjectInfo") ?? { _, _, _ in
   fatalError()
 }
 
@@ -391,98 +389,70 @@ load(name: "clGetGLTextureInfo") ?? { _, _, _, _, _ in
 }
 
 public let clEnqueueAcquireGLObjects: cl_api_clEnqueueAcquireGLObjects =
-load(name: "clEnqueueAcquireGLObjects") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueAcquireGLObjects") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueReleaseGLObjects: cl_api_clEnqueueReleaseGLObjects =
-load(name: "clEnqueueReleaseGLObjects") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueReleaseGLObjects") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clGetGLContextInfoKHR: cl_api_clGetGLContextInfoKHR =
-load(name: "clGetGLContextInfoKHR") ?? { _, _, _, _, _, _, _ in
+load(name: "clGetGLContextInfoKHR") ?? { _, _, _, _, _ in
   fatalError()
 }
 
 // cl_khr_d3d10_sharing
 
-public let clGetDeviceIDsFromD3D10KHR: cl_api_clGetDeviceIDsFromD3D10KHR =
-load(name: "clGetDeviceIDsFromD3D10KHR") ?? { _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clCreateFromD3D10BufferKHR: cl_api_clCreateFromD3D10BufferKHR =
-load(name: "clCreateFromD3D10BufferKHR") ?? { _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clCreateFromD3D10Texture2DKHR: cl_api_clCreateFromD3D10Texture2DKHR =
-load(name: "clCreateFromD3D10Texture2DKHR") ?? { _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clCreateFromD3D10Texture3DKHR: cl_api_clCreateFromD3D10Texture3DKHR =
-load(name: "clCreateFromD3D10Texture3DKHR") ?? { _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clEnqueueAcquireD3D10ObjectsKHR: cl_api_clEnqueueAcquireD3D10ObjectsKHR =
-load(name: "clEnqueueAcquireD3D10ObjectsKHR") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clEnqueueReleaseD3D10ObjectsKHR: cl_api_clEnqueueReleaseD3D10ObjectsKHR =
-load(name: "clEnqueueReleaseD3D10ObjectsKHR") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
-  fatalError()
-}
+// TODO: Port these functions once I can run on Windows.
 
 // OpenCL 1.1
 
 public let clSetEventCallback: cl_api_clSetEventCallback =
-load(name: "clSetEventCallback") ?? { _, _, _, _, _, _, _ in
+load(name: "clSetEventCallback") ?? { _, _, _, _ in
   fatalError()
 }
 
 public let clCreateSubBuffer: cl_api_clCreateSubBuffer =
-load(name: "clCreateSubBuffer") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateSubBuffer") ?? { _, _, _, _, _ in
   fatalError()
 }
 
 public let clSetMemObjectDestructorCallback: cl_api_clSetMemObjectDestructorCallback =
-load(name: "clSetMemObjectDestructorCallback") ?? { _, _, _, _, _, _, _ in
+load(name: "clSetMemObjectDestructorCallback") ?? { _, _, _ in
   fatalError()
 }
 
 public let clCreateUserEvent: cl_api_clCreateUserEvent =
-load(name: "clCreateUserEvent") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateUserEvent") ?? { _, _ in
   fatalError()
 }
 
 public let clSetUserEventStatus: cl_api_clSetUserEventStatus =
-load(name: "clSetUserEventStatus") ?? { _, _, _, _, _, _, _ in
+load(name: "clSetUserEventStatus") ?? { _, _ in
   fatalError()
 }
 
 public let clEnqueueReadBufferRect: cl_api_clEnqueueReadBufferRect =
-load(name: "clEnqueueReadBufferRect") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueReadBufferRect") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueWriteBufferRect: cl_api_clEnqueueWriteBufferRect =
-load(name: "clEnqueueWriteBufferRect") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueWriteBufferRect") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueCopyBufferRect: cl_api_clEnqueueCopyBufferRect =
-load(name: "clEnqueueCopyBufferRect") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueCopyBufferRect") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 // cl_ext_device_fission
 
 public let clCreateSubDevicesEXT: cl_api_clCreateSubDevicesEXT =
-load(name: "clCreateSubDevicesEXT") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateSubDevicesEXT") ?? { _, _, _, _, _ in
   fatalError()
 }
 
@@ -499,14 +469,14 @@ load(name: "clReleaseDeviceEXT") ?? { _ in
 // cl_khr_gl_event
 
 public let clCreateEventFromGLsyncKHR: cl_api_clCreateEventFromGLsyncKHR =
-load(name: "clCreateEventFromGLsyncKHR") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateEventFromGLsyncKHR") ?? { _, _, _ in
   fatalError()
 }
 
 // OpenCL 1.2
 
 public let clCreateSubDevices: cl_api_clCreateSubDevices =
-load(name: "clCreateSubDevices") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateSubDevices") ?? { _, _, _, _, _ in
   fatalError()
 }
 
@@ -521,157 +491,111 @@ load(name: "clReleaseDevice") ?? { _ in
 }
 
 public let clCreateImage: cl_api_clCreateImage =
-load(name: "clCreateImage") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateImage") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clCreateProgramWithBuiltInKernels: cl_api_clCreateProgramWithBuiltInKernels =
-load(name: "clCreateProgramWithBuiltInKernels") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateProgramWithBuiltInKernels") ?? { _, _, _, _, _ in
   fatalError()
 }
 
 public let clCompileProgram: cl_api_clCompileProgram =
-load(name: "clCompileProgram") ?? { _, _, _, _, _, _, _ in
+load(name: "clCompileProgram") ?? { _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clLinkProgram: cl_api_clLinkProgram =
-load(name: "clLinkProgram") ?? { _, _, _, _, _, _, _ in
+load(name: "clLinkProgram") ?? { _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clUnloadPlatformCompiler: cl_api_clUnloadPlatformCompiler =
-load(name: "clUnloadPlatformCompiler") ?? { _, _, _, _, _, _, _ in
+load(name: "clUnloadPlatformCompiler") ?? { _ in
   fatalError()
 }
 
 public let clGetKernelArgInfo: cl_api_clGetKernelArgInfo =
-load(name: "clGetKernelArgInfo") ?? { _, _, _, _, _ in
+load(name: "clGetKernelArgInfo") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueFillBuffer: cl_api_clEnqueueFillBuffer =
-load(name: "clEnqueueFillBuffer") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueFillBuffer") ?? { _, _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueFillImage: cl_api_clEnqueueFillImage =
-load(name: "clEnqueueFillImage") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueFillImage") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueMigrateMemObjects: cl_api_clEnqueueMigrateMemObjects =
-load(name: "clEnqueueMigrateMemObjects") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueMigrateMemObjects") ?? { _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueMarkerWithWaitList: cl_api_clEnqueueMarkerWithWaitList =
-load(name: "clEnqueueMarkerWithWaitList") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueMarkerWithWaitList") ?? { _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueBarrierWithWaitList: cl_api_clEnqueueBarrierWithWaitList =
-load(name: "clEnqueueBarrierWithWaitList") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueBarrierWithWaitList") ?? { _, _, _, _ in
   fatalError()
 }
 
 public let clGetExtensionFunctionAddressForPlatform: cl_api_clGetExtensionFunctionAddressForPlatform =
-load(name: "clGetExtensionFunctionAddressForPlatform") ?? { _, _, _, _, _, _, _ in
+load(name: "clGetExtensionFunctionAddressForPlatform") ?? { _, _ in
   fatalError()
 }
 
 public let clCreateFromGLTexture: cl_api_clCreateFromGLTexture =
-load(name: "clCreateFromGLTexture") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateFromGLTexture") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 // cl_khr_d3d11_sharing
 
-public let clGetDeviceIDsFromD3D11KHR: cl_api_clGetDeviceIDsFromD3D11KHR =
-load(name: "clGetDeviceIDsFromD3D11KHR") ?? { _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clCreateFromD3D11BufferKHR: cl_api_clCreateFromD3D11BufferKHR =
-load(name: "clCreateFromD3D11BufferKHR") ?? { _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clCreateFromD3D11Texture2DKHR: cl_api_clCreateFromD3D11Texture2DKHR =
-load(name: "clCreateFromD3D11Texture2DKHR") ?? { _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clCreateFromD3D11Texture3DKHR: cl_api_clCreateFromD3D11Texture3DKHR =
-load(name: "clCreateFromD3D11Texture3DKHR") ?? { _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clCreateFromDX9MediaSurfaceKHR: cl_api_clCreateFromDX9MediaSurfaceKHR =
-load(name: "clCreateFromDX9MediaSurfaceKHR") ?? { _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clEnqueueAcquireD3D11ObjectsKHR: cl_api_clEnqueueAcquireD3D11ObjectsKHR =
-load(name: "clEnqueueAcquireD3D11ObjectsKHR") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clEnqueueReleaseD3D11ObjectsKHR: cl_api_clEnqueueReleaseD3D11ObjectsKHR =
-load(name: "clEnqueueReleaseD3D11ObjectsKHR") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
-  fatalError()
-}
+// TODO: Port these functions once I can run on Windows.
 
 // cl_khr_dx9_media_sharing
 
-public let clGetDeviceIDsFromDX9MediaAdapterKHR: cl_api_clGetDeviceIDsFromDX9MediaAdapterKHR =
-load(name: "clGetDeviceIDsFromDX9MediaAdapterKHR") ?? { _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clEnqueueAcquireDX9MediaSurfacesKHR: cl_api_clEnqueueAcquireDX9MediaSurfacesKHR =
-load(name: "clEnqueueAcquireDX9MediaSurfacesKHR") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
-  fatalError()
-}
-
-public let clEnqueueReleaseDX9MediaSurfacesKHR: cl_api_clEnqueueReleaseDX9MediaSurfacesKHR =
-load(name: "clEnqueueReleaseDX9MediaSurfacesKHR") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
-  fatalError()
-}
+// TODO: Port these functions once I can run on Windows.
 
 // cl_khr_egl_image
 
 public let clCreateFromEGLImageKHR: cl_api_clCreateFromEGLImageKHR =
-load(name: "clCreateFromEGLImageKHR") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateFromEGLImageKHR") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueAcquireEGLObjectsKHR: cl_api_clEnqueueAcquireEGLObjectsKHR =
-load(name: "clEnqueueAcquireEGLObjectsKHR") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueAcquireEGLObjectsKHR") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueReleaseEGLObjectsKHR: cl_api_clEnqueueReleaseEGLObjectsKHR =
-load(name: "clEnqueueReleaseEGLObjectsKHR") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueReleaseEGLObjectsKHR") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
 // cl_khr_egl_event
 
 public let clCreateEventFromEGLSyncKHR: cl_api_clCreateEventFromEGLSyncKHR =
-load(name: "clCreateEventFromEGLSyncKHR") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateEventFromEGLSyncKHR") ?? { _, _, _, _ in
   fatalError()
 }
 
 // OpenCL 2.0
 
 public let clCreateCommandQueueWithProperties: cl_api_clCreateCommandQueueWithProperties =
-load(name: "clCreateCommandQueueWithProperties") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateCommandQueueWithProperties") ?? { _, _, _, _ in
   fatalError()
 }
 
 public let clCreatePipe: cl_api_clCreatePipe =
-load(name: "clCreatePipe") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreatePipe") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
@@ -681,115 +605,115 @@ load(name: "clGetPipeInfo") ?? { _, _, _, _, _ in
 }
 
 public let clSVMAlloc: cl_api_clSVMAlloc =
-load(name: "clSVMAlloc") ?? { _, _, _, _, _, _, _ in
+load(name: "clSVMAlloc") ?? { _, _, _, _ in
   fatalError()
 }
 
 public let clSVMFree: cl_api_clSVMFree =
-load(name: "clSVMFree") ?? { _, _, _, _, _, _, _ in
+load(name: "clSVMFree") ?? { _, _ in
   fatalError()
 }
 
 public let clEnqueueSVMFree: cl_api_clEnqueueSVMFree =
-load(name: "clEnqueueSVMFree") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueSVMFree") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueSVMMemcpy: cl_api_clEnqueueSVMMemcpy =
-load(name: "clEnqueueSVMMemcpy") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueSVMMemcpy") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueSVMMemFill: cl_api_clEnqueueSVMMemFill =
-load(name: "clEnqueueSVMMemFill") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueSVMMemFill") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueSVMMap: cl_api_clEnqueueSVMMap =
-load(name: "clEnqueueSVMMap") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueSVMMap") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clEnqueueSVMUnmap: cl_api_clEnqueueSVMUnmap =
-load(name: "clEnqueueSVMUnmap") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueSVMUnmap") ?? { _, _, _, _, _ in
   fatalError()
 }
 
 public let clCreateSamplerWithProperties: cl_api_clCreateSamplerWithProperties =
-load(name: "clCreateSamplerWithProperties") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateSamplerWithProperties") ?? { _, _, _ in
   fatalError()
 }
 
 public let clSetKernelArgSVMPointer: cl_api_clSetKernelArgSVMPointer =
-load(name: "clSetKernelArgSVMPointer") ?? { _, _, _, _, _, _, _ in
+load(name: "clSetKernelArgSVMPointer") ?? { _, _, _ in
   fatalError()
 }
 
 public let clSetKernelExecInfo: cl_api_clSetKernelExecInfo =
-load(name: "clSetKernelExecInfo") ?? { _, _, _, _, _ in
+load(name: "clSetKernelExecInfo") ?? { _, _, _, _ in
   fatalError()
 }
 
 // cl_khr_sub_groups
 
 public let clGetKernelSubGroupInfoKHR: cl_api_clGetKernelSubGroupInfoKHR =
-load(name: "clGetKernelSubGroupInfoKHR") ?? { _, _, _, _, _, _, _ in
+load(name: "clGetKernelSubGroupInfoKHR") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 // OpenCL 2.1
 
 public let clCloneKernel: cl_api_clCloneKernel =
-load(name: "clCloneKernel") ?? { _, _, _, _, _, _, _ in
+load(name: "clCloneKernel") ?? { _, _ in
   fatalError()
 }
 
 public let clCreateProgramWithIL: cl_api_clCreateProgramWithIL =
-load(name: "clCreateProgramWithIL") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateProgramWithIL") ?? { _, _, _ , _ in
   fatalError()
 }
 
 public let clEnqueueSVMMigrateMem: cl_api_clEnqueueSVMMigrateMem =
-load(name: "clEnqueueSVMMigrateMem") ?? { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ in
+load(name: "clEnqueueSVMMigrateMem") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clGetDeviceAndHostTimer: cl_api_clGetDeviceAndHostTimer =
-load(name: "clGetDeviceAndHostTimer") ?? { _, _, _, _, _, _, _ in
+load(name: "clGetDeviceAndHostTimer") ?? { _, _, _ in
   fatalError()
 }
 
 public let clGetHostTimer: cl_api_clGetHostTimer =
-load(name: "clGetHostTimer") ?? { _, _, _, _, _, _, _ in
+load(name: "clGetHostTimer") ?? { _, _ in
   fatalError()
 }
 
 public let clGetKernelSubGroupInfo: cl_api_clGetKernelSubGroupInfo =
-load(name: "clGetKernelSubGroupInfo") ?? { _, _, _, _, _ in
+load(name: "clGetKernelSubGroupInfo") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
 
 public let clSetDefaultDeviceCommandQueue: cl_api_clSetDefaultDeviceCommandQueue =
-load(name: "clSetDefaultDeviceCommandQueue") ?? { _, _, _, _, _, _, _ in
+load(name: "clSetDefaultDeviceCommandQueue") ?? { _, _, _ in
   fatalError()
 }
 
 // OpenCL 2.2
 
 public let clSetProgramReleaseCallback: cl_api_clSetProgramReleaseCallback =
-load(name: "clSetProgramReleaseCallback") ?? { _, _, _, _, _, _, _ in
+load(name: "clSetProgramReleaseCallback") ?? { _, _, _ in
   fatalError()
 }
 
 public let clSetProgramSpecializationConstant: cl_api_clSetProgramSpecializationConstant =
-load(name: "clSetProgramSpecializationConstant") ?? { _, _, _, _, _, _, _ in
+load(name: "clSetProgramSpecializationConstant") ?? { _, _, _, _ in
   fatalError()
 }
 
 // OpenCL 3.0
 
 public let clCreateBufferWithProperties: cl_api_clCreateBufferWithProperties =
-load(name: "clCreateBufferWithProperties") ?? { _, _, _, _, _, _, _ in
+load(name: "clCreateBufferWithProperties") ?? { _, _, _, _, _, _ in
   fatalError()
 }
 
@@ -799,7 +723,6 @@ load(name: "clCreateImageWithProperties") ?? { _, _, _, _, _, _, _ in
 }
 
 public let clSetContextDestructorCallback: cl_api_clSetContextDestructorCallback =
-load(name: "clSetContextDestructorCallback") ?? { _, _, _, _, _, _, _ in
+load(name: "clSetContextDestructorCallback") ?? { _, _, _ in
   fatalError()
 }
-*/

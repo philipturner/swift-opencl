@@ -63,11 +63,11 @@ func createCode(line inputLine: String) -> String? {
       // One parameter.
       argumentLabels = "_"
     } else if symbol.hasPrefix("clEnqueue") {
-      // Usually less than 15 parameters.
-      argumentLabels = "\(fiveLabels), \(fiveLabels), \(fiveLabels)"
+      // Usually 12 or less parameters.
+      argumentLabels = "\(fiveLabels), \(fiveLabels), _, _"
     } else {
-      // Usually less than 7 parameters.
-      argumentLabels = "\(fiveLabels), _, _"
+      // Usually 6 or less parameters.
+      argumentLabels = "\(fiveLabels), _"
     }
     
     return """
