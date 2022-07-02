@@ -307,38 +307,77 @@ extension OpenCLLibrary {
   }
 }
 
-extension OpenCLLibrary {
-  // This partially duplicates the functionality of `CLVersion`, but it's a
-  // private API.
-  private struct OpenCLVersion {
-    let major: Int?
-    let minor: Int?
-    
-    static let versionSeparator: Character = "."
-    
-    init(major: Int?, minor: Int?) {
-      precondition(!(major == nil && minor != nil), """
-        Error: The OpenCL library minor version cannot be specified without the
-        major version.
-        """)
-      self.major = major
-      self.minor = minor
+// Remove this duplicate declaration when "CLVersion.swift" is enabled in the
+// package manifest.
+public struct CLVersion: Comparable {
+  // Using `UInt32` instead of `Int` to halve CPU register usage. Also, it's a
+  // standard type to represent things across the OpenCL API. `cl_version` is
+  // even a typealias of `UInt32`.
+  public var major: UInt32
+  public var minor: UInt32
+  public var patch: UInt32?
+  
+  @_transparent
+  public init(major: UInt32, minor: UInt32, patch: UInt32? = nil) {
+    self.major = major
+    self.minor = minor
+    self.patch = patch
+  }
+  
+  @inlinable
+  public static func < (lhs: CLVersion, rhs: CLVersion) -> Bool {
+    if lhs.major != rhs.major {
+      return lhs.major < rhs.major
+    }
+    if lhs.minor != rhs.minor {
+      return lhs.minor < rhs.minor
     }
     
-    var versionString: String {
-      guard let major = major else { return "" }
-      var versionString = String(major)
-      if let minor = minor {
-        versionString += "\(OpenCLVersion.versionSeparator)\(minor)"
+    // Not having a patch is considered being "0" of the patch. If one side has
+    // a patch and another doesn't, the versions will already be counted as not
+    // equal. So determine a convention for comparing them.
+    let lhsPatch = lhs.patch ?? 0
+    let rhsPatch = rhs.patch ?? 0
+    return lhsPatch < rhsPatch
+  }
+}
+
+extension CLVersion {
+  init?(versionString: String) {
+    let components = versionString.split(separator: ".")
+    guard components.count >= 2,
+          components.count <= 3 else {
+      return nil
+    }
+    
+    guard let major = UInt32(components[0]),
+          let minor = UInt32(components[1]) else {
+      return nil
+    }
+    self.major = major
+    self.minor = minor
+    
+    if components.count == 3 {
+      guard let patch = UInt32(components[2]) else {
+        return nil
       }
-      return versionString
+      self.patch = patch
     }
+  }
+
+  var versionString: String {
+    var versionString = String(major) + "." + String(minor)
+    if let patch = patch {
+      versionString += "." + String(patch)
+    }
+    return versionString
   }
 }
 
 // Added enum cases for only library, version, and loader logging. The
 // environment variable `OPENCL_VERSION` should let you validate the
-// automatically detected library version.
+// automatically detected library version. Use the version variable for
+// debugging purposes only.
 extension OpenCLLibrary {
   private enum Environment: String {
     case library = "OPENCL_LIBRARY"
