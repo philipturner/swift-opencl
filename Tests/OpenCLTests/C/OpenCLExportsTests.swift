@@ -100,9 +100,9 @@ final class OpenCLExportsTests: XCTestCase {
     _ = clEnqueueCopyBufferRect
     
     // cl_ext_device_fission
-    _ = clCreateSubDevicesEXT
-    _ = clRetainDeviceEXT
-    _ = clReleaseDeviceEXT
+    _ = _clCreateSubDevicesEXT
+    _ = _clRetainDeviceEXT
+    _ = _clReleaseDeviceEXT
     
     // cl_khr_gl_event
     _ = clCreateEventFromGLsyncKHR

@@ -432,20 +432,29 @@ load(name: "clEnqueueCopyBufferRect") ??
 
 // cl_ext_device_fission
 
-public let clCreateSubDevicesEXT: cl_api_clCreateSubDevicesEXT =
+let _clCreateSubDevicesEXT: cl_api_clCreateSubDevicesEXT =
 load(name: "clCreateSubDevicesEXT") ?? { _, _, _, _, _ in
   fatalError()
 }
 
-public let clRetainDeviceEXT: cl_api_clRetainDeviceEXT =
+let _clRetainDeviceEXT: cl_api_clRetainDeviceEXT =
 load(name: "clRetainDeviceEXT") ?? { _ in
   fatalError()
 }
 
-public let clReleaseDeviceEXT: cl_api_clReleaseDeviceEXT =
+let _clReleaseDeviceEXT: cl_api_clReleaseDeviceEXT =
 load(name: "clReleaseDeviceEXT") ?? { _ in
   fatalError()
 }
+
+@available(*, deprecated, message: "Use 'clCreateSubDevices' instead.")
+public let clCreateSubDevicesEXT = _clCreateSubDevicesEXT
+
+@available(*, deprecated, message: "Use 'clRetainDevice' instead.")
+public let clRetainDeviceEXT = _clRetainDeviceEXT
+
+@available(*, deprecated, message: "Use 'clReleaseDevice' instead.")
+public let clReleaseDeviceEXT = _clReleaseDeviceEXT
 
 // cl_khr_gl_event
 
@@ -457,19 +466,14 @@ load(name: "clCreateEventFromGLsyncKHR") ?? { _, _, _ in
 // OpenCL 1.2
 
 public let clCreateSubDevices: cl_api_clCreateSubDevices =
-load(name: "clCreateSubDevices") ?? { _, _, _, _, _ in
-  fatalError()
-}
+load(name: "clCreateSubDevices") ?? unsafeBitCast(
+  _clCreateSubDevicesEXT, to: cl_api_clCreateSubDevices.self)
 
 public let clRetainDevice: cl_api_clRetainDevice =
-load(name: "clRetainDevice") ?? { _ in
-  fatalError()
-}
+load(name: "clRetainDevice") ?? _clRetainDeviceEXT
 
 public let clReleaseDevice: cl_api_clReleaseDevice =
-load(name: "clReleaseDevice") ?? { _ in
-  fatalError()
-}
+load(name: "clReleaseDevice") ?? _clReleaseDeviceEXT
 
 public let clCreateImage: cl_api_clCreateImage =
 load(name: "clCreateImage") ?? { _, _, _, _, _, _ in
@@ -637,8 +641,7 @@ load(name: "clSetKernelExecInfo") ?? { _, _, _, _ in
 
 // cl_khr_sub_groups
 
-// Only use in unit tests.
-internal let _clGetKernelSubGroupInfoKHR: cl_api_clGetKernelSubGroupInfoKHR =
+let _clGetKernelSubGroupInfoKHR: cl_api_clGetKernelSubGroupInfoKHR =
 load(name: "clGetKernelSubGroupInfoKHR") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
