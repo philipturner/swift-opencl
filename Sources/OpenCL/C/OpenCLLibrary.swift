@@ -122,6 +122,8 @@ public struct OpenCLLibrary {
 }
 
 extension OpenCLLibrary {
+  
+  
   private static func isOpenCLLibraryLoaded(
     at openclLibraryHandle: UnsafeMutableRawPointer? = nil
   ) -> Bool {
