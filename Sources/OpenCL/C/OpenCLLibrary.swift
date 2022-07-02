@@ -15,9 +15,6 @@ import CRT
 import WinSDK
 #endif
 
-// This file is not properly documented. For a full explanation of what each
-// code section does, look at the counterpart in PythonKit.
-
 // Based on `PythonLibrary` from PythonKit. This lets the user query whether the
 // OpenCL library can be loaded at runtime, and specify the path for loading it.
 // All other functionality is internal, just like in PythonKit.
@@ -34,7 +31,6 @@ public struct OpenCLLibrary {
           OpenCL library not found. Set the \(Environment.library.rawValue) \
           environment variable with the path to a Python library.
           """
-      
       case .cannotGetPlatforms:
         return """
           Could not load symbol `clGetPlatformIDs` from the OpenCL library,
@@ -82,6 +78,12 @@ public struct OpenCLLibrary {
     isLoaderLoggingEnabled = false
     _openclLibraryHandle = nil
   }
+  
+  // Lets you disable the mechanism that searches for a pre-linked library
+  // during the unit tests.
+  #if DEBUG
+  internal static var unitTestUsingDefaultLibraryHandle = true
+  #endif
   
   public static func loadLibrary() throws {
     guard !self.isOpenCLLibraryLoaded else {
@@ -230,6 +232,13 @@ extension OpenCLLibrary {
   private static func isOpenCLLibraryLoaded(
     at openclLibraryHandle: UnsafeMutableRawPointer? = nil
   ) -> Bool {
+    #if DEBUG
+    if !unitTestUsingDefaultLibraryHandle {
+      if openclLibraryHandle == nil {
+        return false
+      }
+    }
+    #endif
     let openclLibraryHandle = openclLibraryHandle ?? self.defaultLibraryHandle
     return self.loadSymbol(openclLibraryHandle, "clGetPlatformIDs") != nil
   }
@@ -266,6 +275,22 @@ extension OpenCLLibrary {
       self.log("Library at path '\(path)' was successfully loaded.")
     }
     return openclLibraryHandle
+  }
+}
+
+extension OpenCLLibrary {
+  private static func enforceNonLoadedOpenCLLibrary(
+    function: String = #function
+  ) {
+    precondition(!self.isOpenCLLibraryLoaded, """
+      Error: \(function) should not be called after any OpenCL library has \
+      already been loaded.
+      """)
+  }
+  
+  public static func useLibrary(at path: String?) {
+    self.enforceNonLoadedOpenCLLibrary()
+    OpenCLLibrary.Environment.library.set(path ?? "")
   }
 }
 
