@@ -54,7 +54,7 @@ fileprivate func uname_m() -> String {
 public struct OpenCLLibrary {
   public enum Error: Swift.Error, Equatable, CustomStringConvertible {
     case openclLibraryNotFound
-    case noPlatforms
+    case platformsNotFound
     
     public var description: String {
       switch self {
@@ -74,7 +74,7 @@ public struct OpenCLLibrary {
       // that doesn't support OpenCL. One example is a Parallels VM on macOS,
       // which emulates OpenGL and DirectX 11, but not OpenCL. The error should
       // also happen on Google Colab when connected to a CPU-only runtime.
-      case .noPlatforms:
+      case .platformsNotFound:
         return """
           The OpenCL library was found, but no OpenCL platforms exist. Ensure
           that an OpenCL driver is installed and visible to the ICD loader.
@@ -83,9 +83,54 @@ public struct OpenCLLibrary {
     }
   }
   
-  // As a test that the opened library works, call
-  // `clGetPlatformIDs(...)` and ensure it returns `CL_SUCCESS`. Then, ensure
-  // the number of platforms > 0.
+  #if canImport(Darwin)
+  private static let defaultLibraryHandle: UnsafeMutableRawPointer? =
+    .init(bitPattern: -2)
+  #elseif canImport(Glibc)
+  private static let defaultLibraryHandle: UnsafeMutableRawPointer? = nil
+  #elseif os(Windows)
+  private static let defaultLibraryHandle: UnsafeMutableRawPointer? = nil
+  #endif
+  
+  private static var isOpenCLLibraryLoaded = false
+  private static var _openclLibraryHandle: UnsafeMutableRawPointer?
+  private static var openclLibraryHandle: UnsafeMutableRawPointer? {
+    try! OpenCLLibrary.loadLibrary()
+    return self._openclLibraryHandle
+  }
+  
+  public static func loadLibrary() throws {
+    guard !self.isOpenCLLibraryLoaded else {
+      return
+    }
+    let openclLibraryHandle = self.loadOpenCLLibrary()
+    guard self.isOpenCLLibraryLoaded(at: openclLibraryHandle) else {
+      throw Error.openclLibraryNotFound
+    }
+    
+    // TODO: add a test that the library works.
+    // As a test that the opened library works, call
+    // `clGetPlatformIDs(...)` and ensure it returns `CL_SUCCESS`. Then, ensure
+    // the number of platforms > 0.
+    //
+    // func platformsAreAvailable() -> Bool
+    self.isOpenCLLibraryLoaded = true
+    self._openclLibraryHandle = openclLibraryHandle
+  }
+  
+  // internal static func loadSymbol<T>(...)
+}
+
+extension OpenCLLibrary {
+  private static func isOpenCLLibraryLoaded(
+    at openclLibraryHandle: UnsafeMutableRawPointer? = nil
+  ) -> Bool {
+    false
+  }
+  
+  private static func loadOpenCLLibrary() -> UnsafeMutableRawPointer? {
+    nil
+  }
 }
 
 extension OpenCLLibrary {
@@ -117,9 +162,9 @@ extension OpenCLLibrary {
   }
 }
 
-// Added enum cases for only library, version, and loader logging. The case for
-// version might be useful if it can't auto-detect the OpenCL version, or wants
-// to validate the auto-detected version.
+// Added enum cases for only library, version, and loader logging. The
+// environment variable `OPENCL_VERSION` should let you validate the
+// automatically detected library version.
 extension OpenCLLibrary {
   private enum Environment: String {
     private static let keyPrefix = "OPENCL"

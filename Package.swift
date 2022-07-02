@@ -22,6 +22,9 @@ let package = Package(
     // on overriding system module names. I can freely use `OpenCL` in Swift
     // code while referring to SwiftOpenCL, rather than the Objective-C module
     // that Apple created.
+    //
+    // Rather than specify a target OpenCL version, I silenced the warning
+    // message in "cl_version.h".
     .target(
       name: "COpenCL",
       dependencies: []),
