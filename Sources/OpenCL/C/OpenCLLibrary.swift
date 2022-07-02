@@ -24,7 +24,7 @@ import WinSDK
 public struct OpenCLLibrary {
   public enum Error: Swift.Error, Equatable, CustomStringConvertible {
     case openclLibraryNotFound
-    case cannotFetchPlatforms
+    case cannotGetPlatforms
     case platformsNotFound
     
     public var description: String {
@@ -34,8 +34,8 @@ public struct OpenCLLibrary {
           OpenCL library not found. Set the \(Environment.library.rawValue) \
           environment variable with the path to a Python library.
           """
-        
-      case .cannotFetchPlatforms:
+      
+      case .cannotGetPlatforms:
         return """
           Could not load symbol `clGetPlatformIDs` from the OpenCL library,
           which is needed to search for platforms.
@@ -96,10 +96,23 @@ public struct OpenCLLibrary {
     // As a test that the opened library works, call
     // `clGetPlatformIDs(...)` and ensure it returns `CL_SUCCESS`. Then, ensure
     // the number of platforms > 0.
-    //
-    // Can't use the generic loadSymbol
-    //
-    // func platformsAreAvailable() -> Bool
+    
+    // Can't use  `loadSymbol<T>(name:type:)` because that is a recursive
+    // function call.
+    let symbol = self.loadSymbol(openclLibraryHandle, "clGetPlatformIDs")
+    guard let symbol = symbol else {
+      throw Error.cannotGetPlatforms
+    }
+    
+    let clGetPlatformIDs = unsafeBitCast(
+      symbol, to: cl_api_clGetPlatformIDs.self)
+    var numPlatforms: UInt32 = 0
+    let error = clGetPlatformIDs(0, nil, &numPlatforms)
+    guard error == CL_SUCCESS,
+          numPlatforms > 0 else {
+      throw Error.platformsNotFound
+    }
+    
     self.isOpenCLLibraryLoaded = true
     self.isLoaderLoggingEnabled = Environment.loaderLogging.value != nil
     self._openclLibraryHandle = openclLibraryHandle

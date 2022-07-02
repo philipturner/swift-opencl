@@ -2,7 +2,7 @@ import XCTest
 import OpenCL
 
 // Tests the dynamic symbol loader.
-final class CTests: XCTestCase {
+final class OpenCLLibraryTests: XCTestCase {
   func testExample() throws {
     
   }
