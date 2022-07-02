@@ -300,5 +300,3 @@ printOutput("""
 //
 //} cl_icd_dispatch;
 """)
-
-

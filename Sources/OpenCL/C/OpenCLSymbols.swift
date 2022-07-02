@@ -21,8 +21,6 @@ import COpenCL
 // symbol still can't load, it is replaced with a dummy symbol that reports an
 // error to `CLError` and returns a custom error code.
 
-// TODO: Port Apple's extensions from their Objective-C framework.
-
 @inline(__always)
 fileprivate func load<T>(name: StaticString) -> T? {
   OpenCLLibrary.loadSymbol(name: name)
