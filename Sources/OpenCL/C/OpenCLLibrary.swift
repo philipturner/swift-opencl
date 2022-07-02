@@ -70,11 +70,18 @@ public struct OpenCLLibrary {
   #endif
   
   private static var isOpenCLLibraryLoaded = false
+  private static var isLoaderLoggingEnabled = false
   private static var _openclLibraryHandle: UnsafeMutableRawPointer?
-//  private static var openclLibraryHandle: UnsafeMutableRawPointer? {
-//    try! OpenCLLibrary.loadLibrary()
-//    return self._openclLibraryHandle
-//  }
+  
+  // Provides a mechanism to reload the library from scratch during unit tests.
+  // This doesn't reset the lazily loaded symbols in "OpenCLSymbols.swift", so
+  // you must explicitly call `loadSymbol<T>(name:type:)`. Use `@testable import
+  // OpenCL` to access this.
+  internal static func unitTestClear() {
+    isOpenCLLibraryLoaded = false
+    isLoaderLoggingEnabled = false
+    _openclLibraryHandle = nil
+  }
   
   public static func loadLibrary() throws {
     guard !self.isOpenCLLibraryLoaded else {
@@ -94,6 +101,7 @@ public struct OpenCLLibrary {
     //
     // func platformsAreAvailable() -> Bool
     self.isOpenCLLibraryLoaded = true
+    self.isLoaderLoggingEnabled = Environment.loaderLogging.value != nil
     self._openclLibraryHandle = openclLibraryHandle
   }
   
@@ -101,11 +109,13 @@ public struct OpenCLLibrary {
   internal static func loadSymbol<T>(
     name: StaticString, type: T.Type = T.self
   ) -> T? {
-    // Force-inlined.
-    _log("Loading symbol '\(name.description)' from the Python library...")
+    if self.isLoaderLoggingEnabled {
+      log("Loading symbol '\(name.description)' from the Python library...")
+    }
     
-    // Did not force-inline `loadLibrary()` because it's so large.
-    try! OpenCLLibrary.loadLibrary()
+    if !self.isOpenCLLibraryLoaded {
+      try! OpenCLLibrary.loadLibrary()
+    }
     
     // Force-inlined.
     let symbol = self._loadSymbol(self._openclLibraryHandle, name)
@@ -113,17 +123,10 @@ public struct OpenCLLibrary {
   }
 }
 
-// Paths to OpenCL binaries across multiple platforms:
-// macOS - /System/Library/Frameworks/OpenCL.framework/Versions/A/OpenCL
-// Colab - /usr/lib/x86_64-linux-gnu/libOpenCL.so
-// Windows - C:\Windows\System32\opencl.dll
-
-// For Ubuntu: $(uname -m)-linux-gnu instead of $(gcc -dumpmachine). It takes
-// ~1 second to load the GCC binary, while $(uname -m) returns instantaneously.
-// `uname` is even callable C, eliminating the need to spawn a child process.
-// Furthermore, GCC may return an incorrect architecture, such as i686 when the
-// machine is i386:
-// https://askubuntu.com/questions/872457/how-to-determine-the-host-multi-arch-default-folder
+// Paths to OpenCL binaries:
+// macOS - "/System/Library/Frameworks/OpenCL.framework/Versions/A/OpenCL"
+// Colab - "/usr/lib/x86_64-linux-gnu/libOpenCL.so"
+// Windows - "C:\Windows\System32\opencl.dll"
 
 extension OpenCLLibrary {
   #if canImport(Darwin)
@@ -133,6 +136,13 @@ extension OpenCLLibrary {
   private static var librarySearchPaths = ["", "/System/Library/Frameworks/"]
   #elseif canImport(Glibc)
   private static var libraryNames = ["libOpenCL.so"]
+  
+  // Using `$(uname -m)-linux-gnu` instead of `$(gcc -dumpmachine)`. It takes
+  // ~1 second to load the GCC binary, while `$(uname -m)` returns
+  // instantaneously. `uname` is callable from C, eliminating the need to spawn
+  // a child process. Furthermore, GCC may return an incorrect architecture,
+  // such as i686 when the machine is i386:
+  // https://askubuntu.com/questions/872457/how-to-determine-the-host-multi-arch-default-folder
   private static var librarySearchPaths = [
     "", "/usr/lib/\(uname_m())-linux-gnu/"
   ]
@@ -160,10 +170,6 @@ fileprivate func uname_m() -> String {
 }
 #endif
 
-// TODO: Heavily optimize the library/symbol loading mechanism, fetching stuff
-// from the environment only at startup. But optimize after I've debugged this.
-// Also provide a mechanism to reset everything during the Swift package tests.
-// Can't reset the lazily loaded symbols in "OpenCLSymbols.swift", though.
 extension OpenCLLibrary {
   private static let libraryPaths: [String] = {
     var libraryPaths: [String] = []
@@ -313,17 +319,10 @@ extension OpenCLLibrary {
 extension OpenCLLibrary {
   // `message` is an autoclosure so that it only materializes when something
   // should be logged. This improves performance when logging is disabled.
-  @inline(__always)
-  private static func _log(_ message: @autoclosure () -> String) {
+  private static func log(_ message: @autoclosure () -> String) {
     guard Environment.loaderLogging.value != nil else {
       return
     }
     fputs(message() + "\n", stderr)
-  }
-  
-  // For use everywhere besides `loadSymbol<T>(name:type)`.
-  @inline(never)
-  private static func log(_ message: @autoclosure () -> String) {
-    self._log(message())
   }
 }
