@@ -37,7 +37,10 @@ let package = Package(
 //        "C",
         "Core",
         "Custom",
-        "Utilities"
+        "Utilities",
+        
+        // Scripts
+        "C/GenerateOpenCLSymbols.swift"
       ]),
     
     // The tests compile if I exclude all the Swift code that links to COpenCL
