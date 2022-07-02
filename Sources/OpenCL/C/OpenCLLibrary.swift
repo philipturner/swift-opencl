@@ -72,7 +72,7 @@ public struct OpenCLLibrary {
   #if DEBUG
   // Provides a mechanism to reload the library from scratch during unit tests.
   // This doesn't reset the lazily loaded symbols in "OpenCLSymbols.swift", so
-  // you must explicitly call `loadSymbol<T>(name:type:)`. Use `@testable import
+  // you must explicitly call `loadSymbol<T>(name:)`. Use `@testable import
   // OpenCL` to access this.
   static func unitTestClear() {
     isOpenCLLibraryLoaded = false
@@ -114,13 +114,8 @@ public struct OpenCLLibrary {
       throw Error.openclLibraryNotFound
     }
     
-    // TODO: add a test that the library works.
-    // As a test that the opened library works, call
-    // `clGetPlatformIDs(...)` and ensure it returns `CL_SUCCESS`. Then, ensure
-    // the number of platforms > 0.
-    
-    // Can't use  `loadSymbol<T>(name:type:)` because that is a recursive
-    // function call.
+    // Can't use `loadSymbol<T>(name:)` because that causes a recursive function
+    // call.
     let symbol = self.loadSymbol(openclLibraryHandle, "clGetPlatformIDs")
     guard let symbol = symbol else {
       throw Error.cannotGetPlatforms
@@ -141,9 +136,7 @@ public struct OpenCLLibrary {
   }
   
   // Returns `nil` so you can provide a default value.
-  internal static func loadSymbol<T>(
-    name: StaticString, type: T.Type = T.self
-  ) -> T? {
+  internal static func loadSymbol<T>(name: StaticString) -> T? {
     if self.isLoaderLoggingEnabled {
       log("Loading symbol '\(name.description)' from the Python library...")
     }
@@ -217,7 +210,7 @@ extension OpenCLLibrary {
     return libraryPaths
   }()
   
-  // For use in `loadSymbol<T>(name:type)`.
+  // For use in `loadSymbol<T>(name:)`.
   @inline(__always)
   private static func _loadSymbol(
     _ libraryHandle: UnsafeMutableRawPointer?, _ name: StaticString
