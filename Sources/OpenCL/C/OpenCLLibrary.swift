@@ -24,6 +24,7 @@ import WinSDK
 public struct OpenCLLibrary {
   public enum Error: Swift.Error, Equatable, CustomStringConvertible {
     case openclLibraryNotFound
+    case cannotFetchPlatforms
     case platformsNotFound
     
     public var description: String {
@@ -32,6 +33,12 @@ public struct OpenCLLibrary {
         return """
           OpenCL library not found. Set the \(Environment.library.rawValue) \
           environment variable with the path to a Python library.
+          """
+        
+      case .cannotFetchPlatforms:
+        return """
+          Could not load symbol `clGetPlatformIDs` from the OpenCL library,
+          which is needed to search for platforms.
           """
       
       // Windows has an `opencl.dll` that searches for the actual OpenCL
@@ -64,10 +71,10 @@ public struct OpenCLLibrary {
   
   private static var isOpenCLLibraryLoaded = false
   private static var _openclLibraryHandle: UnsafeMutableRawPointer?
-  private static var openclLibraryHandle: UnsafeMutableRawPointer? {
-    try! OpenCLLibrary.loadLibrary()
-    return self._openclLibraryHandle
-  }
+//  private static var openclLibraryHandle: UnsafeMutableRawPointer? {
+//    try! OpenCLLibrary.loadLibrary()
+//    return self._openclLibraryHandle
+//  }
   
   public static func loadLibrary() throws {
     guard !self.isOpenCLLibraryLoaded else {
@@ -83,15 +90,27 @@ public struct OpenCLLibrary {
     // `clGetPlatformIDs(...)` and ensure it returns `CL_SUCCESS`. Then, ensure
     // the number of platforms > 0.
     //
+    // Can't use the generic loadSymbol
+    //
     // func platformsAreAvailable() -> Bool
     self.isOpenCLLibraryLoaded = true
     self._openclLibraryHandle = openclLibraryHandle
   }
   
-//   internal static func loadSymbol<T>(
-//    name:)
-//
-  
+  // Returns `nil` so you can provide a default value.
+  internal static func loadSymbol<T>(
+    name: StaticString, type: T.Type = T.self
+  ) -> T? {
+    // Force-inlined.
+    _log("Loading symbol '\(name.description)' from the Python library...")
+    
+    // Did not force-inline `loadLibrary()` because it's so large.
+    try! OpenCLLibrary.loadLibrary()
+    
+    // Force-inlined.
+    let symbol = self._loadSymbol(self._openclLibraryHandle, name)
+    return unsafeBitCast(symbol, to: T?.self)
+  }
 }
 
 // Paths to OpenCL binaries across multiple platforms:
@@ -157,8 +176,9 @@ extension OpenCLLibrary {
     return libraryPaths
   }()
   
+  // For use in `loadSymbol<T>(name:type)`.
   @inline(__always)
-  private static func loadSymbol(
+  private static func _loadSymbol(
     _ libraryHandle: UnsafeMutableRawPointer?, _ name: StaticString
   ) -> UnsafeMutableRawPointer? {
     #if os(Windows)
@@ -178,6 +198,14 @@ extension OpenCLLibrary {
       return unsafeBitCast(moduleSymbol, to: UnsafeMutableRawPointer?.self)
       #endif
     }
+  }
+  
+  // For use everywhere else.
+  @inline(never)
+  private static func loadSymbol(
+    _ libraryHandle: UnsafeMutableRawPointer?, _ name: StaticString
+  ) -> UnsafeMutableRawPointer? {
+    self._loadSymbol(libraryHandle, name)
   }
   
   private static func isOpenCLLibraryLoaded(
@@ -283,10 +311,19 @@ extension OpenCLLibrary {
 }
 
 extension OpenCLLibrary {
-  private static func log(_ message: String) {
+  // `message` is an autoclosure so that it only materializes when something
+  // should be logged. This improves performance when logging is disabled.
+  @inline(__always)
+  private static func _log(_ message: @autoclosure () -> String) {
     guard Environment.loaderLogging.value != nil else {
       return
     }
-    fputs(message + "\n", stderr)
+    fputs(message() + "\n", stderr)
+  }
+  
+  // For use everywhere besides `loadSymbol<T>(name:type)`.
+  @inline(never)
+  private static func log(_ message: @autoclosure () -> String) {
+    self._log(message())
   }
 }
