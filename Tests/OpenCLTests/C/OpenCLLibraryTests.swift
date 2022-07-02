@@ -3,10 +3,14 @@ import XCTest
 
 // Lets tests fail gracefully when the library can't load. Otherwise, it would
 // crash because of a `try!` statement in "OpenCLLibrary.swift".
-func testPrecondition() -> Bool {
+func testPrecondition(function: String = #function) -> Bool {
   do {
     try OpenCLLibrary.loadLibrary()
   } catch {
+    print("""
+      Warning: Skipping test `\(function)` because the OpenCL library did not \
+      load.
+      """)
     return false
   }
   return true
@@ -32,10 +36,13 @@ final class OpenCLLibraryTests: XCTestCase {
     OpenCLLibrary.unitTestClear()
     try OpenCLLibrary.loadLibrary()
     
-    let environmentLibrary = OpenCLLibrary.unitTestGetEnvironmentLibrary()
     do {
+      let environmentLibrary = OpenCLLibrary.unitTestGetEnvironment(.library)
       OpenCLLibrary.unitTestUsingDefaultLibraryHandle = false
-      defer { OpenCLLibrary.unitTestUsingDefaultLibraryHandle = true }
+      defer {
+        OpenCLLibrary.unitTestSetEnvironment(.library, environmentLibrary)
+        OpenCLLibrary.unitTestUsingDefaultLibraryHandle = true
+      }
       
       // Test universal default library locations.
       #if canImport(Darwin) || os(Windows)
@@ -52,11 +59,35 @@ final class OpenCLLibraryTests: XCTestCase {
       // Test what happens when the library path is invalid.
       OpenCLLibrary.unitTestClear()
       OpenCLLibrary.useLibrary(at: " ")
-      XCTAssertNil(try? OpenCLLibrary.loadLibrary())
+      XCTAssertThrowsError(try OpenCLLibrary.loadLibrary())
     }
-    OpenCLLibrary.unitTestSetEnvironmentLibrary(environmentLibrary)
+    
+    do {
+      let environmentVersion = OpenCLLibrary.unitTestGetEnvironment(.version)
+      defer {
+        OpenCLLibrary.unitTestSetEnvironment(.version, environmentVersion)
+      }
+      
+      // Do version testing on macOS, where the version is always 1.2.
+      #if canImport(Darwin)
+      OpenCLLibrary.unitTestClear()
+      try OpenCLLibrary.loadLibrary()
+      XCTAssertEqual(OpenCLLibrary.version, CLVersion(major: 1, minor: 2))
+      
+      // Specify the OpenCL version before loading.
+      OpenCLLibrary.unitTestClear()
+      OpenCLLibrary.setVersion(1, 2)
+      try OpenCLLibrary.loadLibrary()
+      
+      // Specify an incorrect OpenCL version before loading.
+      OpenCLLibrary.unitTestClear()
+      OpenCLLibrary.setVersion(3, 0)
+      XCTAssertThrowsError(try OpenCLLibrary.loadLibrary())
+      #endif
+    }
     
     // Ensure that cleanup succeeds.
+    OpenCLLibrary.unitTestUsingDefaultLibraryHandle = true
     OpenCLLibrary.unitTestClear()
     try OpenCLLibrary.loadLibrary()
   }

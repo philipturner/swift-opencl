@@ -23,6 +23,7 @@ public struct OpenCLLibrary {
     case openclLibraryNotFound
     case cannotGetPlatforms
     case platformsNotFound
+    case incorrectOpenCLVersion(specified: CLVersion?, actual: CLVersion?)
     
     public var description: String {
       switch self {
@@ -33,7 +34,7 @@ public struct OpenCLLibrary {
           """
       case .cannotGetPlatforms:
         return """
-          Could not load symbol `clGetPlatformIDs` from the OpenCL library,
+          Could not load symbol `clGetPlatformIDs` from the OpenCL library, \
           which is needed to search for platforms.
           """
       
@@ -49,8 +50,16 @@ public struct OpenCLLibrary {
       // also happen on Google Colab when connected to a CPU-only runtime.
       case .platformsNotFound:
         return """
-          The OpenCL library was found, but no OpenCL platforms exist. Ensure
-          that an OpenCL driver is installed and visible to the ICD loader.
+          OpenCL library was found, but no OpenCL platforms exist. Ensure that \
+          an OpenCL driver is installed and visible to the ICD loader.
+          """
+      case .incorrectOpenCLVersion(let specified, let actual):
+        let specifiedString = specified?.versionString ?? "could not parse"
+        let actualString = actual?.versionString ?? "could not detect"
+        return """
+          OpenCL library version (\(actualString)) did not match specified \
+          version (\(specifiedString)). Set the \(Environment.version.rawValue
+          ) environment variable to MAJOR.MINOR or do not set it at all.
           """
       }
     }
@@ -84,24 +93,23 @@ public struct OpenCLLibrary {
   // during the unit tests.
   static var unitTestUsingDefaultLibraryHandle = true
   
-  static func unitTestGetEnvironmentLibrary() -> String? {
-    let key = Environment.library.rawValue
-    guard let cString = getenv(key) else {
+  static func unitTestGetEnvironment(_ key: Environment) -> String? {
+    guard let cString = getenv(key.rawValue) else {
       return nil
     }
     return String(cString: cString)
   }
   
-  static func unitTestSetEnvironmentLibrary(_ path: String?) {
+  static func unitTestSetEnvironment(_ key: Environment, _ path: String?) {
     guard let path = path else {
       #if canImport(Darwin) || canImport(Glibc)
-      unsetenv(Environment.library.rawValue)
+      unsetenv(key.rawValue)
       #elseif os(Windows)
-      Environment.library.set("")
+      key.set("")
       #endif
       return
     }
-    Environment.library.set(path)
+    key.set(path)
   }
   #endif
   
@@ -128,6 +136,16 @@ public struct OpenCLLibrary {
     guard error == CL_SUCCESS,
           numPlatforms > 0 else {
       throw Error.platformsNotFound
+    }
+    
+    if let specifiedVersionString = Environment.version.value {
+      let specifiedVersion = CLVersion(versionString: specifiedVersionString)
+      let actualVersion = detectVersion(at: openclLibraryHandle)!
+      
+      guard specifiedVersion == actualVersion else {
+        throw Error.incorrectOpenCLVersion(
+          specified: specifiedVersion, actual: actualVersion)
+      }
     }
     
     self.isOpenCLLibraryLoaded = true
@@ -256,6 +274,48 @@ extension OpenCLLibrary {
     return self.loadSymbol(openclLibraryHandle, "clGetPlatformIDs") != nil
   }
   
+  private static func detectVersion(
+    at openclLibraryHandle: UnsafeMutableRawPointer?
+  ) -> CLVersion? {
+    func supportsVersion(_ symbol: StaticString) -> Bool {
+      let symbol = self.loadSymbol(openclLibraryHandle, symbol)
+      return symbol != nil
+    }
+    
+    // A symbol introduced in each version.
+    let v1_0: StaticString = "clGetPlatformIDs"
+    let v1_1: StaticString = "clCreateSubBuffer"
+    let v1_2: StaticString = "clCreateImage"
+    
+    let v2_0: StaticString = "clCreatePipe"
+    let v2_1: StaticString = "clSetDefaultDeviceCommandQueue"
+    let v2_2: StaticString = "clSetProgramReleaseCallback"
+    
+    let v3_0: StaticString = "clCreateBufferWithProperties"
+    
+    if supportsVersion(v3_0) {
+      return .init(major: 3, minor: 0)
+    } else if supportsVersion(v2_0) {
+      if supportsVersion(v2_2) {
+        return .init(major: 2, minor: 2)
+      } else if supportsVersion(v2_1) {
+        return .init(major: 2, minor: 1)
+      } else {
+        return .init(major: 2, minor: 0)
+      }
+    } else if supportsVersion(v1_0) {
+      if supportsVersion(v1_2) {
+        return .init(major: 1, minor: 2)
+      } else if supportsVersion(v1_1) {
+        return .init(major: 1, minor: 1)
+      } else {
+        return .init(major: 1, minor: 0)
+      }
+    } else {
+      return nil
+    }
+  }
+  
   private static func loadOpenCLLibrary() -> UnsafeMutableRawPointer? {
     if self.isOpenCLLibraryLoaded() {
       return self.defaultLibraryHandle
@@ -299,6 +359,34 @@ extension OpenCLLibrary {
       Error: \(function) should not be called after any OpenCL library has \
       already been loaded.
       """)
+  }
+  
+  /// Returns `nil` if the library has not loaded or the version could not be detected.
+  public static var version: CLVersion? {
+    if self.isOpenCLLibraryLoaded {
+      return detectVersion(at: _openclLibraryHandle)
+    } else {
+      return nil
+    }
+  }
+  
+  public static func setVersion(
+    _ major: Int, _ minor: Int, _ patch: Int? = nil
+  ) {
+    self.enforceNonLoadedOpenCLLibrary()
+    
+    var castedPatch: UInt32?
+    if let patch = patch {
+      castedPatch = UInt32(patch)
+    }
+    let specifiedVersion = CLVersion(
+      major: UInt32(major), minor: UInt32(minor), patch: castedPatch)
+    OpenCLLibrary.Environment.version.set(specifiedVersion.versionString)
+  }
+  
+  public static func versionEquals(_ specifiedVersion: CLVersion) {
+    self.enforceNonLoadedOpenCLLibrary()
+    OpenCLLibrary.Environment.version.set(specifiedVersion.versionString)
   }
   
   public static func useLibrary(at path: String?) {
@@ -376,10 +464,11 @@ extension CLVersion {
 
 // Added enum cases for only library, version, and loader logging. The
 // environment variable `OPENCL_VERSION` should let you validate the
-// automatically detected library version. Use the version variable for
-// debugging purposes only.
+// automatically detected library version. Only use the version variable for
+// debugging purposes
 extension OpenCLLibrary {
-  private enum Environment: String {
+  // Internal so that unit tests can access it.
+  internal enum Environment: String {
     case library = "OPENCL_LIBRARY"
     case version = "OPENCL_VERSION"
     case loaderLogging = "OPENCL_LOADER_LOGGING"

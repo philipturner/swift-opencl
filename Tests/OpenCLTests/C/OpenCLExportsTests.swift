@@ -9,6 +9,7 @@ import XCTest
 final class OpenCLExportsTests: XCTestCase {
   // Load every symbol defined in the ICD dispatch table.
   func testSymbolLinking() throws {
+    guard testPrecondition() else { return }
     // OpenCL 1.0
     _ = clGetPlatformIDs
     _ = clGetPlatformInfo
