@@ -69,11 +69,12 @@ public struct OpenCLLibrary {
   private static var isLoaderLoggingEnabled = false
   private static var _openclLibraryHandle: UnsafeMutableRawPointer?
   
+  #if DEBUG
   // Provides a mechanism to reload the library from scratch during unit tests.
   // This doesn't reset the lazily loaded symbols in "OpenCLSymbols.swift", so
   // you must explicitly call `loadSymbol<T>(name:type:)`. Use `@testable import
   // OpenCL` to access this.
-  internal static func unitTestClear() {
+  static func unitTestClear() {
     isOpenCLLibraryLoaded = false
     isLoaderLoggingEnabled = false
     _openclLibraryHandle = nil
@@ -81,8 +82,27 @@ public struct OpenCLLibrary {
   
   // Lets you disable the mechanism that searches for a pre-linked library
   // during the unit tests.
-  #if DEBUG
-  internal static var unitTestUsingDefaultLibraryHandle = true
+  static var unitTestUsingDefaultLibraryHandle = true
+  
+  static func unitTestGetEnvironmentLibrary() -> String? {
+    let key = Environment.library.rawValue
+    guard let cString = getenv(key) else {
+      return nil
+    }
+    return String(cString: cString)
+  }
+  
+  static func unitTestSetEnvironmentLibrary(_ path: String?) {
+    guard let path = path else {
+      #if canImport(Darwin) || canImport(Glibc)
+      unsetenv(Environment.library.rawValue)
+      #elseif os(Windows)
+      Environment.library.set("")
+      #endif
+      return
+    }
+    Environment.library.set(path)
+  }
   #endif
   
   public static func loadLibrary() throws {
