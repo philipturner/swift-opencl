@@ -3,7 +3,7 @@ import XCTest
 
 // Tests the dynamic symbol loader.
 final class OpenCLLibraryTests: XCTestCase {
-  func testDynamicLoading() throws {
+  func testLibraryLoading() throws {
     OpenCLLibrary.unitTestClear()
     try OpenCLLibrary.loadLibrary()
     
