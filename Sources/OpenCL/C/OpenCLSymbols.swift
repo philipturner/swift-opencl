@@ -380,7 +380,7 @@ load(name: "clGetGLContextInfoKHR") ?? { _, _, _, _, _ in
 }
 
 // cl_khr_d3d10_sharing
-// Port these functions once SwiftOpenCL runs on Windows.
+// Not part of SwiftOpenCL for now.
 
 // OpenCL 1.1
 
@@ -540,10 +540,10 @@ load(name: "clCreateFromGLTexture") ?? { _, _, _, _, _, _ in
 }
 
 // cl_khr_d3d11_sharing
-// Port these functions once SwiftOpenCL runs on Windows.
+// Not part of SwiftOpenCL for now.
 
 // cl_khr_dx9_media_sharing
-// Port these functions once SwiftOpenCL runs on Windows.
+// Not part of SwiftOpenCL for now.
 
 // cl_khr_egl_image
 

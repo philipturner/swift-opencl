@@ -20,6 +20,7 @@ func testPrecondition(function: String = #function) -> Bool {
 final class OpenCLLibraryTests: XCTestCase {
   func testGetPlatforms() throws {
     guard testPrecondition() else { return }
+    
     var numPlatforms: UInt32 = 0
     var error = clGetPlatformIDs(0, nil, &numPlatforms)
     XCTAssertEqual(error, CL_SUCCESS)
