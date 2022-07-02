@@ -21,12 +21,12 @@ import COpenCL
 // symbol still can't load, it is replaced with a dummy symbol that reports an
 // error to `CLError` and returns a custom error code.
 
+// TODO: Port Apple's extensions from their Objective-C framework.
+
 @inline(__always)
 fileprivate func load<T>(name: StaticString) -> T? {
   OpenCLLibrary.loadSymbol(name: name)
 }
-
-// TODO: Port Apple's extensions from their Objective-C framework.
 
 // OpenCL 1.0
 
@@ -382,8 +382,7 @@ load(name: "clGetGLContextInfoKHR") ?? { _, _, _, _, _ in
 }
 
 // cl_khr_d3d10_sharing
-
-// TODO: Port these functions once I can run on Windows.
+// Port these functions once SwiftOpenCL runs on Windows.
 
 // OpenCL 1.1
 
@@ -539,12 +538,10 @@ load(name: "clCreateFromGLTexture") ?? { _, _, _, _, _, _ in
 }
 
 // cl_khr_d3d11_sharing
-
-// TODO: Port these functions once I can run on Windows.
+// Port these functions once SwiftOpenCL runs on Windows.
 
 // cl_khr_dx9_media_sharing
-
-// TODO: Port these functions once I can run on Windows.
+// Port these functions once SwiftOpenCL runs on Windows.
 
 // cl_khr_egl_image
 
@@ -640,10 +637,14 @@ load(name: "clSetKernelExecInfo") ?? { _, _, _, _ in
 
 // cl_khr_sub_groups
 
-public let clGetKernelSubGroupInfoKHR: cl_api_clGetKernelSubGroupInfoKHR =
+// Only use in unit tests.
+internal let _clGetKernelSubGroupInfoKHR: cl_api_clGetKernelSubGroupInfoKHR =
 load(name: "clGetKernelSubGroupInfoKHR") ?? { _, _, _, _, _, _, _, _ in
   fatalError()
 }
+
+@available(*, deprecated, message: "Use 'clGetKernelSubGroupInfo' instead.")
+public let clGetKernelSubGroupInfoKHR = _clGetKernelSubGroupInfoKHR
 
 // OpenCL 2.1
 
@@ -673,9 +674,7 @@ load(name: "clGetHostTimer") ?? { _, _ in
 }
 
 public let clGetKernelSubGroupInfo: cl_api_clGetKernelSubGroupInfo =
-load(name: "clGetKernelSubGroupInfo") ?? { _, _, _, _, _, _, _, _ in
-  fatalError()
-}
+load(name: "clGetKernelSubGroupInfo") ?? _clGetKernelSubGroupInfoKHR
 
 public let clSetDefaultDeviceCommandQueue:
   cl_api_clSetDefaultDeviceCommandQueue =

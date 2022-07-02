@@ -1,5 +1,5 @@
 import XCTest
-import OpenCL
+@testable import OpenCL
 
 // Test that the C typedefs are exported from the header, but the C functions
 // are exported from "OpenCLSymbols.swift". Each C function declaration in the
@@ -85,10 +85,10 @@ final class OpenCLExportsTests: XCTestCase {
     _ = clEnqueueAcquireGLObjects
     _ = clEnqueueReleaseGLObjects
     _ = clGetGLContextInfoKHR
-
+    
     // cl_khr_d3d10_sharing
     // n/a
-
+    
     // OpenCL 1.1
     _ = clSetEventCallback
     _ = clCreateSubBuffer
@@ -98,15 +98,15 @@ final class OpenCLExportsTests: XCTestCase {
     _ = clEnqueueReadBufferRect
     _ = clEnqueueWriteBufferRect
     _ = clEnqueueCopyBufferRect
-
+    
     // cl_ext_device_fission
     _ = clCreateSubDevicesEXT
     _ = clRetainDeviceEXT
     _ = clReleaseDeviceEXT
-
+    
     // cl_khr_gl_event
     _ = clCreateEventFromGLsyncKHR
-
+    
     // OpenCL 1.2
     _ = clCreateSubDevices
     _ = clRetainDevice
@@ -124,21 +124,21 @@ final class OpenCLExportsTests: XCTestCase {
     _ = clEnqueueBarrierWithWaitList
     _ = clGetExtensionFunctionAddressForPlatform
     _ = clCreateFromGLTexture
-
+    
     // cl_khr_d3d11_sharing
     // n/a
-
+    
     // cl_khr_dx9_media_sharing
     // n/a
-
+    
     // cl_khr_egl_image
     _ = clCreateFromEGLImageKHR
     _ = clEnqueueAcquireEGLObjectsKHR
     _ = clEnqueueReleaseEGLObjectsKHR
-
+    
     // cl_khr_egl_event
     _ = clCreateEventFromEGLSyncKHR
-
+    
     // OpenCL 2.0
     _ = clCreateCommandQueueWithProperties
     _ = clCreatePipe
@@ -153,10 +153,10 @@ final class OpenCLExportsTests: XCTestCase {
     _ = clCreateSamplerWithProperties
     _ = clSetKernelArgSVMPointer
     _ = clSetKernelExecInfo
-
+    
     // cl_khr_sub_groups
-    _ = clGetKernelSubGroupInfoKHR
-
+    _ = _clGetKernelSubGroupInfoKHR
+    
     // OpenCL 2.1
     _ = clCloneKernel
     _ = clCreateProgramWithIL
@@ -165,15 +165,14 @@ final class OpenCLExportsTests: XCTestCase {
     _ = clGetHostTimer
     _ = clGetKernelSubGroupInfo
     _ = clSetDefaultDeviceCommandQueue
-
+    
     // OpenCL 2.2
     _ = clSetProgramReleaseCallback
     _ = clSetProgramSpecializationConstant
-
+    
     // OpenCL 3.0
     _ = clCreateBufferWithProperties
     _ = clCreateImageWithProperties
     _ = clSetContextDestructorCallback
-
   }
 }
