@@ -8,6 +8,10 @@ A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/Kh
 >
 > SwiftOpenCL could evolve into a wrapper for Metal, letting cross-platform GPU benchmarks run on iOS. This would enable OpenCL 3.0 functionality on Apple devices, which are eternally stuck on v1.2. The wrapper could also allow half-precision in shaders, which Apple withholds from OpenCL to reduce performance. SPIR-V should translate OpenCL C into MSL, but Apple's [Metal developer tools for Windows](developer.apple.com/metal) will help if that does not work.
 
+## Usage
+
+Read through the tutorial notebook listed on [Swift-Colab](https://github.com/philipturner/swift-colab/blob/main/README.md#swift-tutorials). For quick reference, the notebook is linked _here_ (tutorial not yet created).
+
 ## Naming Conventions
 
 SwiftOpenCL renames the following words in OpenCL macros:

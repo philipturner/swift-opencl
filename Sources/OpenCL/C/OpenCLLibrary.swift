@@ -15,15 +15,38 @@ import CRT
 import WinSDK
 #endif
 
-// macOS: /System/Library/Frameworks/OpenCL.framework/Versions/A/OpenCL
-// Colab: /usr/lib/x86_64-linux-gnu/libOpenCL.so
-// Windows: C:\Windows\System32\opencl.dll
+// This file is not properly documented. For a full explanation of what each
+// code section does, look at the counterpart in PythonKit.
+
+// Paths to OpenCL binaries across multiple platforms:
+// macOS - /System/Library/Frameworks/OpenCL.framework/Versions/A/OpenCL
+// Colab - /usr/lib/x86_64-linux-gnu/libOpenCL.so
+// Windows - C:\Windows\System32\opencl.dll
 
 // For Ubuntu: $(uname -m)-linux-gnu instead of $(gcc -dumpmachine). It takes
 // ~1 second to load the GCC binary, while $(uname -m) returns instantaneously.
-// Also, GCC may return an incorrect architecture, such as i686 when the machine
-// is i386:
+// `uname` is even callable C, eliminating the need to spawn a child process.
+// Furthermore, GCC may return an incorrect architecture, such as i686 when the
+// machine is i386:
 // https://askubuntu.com/questions/872457/how-to-determine-the-host-multi-arch-default-folder
+
+#if canImport(Darwin) || canImport(Glibc)
+// Produces the same output as "uname -m" in the command line.
+fileprivate func uname_m() -> String {
+  var unameData = utsname()
+  let error = uname(&unameData)
+  guard error == 0 else {
+    return ""
+  }
+  
+  // Bypass the fact that Swift imports the C arrays as 256-element tuples.
+  func extractString<T>(of member: UnsafePointer<T>) -> String {
+    let rebound = UnsafeRawPointer(member).assumingMemoryBound(to: Int8.self)
+    return String(cString: rebound)
+  }
+  return extractString(of: &unameData.machine)
+}
+#endif
 
 // Based on `PythonLibrary` from PythonKit. This lets the user query whether the
 // OpenCL library can be loaded at runtime, and specify the path for loading it.
