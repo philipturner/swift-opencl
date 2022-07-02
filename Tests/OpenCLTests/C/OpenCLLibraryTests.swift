@@ -3,9 +3,6 @@ import XCTest
 
 // Lets tests fail gracefully when the library can't load. Otherwise, it would
 // crash because of a `try!` statement in "OpenCLLibrary.swift".
-//
-// Usage (violates the convention of one statement per line):
-// `guard testPrecondition() else { return }`
 func testPrecondition() -> Bool {
   do {
     try OpenCLLibrary.loadLibrary()

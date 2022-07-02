@@ -15,9 +15,6 @@ import COpenCL
 //
 // If a symbol can't load, it is replaced with a dummy symbol that reports an
 // error to `CLError` and returns a custom error code.
-//
-// Violating the code style convention of indenting the second line of a
-// statement. If the rule was followed, this would be too difficult to read.
 
 public let clGetPlatformIDs: cl_api_clGetPlatformIDs =
 OpenCLLibrary.loadSymbol(name: "clGetPlatformIDs") ?? { _, _, _ in
