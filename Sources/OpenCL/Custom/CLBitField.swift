@@ -94,11 +94,8 @@ public struct CLCommandQueueProperties: CLBitField {
   public static let outOfOrderExecutionModeEnable = Self(
     CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
   public static let profilingEnable = Self(CL_QUEUE_PROFILING_ENABLE)
-  
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let onDevice = Self(1 << 2)
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let onDeviceDefault = Self(1 << 3)
+  public static let onDevice = Self(CL_QUEUE_ON_DEVICE)
+  public static let onDeviceDefault = Self(CL_QUEUE_ON_DEVICE_DEFAULT)
 }
 
 public struct CLDeviceAffinityDomain: CLBitField {
@@ -116,17 +113,16 @@ public struct CLDeviceAffinityDomain: CLBitField {
     CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE)
 }
 
-@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public struct CLDeviceSVMCapabilities: CLBitField {
   public let rawValue: cl_device_svm_capabilities
   public init(rawValue: cl_device_svm_capabilities) {
     self.rawValue = rawValue
   }
   
-  public static let coarseGrainBuffer = Self(1 << 0)
-  public static let fineGrainBuffer = Self(1 << 1)
-  public static let fineGrainSystem = Self(1 << 2)
-  public static let atomics = Self(1 << 3)
+  public static let coarseGrainBuffer = Self(CL_DEVICE_SVM_COARSE_GRAIN_BUFFER)
+  public static let fineGrainBuffer = Self(CL_DEVICE_SVM_FINE_GRAIN_BUFFER)
+  public static let fineGrainSystem = Self(CL_DEVICE_SVM_FINE_GRAIN_SYSTEM)
+  public static let atomics = Self(CL_DEVICE_SVM_ATOMICS)
 }
 
 public struct CLMemoryFlags: CLBitField {
@@ -144,14 +140,11 @@ public struct CLMemoryFlags: CLBitField {
   public static let hostWriteOnly = Self(CL_MEM_HOST_WRITE_ONLY)
   public static let hostReadOnly = Self(CL_MEM_HOST_READ_ONLY)
   public static let hostNoAccess = Self(CL_MEM_HOST_NO_ACCESS)
-  
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-  public static let kernelReadAndWrite = Self(1 << 12)
+  public static let kernelReadAndWrite = Self(CL_MEM_KERNEL_READ_AND_WRITE)
 }
 
 // Not all `cl_mem_flags` from "cl.h" are SVM memory flags. Only flags described
 // in the OpenCL 3.0 specification under `clSVMAlloc` are.
-@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public struct CLSVMMemoryFlags: CLBitField {
   public let rawValue: cl_svm_mem_flags
   public init(rawValue: cl_svm_mem_flags) {
@@ -161,8 +154,8 @@ public struct CLSVMMemoryFlags: CLBitField {
   public static let readWrite = Self(CL_MEM_READ_WRITE)
   public static let writeOnly = Self(CL_MEM_WRITE_ONLY)
   public static let readOnly = Self(CL_MEM_READ_ONLY)
-  public static let fineGrainBuffer = Self(1 << 10)
-  public static let atomics = Self(1 << 11)
+  public static let fineGrainBuffer = Self(CL_MEM_SVM_FINE_GRAIN_BUFFER)
+  public static let atomics = Self(CL_MEM_SVM_ATOMICS)
 }
 
 public struct CLMemoryMigrationFlags: CLBitField {
@@ -208,24 +201,10 @@ public enum CLChannelOrder: cl_channel_order, CLMacro {
   // `metal3` no matter what we do. This favoring of Apple's graphics libraries
   // would sabotage our already finite efforts to make Swift something taken
   // seriously on Windows.
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case srgb = 0x10BF
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case srgbx = 0x10C0
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case srgba = 0x10C1
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case sbgra = 0x10C2
-  
-  // Part of OpenCL 2.0, but also part of an extension Apple made to earlier
-  // versions. Not including it yet because I haven't decided on the naming
-  // semantics, if it (or any Apple extension) should be included at all.
-//  #if canImport(Darwin)
-//  case abgr = CL_ABGR_APPLE // replace with macro's raw value
-//  #else
-//  case abgr = CL_ABGR // replace with macro's raw value
-//  #endif
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case abgr = 0x10C3
 }
 
@@ -246,8 +225,6 @@ public enum CLChannelType: cl_channel_type, CLMacro {
   case halfFloat = 0x10DD
   case float = 0x10DE
   case unormInt24 = 0x10DF
-  
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
   case unormInt1010102 = 0x10E0
 }
 
@@ -259,8 +236,6 @@ public enum CLMemoryObjectType: cl_mem_object_type, CLMacro {
   case image1D = 0x10F4
   case image1DArray = 0x10F5
   case image1DBuffer = 0x10F6
-  
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case pipe = 0x10F7
   
   @inlinable
@@ -343,9 +318,7 @@ public struct CLKernelArgumentTypeQualifier: CLBitField {
   public static let const = Self(CL_KERNEL_ARG_TYPE_CONST)
   public static let restrict = Self(CL_KERNEL_ARG_TYPE_RESTRICT)
   public static let volatile = Self(CL_KERNEL_ARG_TYPE_VOLATILE)
-  
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
-  public static let pipe = Self(1 << 3)
+  public static let pipe = Self(CL_KERNEL_ARG_TYPE_PIPE)
 }
 
 public enum CLCommandType: cl_command_type, CLMacro {
@@ -382,18 +355,11 @@ public enum CLCommandType: cl_command_type, CLMacro {
   // `memcpy` to `memoryCopy`. "memcpy" is a widely known C function, along with
   // "free". I think the SVM is trying to emulate basic C memory manipulation
   // here.
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case svmFree = 0x1209
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case svmMemcpy = 0x120A
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case svmMemfill = 0x120B
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case svmMap = 0x120C
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case svmUnmap = 0x120D
-  
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
   case svmMigrateMemory = 0x120E
 }
 
@@ -411,7 +377,6 @@ public enum CLBufferCreateType: cl_buffer_create_type, CLMacro {
   case region = 0x1220
 }
 
-@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 public struct CLDeviceAtomicCapabilities: CLBitField {
   public let rawValue: cl_device_atomic_capabilities
   public init(rawValue: cl_device_atomic_capabilities) {
@@ -420,25 +385,26 @@ public struct CLDeviceAtomicCapabilities: CLBitField {
   
   // Renaming atomic memory orderings to match their description in the OpenCL
   // 3.0 specification.
-  public static let relaxed = Self(1 << 0)
-  public static let acquireRelease = Self(1 << 1)
-  public static let sequentiallyConsistent = Self(1 << 2)
-  public static let scopeWorkItem = Self(1 << 3)
-  public static let scopeWorkGroup = Self(1 << 4)
-  public static let device = Self(1 << 5)
-  public static let allDevices = Self(1 << 6)
+  public static let relaxed = Self(CL_DEVICE_ATOMIC_ORDER_RELAXED)
+  public static let acquireRelease = Self(CL_DEVICE_ATOMIC_ORDER_ACQ_REL)
+  public static let sequentiallyConsistent = Self(
+    CL_DEVICE_ATOMIC_ORDER_SEQ_CST)
+  public static let scopeWorkItem = Self(CL_DEVICE_ATOMIC_SCOPE_WORK_ITEM)
+  public static let scopeWorkGroup = Self(CL_DEVICE_ATOMIC_SCOPE_WORK_GROUP)
+  public static let device = Self(CL_DEVICE_ATOMIC_SCOPE_DEVICE)
+  public static let allDevices = Self(CL_DEVICE_ATOMIC_SCOPE_ALL_DEVICES)
 }
 
 // Having the word "Device" twice appears wierd, but it's not a typo. It means
 // "device-side enqueue capabilities of a device". There are several other
 // "capabilities of a device", such as the atomic capabilities defined above.
-@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 public struct CLDeviceDeviceEnqueueCapabilities: CLBitField {
   public let rawValue: cl_device_device_enqueue_capabilities
   public init(rawValue: cl_device_device_enqueue_capabilities) {
     self.rawValue = rawValue
   }
   
-  public static let supported = Self(1 << 0)
-  public static let replaceableDefault = Self(1 << 1)
+  public static let supported = Self(CL_DEVICE_QUEUE_SUPPORTED)
+  public static let replaceableDefault = Self(
+    CL_DEVICE_QUEUE_REPLACEABLE_DEFAULT)
 }

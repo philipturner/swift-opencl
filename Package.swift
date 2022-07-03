@@ -35,9 +35,9 @@ let package = Package(
       dependencies: ["COpenCL"],
       exclude: [
 //        "C",
-        "Core",
-        "Custom",
-        "Utilities",
+//        "Core",
+//        "Custom",
+//        "Utilities",
         
         // Scripts
         "C/Scripts"
