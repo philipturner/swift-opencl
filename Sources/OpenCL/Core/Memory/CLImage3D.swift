@@ -39,36 +39,25 @@ public struct CLImage3D: CLImageProtocol {
     hostPointer: UnsafeMutableRawPointer? = nil
   ) {
     var error: Int32 = CL_SUCCESS
-    var useCreateImage = false
-    if let version = CLVersion(clContext: context.clContext) {
-      useCreateImage = version >= .init(major: 1, minor: 2)
-    }
+    var descriptor = CLImageDescriptor(type: .image3D)
+    descriptor.width = width
+    descriptor.height = height
+    descriptor.depth = depth
+    descriptor.rowPitch = rowPitch
+    descriptor.slicePitch = slicePitch
     
-    var object_: cl_mem?
-    if useCreateImage {
-      var descriptor = CLImageDescriptor(type: .image3D)
-      descriptor.width = width
-      descriptor.height = height
-      descriptor.depth = depth
-      descriptor.rowPitch = rowPitch
-      descriptor.slicePitch = slicePitch
-      
+    var formatCopy = unsafeBitCast(format, to: cl_image_format.self)
+    var descriptorCopy = unsafeBitCast(descriptor, to: cl_image_desc.self)
+    var object_ = clCreateImage(
+      context.clContext, flags.rawValue, &formatCopy, &descriptorCopy,
+      hostPointer, &error)
+    
+    if error == CLErrorCode.symbolNotFound.rawValue {
       var formatCopy = unsafeBitCast(format, to: cl_image_format.self)
-      var descriptorCopy = unsafeBitCast(descriptor, to: cl_image_desc.self)
-      object_ = clCreateImage(
-        context.clContext, flags.rawValue, &formatCopy, &descriptorCopy,
-        hostPointer, &error)
-    } else {
-      var formatCopy = unsafeBitCast(format, to: cl_image_format.self)
-      // Not able to import this in Swift because it was deprecated so long ago.
-      // This should be possible once I dynamically load OpenCL symbols.
-      #if !canImport(Darwin)
       object_ = clCreateImage3D(
         context.clContext, flags.rawValue, &formatCopy, width, height, depth,
         rowPitch, slicePitch, hostPointer, &error)
-      #endif
     }
-    
     guard CLError.setCode(error),
           let object_ = object_,
           let memory = CLMemory(object_) else {
