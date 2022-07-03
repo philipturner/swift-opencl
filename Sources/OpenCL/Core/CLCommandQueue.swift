@@ -48,15 +48,12 @@ public struct CLCommandQueue: CLReferenceCountable {
   ) {
     var error: Int32 = CL_SUCCESS
     var useWithProperties = false
-    #if !canImport(Darwin)
     if let version = CLVersion(clContext: context.clContext) {
       useWithProperties = version.major >= 2
     }
-    #endif
     
     var object_: cl_command_queue?
     if useWithProperties {
-      #if !canImport(Darwin)
       CLQueueProperty.withUnsafeTemporaryAllocation(properties: [
         .properties: cl_queue_properties(properties.rawValue)
       ]) { queueProperties in
@@ -73,7 +70,6 @@ public struct CLCommandQueue: CLReferenceCountable {
       guard CLError.setCode(error, message) else {
         return nil
       }
-      #endif
     } else {
       object_ = clCreateCommandQueue(
         context.clContext, device.clDeviceID, properties.rawValue, &error)
@@ -122,23 +118,14 @@ extension CLCommandQueue {
   
   // OpenCL 2.0
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   public var size: UInt32? {
-    let name: Int32 = 0x1094
-    #if !canImport(Darwin)
-    assert(CL_QUEUE_SIZE == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_QUEUE_SIZE, getInfo)
   }
   
   // OpenCL 2.1
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
   public var deviceDefault: CLDeviceCommandQueue? {
-    let name: Int32 = 0x1095
-    #if !canImport(Darwin)
-    assert(CL_QUEUE_DEVICE_DEFAULT == name)
-    #endif
+    let name = CL_QUEUE_DEVICE_DEFAULT
     if let queue: CLCommandQueue = getInfo_CLReferenceCountable(name, getInfo) {
       return CLDeviceCommandQueue(_unsafeCommandQueue: queue)
     } else {
@@ -148,12 +135,7 @@ extension CLCommandQueue {
   
   // OpenCL 3.0
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
   public var propertiesArray: [CLQueueProperty]? {
-    let name: Int32 = 0x1098
-    #if !canImport(Darwin)
-    assert(CL_QUEUE_PROPERTIES_ARRAY == name)
-    #endif
-    return getInfo_ArrayOfCLProperty(name, getInfo)
+    getInfo_ArrayOfCLProperty(CL_QUEUE_PROPERTIES_ARRAY, getInfo)
   }
 }

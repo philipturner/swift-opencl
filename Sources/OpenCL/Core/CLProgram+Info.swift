@@ -92,33 +92,18 @@ extension CLProgram {
   
   // OpenCL 2.1
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
   public var il: Data? {
-    let name: Int32 = 0x1169
-    #if !canImport(Darwin)
-    assert(CL_PROGRAM_IL == name)
-    #endif
-    return getInfo_Data(name, getInfo)
+    getInfo_Data(CL_PROGRAM_IL, getInfo)
   }
   
   // OpenCL 2.2
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.2.")
   public var scopeGlobalConstructorsPresent: Bool? {
-    let name: Int32 = 0x116A
-    #if !canImport(Darwin)
-    assert(CL_PROGRAM_SCOPE_GLOBAL_CTORS_PRESENT == name)
-    #endif
-    return getInfo_Bool(name, getInfo)
+    getInfo_Bool(CL_PROGRAM_SCOPE_GLOBAL_CTORS_PRESENT, getInfo)
   }
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.2.")
   public var scopeGlobalDestructorsPresent: Bool? {
-    let name: Int32 = 0x116B
-    #if !canImport(Darwin)
-    assert(CL_PROGRAM_SCOPE_GLOBAL_DTORS_PRESENT == name)
-    #endif
-    return getInfo_Bool(name, getInfo)
+    getInfo_Bool(CL_PROGRAM_SCOPE_GLOBAL_DTORS_PRESENT, getInfo)
   }
 }
 
@@ -162,12 +147,8 @@ extension CLProgram {
   
   // OpenCL 2.0
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   public func globalVariableTotalSize(device: CLDevice) -> Int? {
-    let name: Int32 = 0x1185
-    #if !canImport(Darwin)
-    assert(CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE == name)
-    #endif
+    let name = CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE
     return getInfo_Int(name, getBuildInfo(device: device))
   }
 }

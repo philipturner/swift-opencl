@@ -7,7 +7,6 @@
 
 import COpenCL
 
-@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public struct CLDeviceCommandQueue {
   public let commandQueue: CLCommandQueue
   
@@ -28,11 +27,9 @@ public struct CLDeviceCommandQueue {
     context: CLContext,
     device: CLDevice
   ) throws {
-    #if !canImport(Darwin)
     let error = clSetDefaultDeviceCommandQueue(
       context.clContext, device.clDeviceID, queue.commandQueue.clCommandQueue)
     try CLError.throwCode(error, "__SET_DEFAULT_DEVICE_COMMAND_QUEUE_ERR")
-    #endif
   }
   
   public init?(
@@ -48,7 +45,6 @@ public struct CLDeviceCommandQueue {
     
     var object_: cl_command_queue?
     if let queueSize = queueSize {
-      #if !canImport(Darwin)
       CLQueueProperty.withUnsafeTemporaryAllocation(properties: [
         .properties: cl_queue_properties(mergedProperties.rawValue),
         .size: cl_queue_properties(queueSize)
@@ -57,9 +53,7 @@ public struct CLDeviceCommandQueue {
           context.clContext, device.clDeviceID, queueProperties.baseAddress,
           &error)
       }
-      #endif
     } else {
-      #if !canImport(Darwin)
       CLQueueProperty.withUnsafeTemporaryAllocation(properties: [
         .properties: cl_queue_properties(mergedProperties.rawValue)
       ]) { queueProperties in
@@ -67,7 +61,6 @@ public struct CLDeviceCommandQueue {
           context.clContext, device.clDeviceID, queueProperties.baseAddress,
           &error)
       }
-      #endif
     }
     
     let message = "__CREATE_COMMAND_QUEUE_WITH_PROPERTIES_ERR"

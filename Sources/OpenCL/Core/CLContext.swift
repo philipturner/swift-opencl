@@ -206,16 +206,13 @@ public struct CLContext: CLReferenceCountable {
   // add `clSetContextDestructorCallback` to the bindings.
   //
   // Look at `CLEvent.setCallback` for why `notify` has no argument label.
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
   public mutating func setDestructorCallback(
     _ notify: @escaping (_ context: CLContext) -> Void
   ) throws {
     let callback = CLContextDestructorCallback(notify)
-    #if !canImport(Darwin)
     let error = clSetContextDestructorCallback(
       wrapper.object, callback.callback, callback.passRetained())
     try CLError.throwCode(error)
-    #endif
   }
 }
 

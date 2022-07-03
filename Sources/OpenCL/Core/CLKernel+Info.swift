@@ -121,7 +121,6 @@ extension CLKernel {
   }
 }
 
-@available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
 extension CLKernel {
   private func getSubGroupInfo(
     device: CLDevice,
@@ -131,13 +130,9 @@ extension CLKernel {
       // `withUnsafeBytes` uses a raw pointer instead of a pointer to `Int`,
       // meaning `bufferPointer.count` equals the memory block's size in bytes.
       return range.withUnsafeBytes { bufferPointer -> Int32 in
-        #if !canImport(Darwin)
         clGetKernelSubGroupInfo(
           wrapper.object, device.clDeviceID, name, bufferPointer.count,
           bufferPointer.baseAddress, valueSize, value, returnValue)
-        #else
-        fatalError("macOS does not support OpenCL 2.1.")
-        #endif
       }
     }
   }
@@ -145,48 +140,28 @@ extension CLKernel {
   // OpenCL 2.1
   
   public func maxSubGroupSize(device: CLDevice, range: CLNDRange) -> Int? {
-    let name: Int32 = 0x2033
-    #if !canImport(Darwin)
-    assert(CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE == name)
-    #endif
     let getInfo = getSubGroupInfo(device: device, range: range)
-    return getInfo_Int(name, getInfo)
+    return getInfo_Int(CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE, getInfo)
   }
   
   public func subGroupCount(device: CLDevice, range: CLNDRange) -> Int? {
-    let name: Int32 = 0x2034
-    #if !canImport(Darwin)
-    assert(CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE == name)
-    #endif
     let getInfo = getSubGroupInfo(device: device, range: range)
-    return getInfo_Int(name, getInfo)
+    return getInfo_Int(CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE, getInfo)
   }
   
   public func localSize(device: CLDevice, subGroupCount: Int) -> CLSize? {
-    let name: Int32 = 0x11B8
-    #if !canImport(Darwin)
-    assert(CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT == name)
-    #endif
     let range = CLNDRange(width: subGroupCount)
     let getInfo = getSubGroupInfo(device: device, range: range)
-    return getInfo_CLSize(name, getInfo)
+    return getInfo_CLSize(CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT, getInfo)
   }
   
   public func maxNumSubGroups(device: CLDevice) -> Int? {
-    let name: Int32 = 0x11B9
-    #if !canImport(Darwin)
-    assert(CL_KERNEL_MAX_NUM_SUB_GROUPS == name)
-    #endif
     let getInfo = getSubGroupInfo(device: device, range: .zero)
-    return getInfo_Int(name, getInfo)
+    return getInfo_Int(CL_KERNEL_MAX_NUM_SUB_GROUPS, getInfo)
   }
   
   public func compileNumSubGroups(device: CLDevice) -> Int? {
-    let name: Int32 = 0x11BA
-    #if !canImport(Darwin)
-    assert(CL_KERNEL_COMPILE_NUM_SUB_GROUPS == name)
-    #endif
     let getInfo = getSubGroupInfo(device: device, range: .zero)
-    return getInfo_Int(name, getInfo)
+    return getInfo_Int(CL_KERNEL_COMPILE_NUM_SUB_GROUPS, getInfo)
   }
 }

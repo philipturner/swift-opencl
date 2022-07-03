@@ -48,20 +48,16 @@ public struct CLKernel: CLReferenceCountable {
   public mutating func setEnableFineGrainedSystemSVM(
     _ svmEnabled: Bool
   ) throws {
-    let svmEnabled_: cl_bool = svmEnabled ? 1 : 0
-    #if !canImport(Darwin)
+    var svmEnabled_: cl_bool = svmEnabled ? 1 : 0
     let error = clSetKernelExecInfo(
       wrapper.object, UInt32(CL_KERNEL_EXEC_INFO_SVM_FINE_GRAIN_SYSTEM),
       MemoryLayout.stride(ofValue: svmEnabled_), &svmEnabled_)
     try CLError.throwCode(error)
-    #endif
   }
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
   public func clone() -> CLKernel? {
     var error: Int32 = CL_SUCCESS
     var clKernel: cl_kernel?
-    #if !canImport(Darwin)
     clKernel = clCloneKernel(wrapper.object, &error)
     guard CLError.setCode(error, "__CLONE_KERNEL_ERR"),
           let clKernel = clKernel else {
@@ -74,9 +70,5 @@ public struct CLKernel: CLReferenceCountable {
     // is not. Doing so would introduce an extra 1-cycle overhead, and the value
     // is cast back to `Optional<CLKernel>` anyway.
     return CLKernel(clKernel)
-    #else
-    // Allow this to compile on macOS.
-    return nil
-    #endif
   }
 }

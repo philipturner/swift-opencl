@@ -137,9 +137,7 @@ public struct CLProgram: CLReferenceCountable {
     il.withUnsafeBytes { bufferPointer in
       let il = bufferPointer.baseAddress.unsafelyUnwrapped
       let count = bufferPointer.count
-      #if !canImport(Darwin)
       object_ = clCreateProgramWithIL(context.clContext, il, count, &error)
-      #endif
     }
     guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_IL_ERR"),
           let object_ = object_ else {
@@ -383,7 +381,6 @@ extension CLProgram {
     }
   }
   
-  #if !canImport(Darwin)
   public mutating func setSpecializationConstant(
     _ value: Bool, index: UInt32
   ) throws {
@@ -398,7 +395,7 @@ extension CLProgram {
   ) throws {
     var valueCopy = value
     let error = clSetProgramSpecializationConstant(
-      wrapper.object, index, MemoryLayout<T>.stride, valueCopy)
+      wrapper.object, index, MemoryLayout<T>.stride, &valueCopy)
     try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
   
@@ -409,7 +406,6 @@ extension CLProgram {
       wrapper.object, index, size, value)
     try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
   }
-  #endif
   
   public static func link(
     _ input1: CLProgram,

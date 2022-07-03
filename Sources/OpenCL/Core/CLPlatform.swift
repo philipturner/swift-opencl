@@ -181,23 +181,14 @@ extension CLPlatform {
   
   // OpenCL 2.1
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
   public var hostTimerResolution: UInt64? {
-    let name: Int32 = 0x0905
-    #if !canImport(Darwin)
-    assert(CL_PLATFORM_HOST_TIMER_RESOLUTION == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_PLATFORM_HOST_TIMER_RESOLUTION, getInfo)
   }
   
   // OpenCL 3.0
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
   public var numericVersion: CLVersion? {
-    let name: Int32 = 0x0906
-    #if !canImport(Darwin)
-    assert(CL_PLATFORM_NUMERIC_VERSION == name)
-    #endif
+    let name = CL_PLATFORM_NUMERIC_VERSION
     if let rawVersion: cl_version = getInfo_Int(name, getInfo) {
       return CLVersion(version: rawVersion)
     } else {
@@ -205,13 +196,8 @@ extension CLPlatform {
     }
   }
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
   public var extensionsWithVersion: [CLNameVersion]? {
-    let name: Int32 = 0x0907
-    #if !canImport(Darwin)
-    assert(CL_PLATFORM_EXTENSIONS_WITH_VERSION == name)
-    #endif
-    return getInfo_ArrayOfCLNameVersion(name, getInfo)
+    getInfo_ArrayOfCLNameVersion(CL_PLATFORM_EXTENSIONS_WITH_VERSION, getInfo)
   }
 }
 
