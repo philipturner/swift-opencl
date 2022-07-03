@@ -29,6 +29,7 @@ public struct CLImage2D: CLImageProtocol {
   
   public init?(
     context: CLContext,
+    properties: [CLMemoryProperty]? = nil,
     flags: CLMemoryFlags,
     format: CLImageFormat,
     width: Int,
@@ -41,12 +42,9 @@ public struct CLImage2D: CLImageProtocol {
     descriptor.width = width
     descriptor.height = height
     descriptor.rowPitch = rowPitch
-    
-    var formatCopy = unsafeBitCast(format, to: cl_image_format.self)
-    var descriptorCopy = unsafeBitCast(descriptor, to: cl_image_desc.self)
-    var object_ = clCreateImage(
-      context.clContext, flags.rawValue, &formatCopy, &descriptorCopy,
-      hostPointer, &error)
+    var object_ = Self.getCLMem(
+      context: context, properties: properties, flags: flags, format: format,
+      descriptor: &descriptor, hostPointer: hostPointer, error: &error)
     
     if error == CLErrorCode.symbolNotFound.rawValue {
       var formatCopy = unsafeBitCast(format, to: cl_image_format.self)
@@ -63,9 +61,9 @@ public struct CLImage2D: CLImageProtocol {
   }
   
   // `flags` defaults to 0 because it should be inherited from `sourceBuffer`.
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   public init?(
     context: CLContext,
+    properties: [CLMemoryProperty]? = nil,
     flags: CLMemoryFlags = [],
     format: CLImageFormat,
     sourceBuffer: CLBuffer,
@@ -73,31 +71,21 @@ public struct CLImage2D: CLImageProtocol {
     height: Int,
     rowPitch: Int = 0
   ) {
-    var error: Int32 = CL_SUCCESS
     var descriptor = CLImageDescriptor(type: .image2D)
     descriptor.width = width
     descriptor.height = height
     descriptor.rowPitch = rowPitch
     descriptor.clMemory = sourceBuffer.memory.clMemory
-    
-    var formatCopy = unsafeBitCast(format, to: cl_image_format.self)
-    var descriptorCopy = unsafeBitCast(descriptor, to: cl_image_desc.self)
-    let object_ = clCreateImage(
-      context.clContext, flags.rawValue, &formatCopy, &descriptorCopy, nil,
-      &error)
-    guard CLError.setCode(error),
-          let object_ = object_,
-          let memory = CLMemory(object_) else {
-      return nil
-    }
-    self.init(_unsafeMemory: memory)
+    self.init(
+      context: context, properties: properties, flags: flags, format: format,
+      descriptor: &descriptor, hostPointer: nil)
   }
   
   // `flags` defaults to 0 because it should be inherited from `sourceImage`.
   // Renaming the argument label `order` to `channelOrder`.
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   public init?(
     context: CLContext,
+    properties: [CLMemoryProperty]? = nil,
     flags: CLMemoryFlags = [],
     channelOrder: CLChannelOrder,
     sourceImage: CLImage
@@ -107,11 +95,11 @@ public struct CLImage2D: CLImageProtocol {
           let sourceRowPitch = sourceImage.rowPitch,
           let sourceNumMipLevels = sourceImage.numMipLevels,
           let sourceNumSamples = sourceImage.numSamples,
-          var sourceFormat = sourceImage.format else {
+          var format = sourceImage.format else {
       return nil
     }
+    format.channelOrder = channelOrder
     
-    var error: Int32 = CL_SUCCESS
     var descriptor = CLImageDescriptor(type: .image2D)
     descriptor.width = sourceWidth
     descriptor.height = sourceHeight
@@ -119,19 +107,8 @@ public struct CLImage2D: CLImageProtocol {
     descriptor.numMipLevels = sourceNumMipLevels
     descriptor.numSamples = sourceNumSamples
     descriptor.clMemory = sourceImage.memory.clMemory
-    
-    sourceFormat.channelOrder = channelOrder
-    
-    var formatCopy = unsafeBitCast(sourceFormat, to: cl_image_format.self)
-    var descriptorCopy = unsafeBitCast(descriptor, to: cl_image_desc.self)
-    let object_ = clCreateImage(
-      context.clContext, flags.rawValue, &formatCopy, &descriptorCopy, nil,
-      &error)
-    guard CLError.setCode(error),
-          let object_ = object_,
-          let memory = CLMemory(object_) else {
-      return nil
-    }
-    self.init(_unsafeMemory: memory)
+    self.init(
+      context: context, properties: properties, flags: flags, format: format,
+      descriptor: &descriptor, hostPointer: nil)
   }
 }

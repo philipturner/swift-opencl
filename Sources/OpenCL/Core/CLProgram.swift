@@ -130,7 +130,6 @@ public struct CLProgram: CLReferenceCountable {
     self.init(object_)
   }
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
   public init?(context: CLContext, il: Data) {
     var error: Int32 = CL_SUCCESS
     var object_: cl_context?

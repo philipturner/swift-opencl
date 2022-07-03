@@ -117,24 +117,71 @@ extension CLImageProtocol {
   // how arguments are popped onto the stack during a function call.
   internal init?(
     context: CLContext,
+    properties: [CLMemoryProperty]?,
     flags: CLMemoryFlags,
     format: CLImageFormat,
     descriptor: UnsafePointer<CLImageDescriptor>,
-    hostPointer: UnsafeMutableRawPointer? = nil
+    hostPointer: UnsafeMutableRawPointer?
   ) {
     var error: Int32 = CL_SUCCESS
     var clFormat = unsafeBitCast(format, to: cl_image_format.self)
     let clDescriptor = UnsafeRawPointer(descriptor)
       .assumingMemoryBound(to: cl_image_desc.self)
-    let object_ = clCreateImage(
-      context.clContext, flags.rawValue, &clFormat, clDescriptor, hostPointer,
-      &error)
+    var object_: cl_mem?
+    CLMemoryProperty.withUnsafeTemporaryAllocation(
+      properties: properties
+    ) { properties in
+      object_ = clCreateImageWithProperties(
+        context.clContext, properties.baseAddress, flags.rawValue, &clFormat,
+        clDescriptor, hostPointer, &error)
+    }
+    
+    if error == CLErrorCode.symbolNotFound.rawValue {
+      object_ = clCreateImage(
+        context.clContext, flags.rawValue, &clFormat, clDescriptor, hostPointer,
+        &error)
+    }
     guard CLError.setCode(error),
           let object_ = object_,
           let memory = CLMemory(object_) else {
       return nil
     }
     self.init(_unsafeMemory: memory)
+  }
+  
+  // For initializers in `CLImage2D` and `CLImage3D` that have 3 levels of
+  // delegating functions: `clCreateImageWithProperties` -> `clCreateImage`
+  // -> `clCreateImage2D/3D`
+  internal static func getCLMem(
+    context: CLContext,
+    properties: [CLMemoryProperty]?,
+    flags: CLMemoryFlags,
+    format: CLImageFormat,
+    descriptor: UnsafePointer<CLImageDescriptor>,
+    hostPointer: UnsafeMutableRawPointer?,
+    error: UnsafeMutablePointer<Int32>
+  ) -> cl_mem? {
+    var clFormat = unsafeBitCast(format, to: cl_image_format.self)
+    let clDescriptor = UnsafeRawPointer(descriptor)
+      .assumingMemoryBound(to: cl_image_desc.self)
+    var object_: cl_mem?
+    CLMemoryProperty.withUnsafeTemporaryAllocation(
+      properties: properties
+    ) { properties in
+      object_ = clCreateImageWithProperties(
+        context.clContext, properties.baseAddress, flags.rawValue, &clFormat,
+        clDescriptor, hostPointer, error)
+    }
+    
+    if error.pointee == CLErrorCode.symbolNotFound.rawValue {
+      object_ = clCreateImage(
+        context.clContext, flags.rawValue, &clFormat, clDescriptor, hostPointer,
+        error)
+    }
+    guard CLError.setCode(error.pointee) else {
+      return nil
+    }
+    return object_
   }
 }
 

@@ -32,6 +32,7 @@ public struct CLImage1DBuffer: CLImageProtocol {
   // appears after `format`, while in the C++ bindings it appears after `width`.
   public init?(
     context: CLContext,
+    properties: [CLMemoryProperty]? = nil,
     flags: CLMemoryFlags = [],
     format: CLImageFormat,
     sourceBuffer: CLBuffer,
@@ -41,6 +42,7 @@ public struct CLImage1DBuffer: CLImageProtocol {
     descriptor.width = width
     descriptor.clMemory = sourceBuffer.memory.clMemory
     self.init(
-      context: context, flags: flags, format: format, descriptor: &descriptor)
+      context: context, properties: properties, flags: flags, format: format,
+      descriptor: &descriptor, hostPointer: nil)
   }
 }

@@ -27,16 +27,14 @@ public struct CLImage2DArray: CLImageProtocol {
     self.init(_unsafeMemory: memory)
   }
   
-  // Rearranging the order of arguments to match order of stored properties in
-  // `CLImageDescriptor`. `arraySize` appears just before `rowPitch` in the
-  // descriptor struct.
   public init?(
     context: CLContext,
+    properties: [CLMemoryProperty]? = nil,
     flags: CLMemoryFlags,
     format: CLImageFormat,
+    arraySize: Int,
     width: Int,
     height: Int,
-    arraySize: Int,
     rowPitch: Int,
     slicePitch: Int,
     hostPointer: UnsafeMutableRawPointer? = nil
@@ -48,7 +46,7 @@ public struct CLImage2DArray: CLImageProtocol {
     descriptor.rowPitch = rowPitch
     descriptor.slicePitch = slicePitch
     self.init(
-      context: context, flags: flags, format: format, descriptor: &descriptor,
-      hostPointer: hostPointer)
+      context: context, properties: properties, flags: flags, format: format,
+      descriptor: &descriptor, hostPointer: hostPointer)
   }
 }

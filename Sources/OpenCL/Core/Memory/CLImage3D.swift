@@ -29,6 +29,7 @@ public struct CLImage3D: CLImageProtocol {
   
   public init?(
     context: CLContext,
+    properties: [CLMemoryProperty]? = nil,
     flags: CLMemoryFlags,
     format: CLImageFormat,
     width: Int,
@@ -45,12 +46,9 @@ public struct CLImage3D: CLImageProtocol {
     descriptor.depth = depth
     descriptor.rowPitch = rowPitch
     descriptor.slicePitch = slicePitch
-    
-    var formatCopy = unsafeBitCast(format, to: cl_image_format.self)
-    var descriptorCopy = unsafeBitCast(descriptor, to: cl_image_desc.self)
-    var object_ = clCreateImage(
-      context.clContext, flags.rawValue, &formatCopy, &descriptorCopy,
-      hostPointer, &error)
+    var object_ = Self.getCLMem(
+      context: context, properties: properties, flags: flags, format: format,
+      descriptor: &descriptor, hostPointer: hostPointer, error: &error)
     
     if error == CLErrorCode.symbolNotFound.rawValue {
       var formatCopy = unsafeBitCast(format, to: cl_image_format.self)

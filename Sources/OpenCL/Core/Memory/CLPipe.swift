@@ -30,12 +30,19 @@ public struct CLPipe: CLMemoryProtocol {
   public init?(
     context: CLContext,
     packetSize: UInt32,
-    maxPackets: UInt32
+    maxPackets: UInt32,
+    properties: [CLPipeProperty]? = []
   ) {
     var error: Int32 = CL_SUCCESS
     let flags: CLMemoryFlags = [.readWrite, .hostNoAccess]
-    let object_ = clCreatePipe(
-      context.clContext, flags.rawValue, packetSize, maxPackets, nil, &error)
+    var object_: cl_mem?
+    CLPipeProperty.withUnsafeTemporaryAllocation(
+      properties: properties
+    ) { properties in
+      object_ = clCreatePipe(
+        context.clContext, flags.rawValue, packetSize, maxPackets,
+        properties.baseAddress, &error)
+    }
     guard CLError.setCode(error, "__CREATE_PIPE_ERR"),
           let object_ = object_,
           let memory = CLMemory(object_) else {

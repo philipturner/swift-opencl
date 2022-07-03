@@ -94,14 +94,12 @@ extension CLMemory {
   
   // OpenCL 2.0
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   public var usesSVMPointer: Bool? {
     getInfo_Bool(CL_MEM_USES_SVM_POINTER, getInfo)
   }
   
   // OpenCL 3.0
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
   public var properties: [CLMemoryProperty]? {
     getInfo_ArrayOfCLProperty(CL_MEM_PROPERTIES, getInfo)
   }

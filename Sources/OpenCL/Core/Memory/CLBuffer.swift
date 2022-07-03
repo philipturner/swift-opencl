@@ -27,18 +27,30 @@ public struct CLBuffer: CLMemoryProtocol {
     self.init(_unsafeMemory: memory)
   }
   
-  // After changing to a dynamic linking mechanism, make `[CLMemoryProperty]` an
-  // argument. Do the same for image and pipe objects.
   public init?(
     context: CLContext,
+    properties: [CLMemoryProperty]? = nil,
     flags: CLMemoryFlags,
     size: Int,
     hostPointer: UnsafeMutableRawPointer? = nil
   ) {
     var error: Int32 = CL_SUCCESS
-    let object_ = clCreateBuffer(
-      context.clContext, flags.rawValue, size, hostPointer, &error)
-    guard CLError.setCode(error, "__CREATE_BUFFER_ERR"),
+    var object_: cl_mem?
+    CLMemoryProperty.withUnsafeTemporaryAllocation(
+      properties: properties
+    ) { properties in
+      object_ = clCreateBufferWithProperties(
+        context.clContext, properties.baseAddress, flags.rawValue, size,
+        hostPointer, &error)
+    }
+    var message = "__CREATE_BUFFER_WITH_PROPERTIES_ERR"
+    
+    if error == CLErrorCode.symbolNotFound.rawValue {
+      object_ = clCreateBuffer(
+        context.clContext, flags.rawValue, size, hostPointer, &error)
+      message = "__CREATE_BUFFER_ERR"
+    }
+    guard CLError.setCode(error, message),
           let object_ = object_,
           let memory = CLMemory(object_) else {
       return nil

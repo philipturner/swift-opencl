@@ -29,6 +29,7 @@ public struct CLImage1D: CLImageProtocol {
   
   public init?(
     context: CLContext,
+    properties: [CLMemoryProperty]? = nil,
     flags: CLMemoryFlags,
     format: CLImageFormat,
     width: Int,
@@ -37,7 +38,7 @@ public struct CLImage1D: CLImageProtocol {
     var descriptor = CLImageDescriptor(type: .image1D)
     descriptor.width = width
     self.init(
-      context: context, flags: flags, format: format, descriptor: &descriptor,
-      hostPointer: hostPointer)
+      context: context, properties: properties, flags: flags, format: format,
+      descriptor: &descriptor, hostPointer: hostPointer)
   }
 }
