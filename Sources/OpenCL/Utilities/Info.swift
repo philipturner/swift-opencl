@@ -161,7 +161,6 @@ func getInfo_Array<T>(_ name: Int32, _ getInfo: GetInfoClosure) -> [T]? {
 
 // The OpenCL 3.0 specification says each name string is null-terminated, with a
 // maximum of 63 characters.
-@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 func getInfo_ArrayOfCLNameVersion(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> [CLNameVersion]? {

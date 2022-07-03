@@ -352,165 +352,83 @@ extension CLDevice {
   // Therefore, I exposed this property on macOS with a name that doesn't match
   // its macro.
   public var queueOnHostProperties: CLCommandQueueProperties? {
-    #if canImport(Darwin)
-    getInfo_CLMacro(CL_DEVICE_QUEUE_PROPERTIES, getInfo)
-    #else
     getInfo_CLMacro(CL_DEVICE_QUEUE_ON_HOST_PROPERTIES, getInfo)
-    #endif
   }
-}
-
-// OpenCL 2.0
-
-@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
-extension CLDevice {
+  
+  // OpenCL 2.0
+  
   public var queueOnDeviceProperties: CLCommandQueueProperties? {
-    let name: Int32 = 0x104E
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_QUEUE_ON_DEVICE_PROPERTIES == name)
-    #endif
-    return getInfo_CLMacro(name, getInfo)
+    getInfo_CLMacro(CL_DEVICE_QUEUE_ON_DEVICE_PROPERTIES, getInfo)
   }
   
   public var queueOnDevicePreferredSize: UInt32? {
-    let name: Int32 = 0x104F
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_QUEUE_ON_DEVICE_PREFERRED_SIZE == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_QUEUE_ON_DEVICE_PREFERRED_SIZE, getInfo)
   }
   
   public var queueOnDeviceMaxSize: UInt32? {
-    let name: Int32 = 0x1050
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE, getInfo)
   }
   
   public var maxOnDeviceQueues: UInt32? {
-    let name: Int32 = 0x1051
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_MAX_ON_DEVICE_QUEUES == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_MAX_ON_DEVICE_QUEUES, getInfo)
   }
   
   public var maxOnDeviceEvents: UInt32? {
-    let name: Int32 = 0x1052
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_MAX_ON_DEVICE_EVENTS == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_MAX_ON_DEVICE_EVENTS, getInfo)
   }
   
   public var maxPipeArguments: UInt32? {
-    let name: Int32 = 0x1055
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_MAX_PIPE_ARGS == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_MAX_PIPE_ARGS, getInfo)
   }
   
   public var pipeMaxActiveReservations: UInt32? {
-    let name: Int32 = 0x1056
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_PIPE_MAX_ACTIVE_RESERVATIONS == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_PIPE_MAX_ACTIVE_RESERVATIONS, getInfo)
   }
   
   public var pipeMaxPacketSize: UInt32? {
-    let name: Int32 = 0x1057
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_PIPE_MAX_PACKET_SIZE == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_PIPE_MAX_PACKET_SIZE, getInfo)
   }
   
   public var svmCapabilities: CLDeviceSVMCapabilities? {
-    let name: Int32 = 0x1053
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_SVM_CAPABILITIES == name)
-    #endif
-    return getInfo_CLMacro(name, getInfo)
+    getInfo_CLMacro(CL_DEVICE_SVM_CAPABILITIES, getInfo)
   }
   
   public var preferredPlatformAtomicAlignment: UInt32? {
-    let name: Int32 = 0x1058
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_PREFERRED_PLATFORM_ATOMIC_ALIGNMENT == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_PREFERRED_PLATFORM_ATOMIC_ALIGNMENT, getInfo)
   }
   
   public var preferredGlobalAtomicAlignment: UInt32? {
-    let name: Int32 = 0x1059
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT, getInfo)
   }
   
   public var preferredLocalAtomicAlignment: UInt32? {
-    let name: Int32 = 0x105A
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_PREFERRED_LOCAL_ATOMIC_ALIGNMENT == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_PREFERRED_LOCAL_ATOMIC_ALIGNMENT, getInfo)
   }
   
   public var imagePitchAlignment: UInt32? {
-    let name: Int32 = 0x104A
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_IMAGE_PITCH_ALIGNMENT == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_IMAGE_PITCH_ALIGNMENT, getInfo)
   }
   
   public var imageBaseAddressAlignment: UInt32? {
-    let name: Int32 = 0x104B
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT, getInfo)
   }
   
   public var maxReadWriteImageArguments: UInt32? {
-    let name: Int32 = 0x104C
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_MAX_READ_WRITE_IMAGE_ARGS == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_MAX_READ_WRITE_IMAGE_ARGS, getInfo)
   }
   
   public var maxGlobalVariableSize: Int? {
-    let name: Int32 = 0x104D
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE, getInfo)
   }
   
   public var globalVariablePreferredTotalSize: Int? {
-    let name: Int32 = 0x1054
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_GLOBAL_VARIABLE_PREFERRED_TOTAL_SIZE == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_GLOBAL_VARIABLE_PREFERRED_TOTAL_SIZE, getInfo)
   }
-}
-
-// OpenCL 2.1
-
-@available(macOS, unavailable, message: "macOS does not support OpenCL 2.1.")
-extension CLDevice {
+  
+  // OpenCL 2.1
+  
   public var maxNumSubGroups: UInt32? {
-    let name: Int32 = 0x105C
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_MAX_NUM_SUB_GROUPS == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_MAX_NUM_SUB_GROUPS, getInfo)
   }
   
   // Parses the string returned by OpenCL and creates an array of IL versions.
@@ -520,11 +438,7 @@ extension CLDevice {
   // into one string for backward-compability. Regardless of the history, this
   // property should be plural because it is an array.
   public var ilVersions: [String]? {
-    let name: Int32 = 0x105B
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_IL_VERSION == name)
-    #endif
-    if let combined = getInfo_String(name, getInfo) {
+    if let combined = getInfo_String(CL_DEVICE_IL_VERSION, getInfo) {
       // Separated by spaces.
       let substrings = combined.split(
         separator: " ", omittingEmptySubsequences: false)
@@ -535,23 +449,13 @@ extension CLDevice {
   }
   
   public var subGroupIndependentForwardProgress: Bool? {
-    let name: Int32 = 0x105D
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_SUB_GROUP_INDEPENDENT_FORWARD_PROGRESS == name)
-    #endif
-    return getInfo_Bool(name, getInfo)
+    getInfo_Bool(CL_DEVICE_SUB_GROUP_INDEPENDENT_FORWARD_PROGRESS, getInfo)
   }
-}
-
-// OpenCL 3.0
-
-@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
-extension CLDevice {
+  
+  // OpenCL 3.0
+  
   public var numericVersion: CLVersion? {
-    let name: Int32 = 0x105E
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_NUMERIC_VERSION == name)
-    #endif
+    let name = CL_DEVICE_NUMERIC_VERSION
     if let rawVersion: cl_version = getInfo_Int(name, getInfo) {
       return CLVersion(version: rawVersion)
     } else {
@@ -560,114 +464,58 @@ extension CLDevice {
   }
   
   public var extensionsWithVersion: [CLNameVersion]? {
-    let name: Int32 = 0x1060
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_EXTENSIONS_WITH_VERSION == name)
-    #endif
-    return getInfo_ArrayOfCLNameVersion(name, getInfo)
+    getInfo_ArrayOfCLNameVersion(CL_DEVICE_EXTENSIONS_WITH_VERSION, getInfo)
   }
   
   public var ilsWithVersion: [CLNameVersion]? {
-    let name: Int32 = 0x1061
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_ILS_WITH_VERSION == name)
-    #endif
-    return getInfo_ArrayOfCLNameVersion(name, getInfo)
+    getInfo_ArrayOfCLNameVersion(CL_DEVICE_ILS_WITH_VERSION, getInfo)
   }
   
   public var builtInKernelsWithVersion: [CLNameVersion]? {
-    let name: Int32 = 0x1062
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_BUILT_IN_KERNELS_WITH_VERSION == name)
-    #endif
-    return getInfo_ArrayOfCLNameVersion(name, getInfo)
+    getInfo_ArrayOfCLNameVersion(CL_DEVICE_BUILT_IN_KERNELS_WITH_VERSION, getInfo)
   }
   
   public var atomicMemoryCapabilities: CLDeviceAtomicCapabilities? {
-    let name: Int32 = 0x1063
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_ATOMIC_MEMORY_CAPABILITIES == name)
-    #endif
-    return getInfo_CLMacro(name, getInfo)
+    getInfo_CLMacro(CL_DEVICE_ATOMIC_MEMORY_CAPABILITIES, getInfo)
   }
   
   public var atomicFenceCapabilities: CLDeviceAtomicCapabilities? {
-    let name: Int32 = 0x1064
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_ATOMIC_FENCE_CAPABILITIES == name)
-    #endif
-    return getInfo_CLMacro(name, getInfo)
+    getInfo_CLMacro(CL_DEVICE_ATOMIC_FENCE_CAPABILITIES, getInfo)
   }
   
   public var nonUniformWorkGroupSupport: Bool? {
-    let name: Int32 = 0x1065
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_NON_UNIFORM_WORK_GROUP_SUPPORT == name)
-    #endif
-    return getInfo_Bool(name, getInfo)
+    getInfo_Bool(CL_DEVICE_NON_UNIFORM_WORK_GROUP_SUPPORT, getInfo)
   }
   
   public var openclCAllVersions: [CLNameVersion]? {
-    let name: Int32 = 0x1066
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_OPENCL_C_ALL_VERSIONS == name)
-    #endif
-    return getInfo_ArrayOfCLNameVersion(name, getInfo)
+    getInfo_ArrayOfCLNameVersion(CL_DEVICE_OPENCL_C_ALL_VERSIONS, getInfo)
   }
   
   public var preferredWorkGroupSizeMultiple: Int? {
-    let name: Int32 = 0x1067
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_PREFERRED_WORK_GROUP_SIZE_MULTIPLE == name)
-    #endif
-    return getInfo_Int(name, getInfo)
+    getInfo_Int(CL_DEVICE_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, getInfo)
   }
   
   public var workGroupCollectiveFunctionsSupport: Bool? {
-    let name: Int32 = 0x1068
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_WORK_GROUP_COLLECTIVE_FUNCTIONS_SUPPORT == name)
-    #endif
-    return getInfo_Bool(name, getInfo)
+    getInfo_Bool(CL_DEVICE_WORK_GROUP_COLLECTIVE_FUNCTIONS_SUPPORT, getInfo)
   }
   
   public var genericAddressSpaceSupport: Bool? {
-    let name: Int32 = 0x1069
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_GENERIC_ADDRESS_SPACE_SUPPORT == name)
-    #endif
-    return getInfo_Bool(name, getInfo)
+    getInfo_Bool(CL_DEVICE_GENERIC_ADDRESS_SPACE_SUPPORT, getInfo)
   }
   
   public var openclCFeatures: [CLNameVersion]? {
-    let name: Int32 = 0x106F
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_OPENCL_C_FEATURES == name)
-    #endif
-    return getInfo_ArrayOfCLNameVersion(name, getInfo)
+    getInfo_ArrayOfCLNameVersion(CL_DEVICE_OPENCL_C_FEATURES, getInfo)
   }
   
   public var deviceEnqueueCapabilities: CLDeviceDeviceEnqueueCapabilities? {
-    let name: Int32 = 0x1070
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_DEVICE_ENQUEUE_CAPABILITIES == name)
-    #endif
-    return getInfo_CLMacro(name, getInfo)
+    getInfo_CLMacro(CL_DEVICE_DEVICE_ENQUEUE_CAPABILITIES, getInfo)
   }
   
   public var pipeSupport: Bool? {
-    let name: Int32 = 0x1071
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_PIPE_SUPPORT == name)
-    #endif
-    return getInfo_Bool(name, getInfo)
+    getInfo_Bool(CL_DEVICE_PIPE_SUPPORT, getInfo)
   }
   
   public var latestConformanceVersionPassed: String? {
-    let name: Int32 = 0x1072
-    #if !canImport(Darwin)
-    assert(CL_DEVICE_LATEST_CONFORMANCE_VERSION_PASSED == name)
-    #endif
-    return getInfo_String(name, getInfo)
+    getInfo_String(CL_DEVICE_LATEST_CONFORMANCE_VERSION_PASSED, getInfo)
   }
 }

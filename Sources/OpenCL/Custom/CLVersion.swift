@@ -153,7 +153,6 @@ extension CLVersion {
   }
 }
 
-@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 extension CLVersion {
   @usableFromInline static let majorBits = 10
   @usableFromInline static let minorBits = 10
