@@ -27,6 +27,7 @@ public struct CLImage2DArray: CLImageProtocol {
     self.init(_unsafeMemory: memory)
   }
   
+  // Added a default value of `0` for `rowPitch` and `slicePitch`.
   public init?(
     context: CLContext,
     properties: [CLMemoryProperty]? = nil,
@@ -35,8 +36,8 @@ public struct CLImage2DArray: CLImageProtocol {
     arraySize: Int,
     width: Int,
     height: Int,
-    rowPitch: Int,
-    slicePitch: Int,
+    rowPitch: Int = 0,
+    slicePitch: Int = 0,
     hostPointer: UnsafeMutableRawPointer? = nil
   ) {
     var descriptor = CLImageDescriptor(type: .image2DArray)

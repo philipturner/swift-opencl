@@ -27,6 +27,12 @@ public struct CLImage1DArray: CLImageProtocol {
     self.init(_unsafeMemory: memory)
   }
   
+  // Added a default value of `0` for `rowPitch` and added a new argument
+  // `slicePitch` with a default value of `0`. The OpenCL 3.0 specification says
+  // an image descriptor's slice pitch has a meaning for:
+  // - 1D image arrays
+  // - 2D image arrays
+  // - 3D images
   public init?(
     context: CLContext,
     properties: [CLMemoryProperty]? = nil,
@@ -34,13 +40,15 @@ public struct CLImage1DArray: CLImageProtocol {
     format: CLImageFormat,
     arraySize: Int,
     width: Int,
-    rowPitch: Int,
+    rowPitch: Int = 0,
+    slicePitch: Int = 0,
     hostPointer: UnsafeMutableRawPointer? = nil
   ) {
     var descriptor = CLImageDescriptor(type: .image1DArray)
     descriptor.width = width
     descriptor.arraySize = arraySize
     descriptor.rowPitch = rowPitch
+    descriptor.slicePitch = slicePitch
     self.init(
       context: context, properties: properties, flags: flags, format: format,
       descriptor: &descriptor, hostPointer: hostPointer)
