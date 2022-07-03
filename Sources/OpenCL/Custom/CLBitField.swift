@@ -14,6 +14,8 @@ extension CLMacro {
   }
 }
 
+protocol CLEnum: CLMacro, CaseIterable {}
+
 protocol CLBitField: CLMacro, OptionSet {}
 extension CLBitField {
   init(_ macro: Int32) {
@@ -70,7 +72,7 @@ public struct CLDeviceMemoryCacheType: CLBitField {
   public static let readWriteCache = Self(CL_READ_WRITE_CACHE)
 }
 
-public enum CLDeviceLocalMemoryType: cl_device_local_mem_type, CLMacro {
+public enum CLDeviceLocalMemoryType: cl_device_local_mem_type, CLEnum {
   case local = 0x1
   case global = 0x2
 }
@@ -169,7 +171,7 @@ public struct CLMemoryMigrationFlags: CLBitField {
     CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED)
 }
 
-public enum CLChannelOrder: cl_channel_order, CLMacro {
+public enum CLChannelOrder: cl_channel_order, CLEnum {
   case r = 0x10B0
   case a = 0x10B1
   case rg = 0x10B2
@@ -208,7 +210,7 @@ public enum CLChannelOrder: cl_channel_order, CLMacro {
   case abgr = 0x10C3
 }
 
-public enum CLChannelType: cl_channel_type, CLMacro {
+public enum CLChannelType: cl_channel_type, CLEnum {
   case snormInt8 = 0x10D0
   case snormInt16 = 0x10D1
   case unormInt8 = 0x10D2
@@ -228,7 +230,7 @@ public enum CLChannelType: cl_channel_type, CLMacro {
   case unormInt1010102 = 0x10E0
 }
 
-public enum CLMemoryObjectType: cl_mem_object_type, CLMacro {
+public enum CLMemoryObjectType: cl_mem_object_type, CLEnum {
   case buffer = 0x10F0
   case image2D = 0x10F1
   case image3D = 0x10F2
@@ -252,7 +254,7 @@ public enum CLMemoryObjectType: cl_mem_object_type, CLMacro {
   }
 }
 
-public enum CLAddressingMode: cl_addressing_mode, CLMacro {
+public enum CLAddressingMode: cl_addressing_mode, CLEnum {
   case none = 0x1130
   case clampToEdge = 0x1131
   case clamp = 0x1132
@@ -260,7 +262,7 @@ public enum CLAddressingMode: cl_addressing_mode, CLMacro {
   case mirroredRepeat = 0x1134
 }
 
-public enum CLFilterMode: cl_filter_mode, CLMacro {
+public enum CLFilterMode: cl_filter_mode, CLEnum {
   case nearest = 0x1140
   case linear = 0x1141
 }
@@ -276,14 +278,14 @@ public struct CLMapFlags: CLBitField {
   public static let writeInvalidateRegion = Self(CL_MAP_WRITE_INVALIDATE_REGION)
 }
 
-public enum CLProgramBinaryType: cl_program_binary_type, CLMacro {
+public enum CLProgramBinaryType: cl_program_binary_type, CLEnum {
   case none = 0x0
   case compiledObject = 0x1
   case library = 0x2
   case executable = 0x4
 }
 
-public enum CLBuildStatus: cl_build_status, CLMacro {
+public enum CLBuildStatus: cl_build_status, CLEnum {
   case success = 0
   case none = -1
   case error = -2
@@ -291,7 +293,7 @@ public enum CLBuildStatus: cl_build_status, CLMacro {
 }
 
 public enum CLKernelArgumentAddressQualifier:
-  cl_kernel_arg_address_qualifier, CLMacro
+  cl_kernel_arg_address_qualifier, CLEnum
 {
   case global = 0x119B
   case local = 0x119C
@@ -300,7 +302,7 @@ public enum CLKernelArgumentAddressQualifier:
 }
 
 public enum CLKernelArgumentAccessQualifier:
-  cl_kernel_arg_access_qualifier, CLMacro
+  cl_kernel_arg_access_qualifier, CLEnum
 {
   case readOnly = 0x11A0
   case writeOnly = 0x11A1
@@ -321,7 +323,7 @@ public struct CLKernelArgumentTypeQualifier: CLBitField {
   public static let pipe = Self(CL_KERNEL_ARG_TYPE_PIPE)
 }
 
-public enum CLCommandType: cl_command_type, CLMacro {
+public enum CLCommandType: cl_command_type, CLEnum {
   // Choosing `ndrange` instead of `ndRange` because it's one word, just like
   // "NDArray". Apple does something similar with
   // `MPSGraphTensorData.mpsndarray()`.
@@ -366,14 +368,14 @@ public enum CLCommandType: cl_command_type, CLMacro {
 // No associated C typedef or enumeration in COpenCL. SwiftOpenCL synthesizes
 // this new type for developer ergonomics. Should this declaration be `public`
 // or `internal`?
-public enum CLCommandExecutionStatus: Int32, CLMacro {
+public enum CLCommandExecutionStatus: Int32, CLEnum {
   case complete = 0x0
   case running = 0x1
   case submitted = 0x2
   case queued = 0x3
 }
 
-public enum CLBufferCreateType: cl_buffer_create_type, CLMacro {
+public enum CLBufferCreateType: cl_buffer_create_type, CLEnum {
   case region = 0x1220
 }
 

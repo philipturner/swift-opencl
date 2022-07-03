@@ -7,7 +7,11 @@
 
 import COpenCL
 
-public enum CLErrorCode: Int32 {
+public enum CLErrorCode: Int32, CaseIterable {
+  // Custom
+  
+  case symbolNotFound = 1
+  
   // OpenCL 1.0
   
   case success = 0
@@ -89,17 +93,11 @@ public enum CLErrorCode: Int32 {
   
   // OpenCL 2.0
   
-  // Making a case unavailable on macOS prevents automatic conformance to
-  // `CaseIterable`. I need to find a better solution if possible.
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case invalidPipeSize = -69
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
   case invalidDeviceQueue = -70
   
   // OpenCL 2.2
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.2.")
   case invalidSpecializationConstantID = -71
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 2.2.")
   case maxSizeRestrictionExceeded = -72
 }

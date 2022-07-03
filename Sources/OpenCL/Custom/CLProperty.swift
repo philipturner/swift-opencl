@@ -160,7 +160,7 @@ public enum CLQueueProperty: CLProperty {
     }
     
     static let properties = Self(CL_QUEUE_PROPERTIES)
-    static let size = Self(0x1094)
+    static let size = Self(CL_QUEUE_SIZE)
   }
   
   init(key: Key.RawValue, value: Key.RawValue) {
@@ -187,7 +187,6 @@ public enum CLQueueProperty: CLProperty {
 // As with `CLQueueProperties`, this enum is not explicitly defined in "cl.h".
 // It takes some keys from `cl_sampler_info`, just like `CLQueueProperties`
 // takes keys from `cl_command_queue_info`.
-@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public enum CLSamplerProperty: CLProperty {
   case normalizedCoords(Bool)
   case addressingMode(CLAddressingMode)

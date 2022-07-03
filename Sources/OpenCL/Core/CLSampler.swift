@@ -40,7 +40,6 @@ public struct CLSampler: CLReferenceCountable {
   ) {
     var error: Int32 = 0
     var object_: cl_sampler?
-    #if !canImport(Darwin)
     CLSamplerProperty.withUnsafeTemporaryAllocation(properties: [
       .normalizedCoords: cl_sampler_properties(normalizedCoords ? 1 : 0),
       .addressingMode: cl_sampler_properties(addressingMode.rawValue),
@@ -49,13 +48,14 @@ public struct CLSampler: CLReferenceCountable {
       object_ = clCreateSamplerWithProperties(
         context.clContext, samplerProperties.baseAddress, &error)
     }
-    let message = "__CREATE_SAMPLER_WITH_PROPERTIES_ERR"
-    #else
-    object_ = clCreateSampler(
-      context.clContext, normalizedCoords ? 1 : 0, addressingMode.rawValue,
-      filterMode.rawValue, &error)
-    let message = "__CREATE_SAMPLER_ERR"
-    #endif
+    var message = "__CREATE_SAMPLER_WITH_PROPERTIES_ERR"
+    
+    if error == CLErrorCode.symbolNotFound.rawValue {
+      object_ = clCreateSampler(
+        context.clContext, normalizedCoords ? 1 : 0, addressingMode.rawValue,
+        filterMode.rawValue, &error)
+      message = "__CREATE_SAMPLER_ERR"
+    }
     guard CLError.setCode(error, message),
           let object_ = object_ else {
       return nil
@@ -94,12 +94,7 @@ extension CLSampler {
   
   // OpenCL 3.0
   
-  @available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
   public var properties: [CLSamplerProperty]? {
-    let name: Int32 = 0x1158
-    #if !canImport(Darwin)
-    assert(CL_SAMPLER_PROPERTIES == name)
-    #endif
-    return getInfo_ArrayOfCLProperty(name, getInfo)
+    getInfo_ArrayOfCLProperty(CL_SAMPLER_PROPERTIES, getInfo)
   }
 }
