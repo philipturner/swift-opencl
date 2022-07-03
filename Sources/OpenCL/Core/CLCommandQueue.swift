@@ -47,36 +47,28 @@ public struct CLCommandQueue: CLReferenceCountable {
     properties: CLCommandQueueProperties = []
   ) {
     var error: Int32 = CL_SUCCESS
-    var useWithProperties = false
-    if let version = CLVersion(clContext: context.clContext) {
-      useWithProperties = version.major >= 2
-    }
-    
     var object_: cl_command_queue?
-    if useWithProperties {
-      CLQueueProperty.withUnsafeTemporaryAllocation(properties: [
-        .properties: cl_queue_properties(properties.rawValue)
-      ]) { queueProperties in
-        // To make a queue that's on-device, use `CLDeviceCommandQueue`.
-        if properties.contains(.onDevice) {
-          error = CL_INVALID_QUEUE_PROPERTIES
-        } else {
-          object_ = clCreateCommandQueueWithProperties(
-            context.clContext, device.clDeviceID, queueProperties.baseAddress,
-            &error)
-        }
+    CLQueueProperty.withUnsafeTemporaryAllocation(properties: [
+      .properties: cl_queue_properties(properties.rawValue)
+    ]) { queueProperties in
+      // To make a queue that's on-device, use `CLDeviceCommandQueue`.
+      if properties.contains(.onDevice) {
+        error = CL_INVALID_QUEUE_PROPERTIES
+      } else {
+        object_ = clCreateCommandQueueWithProperties(
+          context.clContext, device.clDeviceID, queueProperties.baseAddress,
+          &error)
       }
-      let message = "__CREATE_COMMAND_QUEUE_WITH_PROPERTIES_ERR"
-      guard CLError.setCode(error, message) else {
-        return nil
-      }
-    } else {
+    }
+    var message = "__CREATE_COMMAND_QUEUE_WITH_PROPERTIES_ERR"
+    
+    if error == CLErrorCode.symbolNotFound.rawValue {
       object_ = clCreateCommandQueue(
         context.clContext, device.clDeviceID, properties.rawValue, &error)
-      let message = "__CREATE_COMMAND_QUEUE_ERR"
-      guard CLError.setCode(error, message) else {
-        return nil
-      }
+      message = "__CREATE_COMMAND_QUEUE_ERR"
+    }
+    guard CLError.setCode(error, message) else {
+      return nil
     }
     self.init(object_!)
   }
@@ -88,7 +80,7 @@ public struct CLCommandQueue: CLReferenceCountable {
   
   public mutating func finish() throws {
     let error = clFinish(wrapper.object)
-    try CLError.throwCode(error, "__FLUSH_ERR")
+    try CLError.throwCode(error, "__FINISH_ERR")
   }
 }
 

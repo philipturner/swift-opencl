@@ -243,13 +243,11 @@ public enum CLMemoryObjectType: cl_mem_object_type, CLEnum {
   @inlinable
   public var isImage: Bool {
     switch self {
-    case .buffer:
+    case .buffer,
+         .pipe:
       return false
-    case .image2D, .image3D, .image2DArray: fallthrough
-    case .image1D, .image1DArray, .image1DBuffer:
+    default:
       return true
-    case .pipe:
-      return false
     }
   }
 }

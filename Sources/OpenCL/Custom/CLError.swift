@@ -14,6 +14,11 @@ import protocol Foundation.LocalizedError
 //
 // TODO: Change this from `LocalizedError` to `CustomStringConvertible`, like in
 // PythonKit.
+//
+// Ideas:
+// - Grab both the Swift and C function where the error originated. This
+//   eliminates the need for looking at the line where the error occurred,
+//   because there's often a 1:1 mapping of Swift to C functions.
 public struct CLError: LocalizedError {
   // Use reference counted storage to improve memory safety if SwiftOpenCL ever
   // writes to `CLError.latest` from two threads simultaneously.

@@ -103,7 +103,6 @@ public enum CLContextProperty: CLProperty {
   }
 }
 
-@available(macOS, unavailable, message: "macOS does not support OpenCL 3.0.")
 public enum CLMemoryProperty: CLProperty {
   struct Key: CLMacro {
     let rawValue: cl_mem_properties
@@ -125,7 +124,6 @@ public enum CLMemoryProperty: CLProperty {
   }
 }
 
-@available(macOS, unavailable, message: "macOS does not support OpenCL 2.0.")
 public enum CLPipeProperty: CLProperty {
   struct Key: CLMacro {
     let rawValue: cl_pipe_properties

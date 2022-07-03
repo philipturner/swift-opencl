@@ -7,7 +7,6 @@
 
 import COpenCL
 
-// This may change to a dedicated struct.
 public typealias CLSize = SIMD3<Int>
 
 public struct CLNDRange {
