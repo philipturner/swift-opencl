@@ -5,8 +5,6 @@
 A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). This package runs on macOS, Linux, Windows, and Android - every platform except iOS\*. It automatically detects which OpenCL version you have at runtime, requiring no special build configuration or compiler flags.
 
 > \*On macOS, OpenCL is implemented as a layer on top of Metal. Apple views OpenCL as deprecated, so it prohibits use of OpenCL on iOS. Metal runs faster than OpenCL in some situations (especially ML), similarly to how CUDA is optimized for NVIDIA devices. If you can use SwiftOpenCL, learning Metal to run GPGPU algorithms on iOS should not be a major hurdle.
->
-> SwiftOpenCL could evolve into a wrapper for Metal, letting cross-platform GPU benchmarks run on iOS. This would enable OpenCL 3.0 functionality on Apple devices, which are eternally stuck on v1.2. The wrapper could also allow half-precision in shaders, which Apple withholds from OpenCL to reduce performance. SPIR-V should translate OpenCL C into MSL, but Apple's [Metal developer tools for Windows](developer.apple.com/metal) will help if that does not work.
 
 ## Usage
 
@@ -55,3 +53,7 @@ func inList(device: CLDevice, names: [String]) -> Bool {
 SwiftOpenCL dynamically loads OpenCL symbols at runtime like [PythonKit](https://github.com/pvieito/PythonKit), so it can import OpenCL on macOS without depending on the Objective-C framework. This means SwiftOpenCL's Swift module can be named `OpenCL`. If you use SwiftOpenCL, ensure the system framework named `OpenCL` is not in your dependency chain.
 
 `CLError` produces a name collision with Apple’s CoreLocation framework. You can work around it by stating `CoreLocation.CLError` and `OpenCL.CLError` explicitly.
+
+## Future Directions
+
+SwiftOpenCL could evolve into a wrapper for Metal, letting cross-platform GPU benchmarks run on iOS. This would enable OpenCL 3.0 functionality on Apple devices, which are eternally stuck on v1.2. The wrapper could also allow half-precision in shaders, which Apple withholds from OpenCL to reduce performance. SPIR-V should translate OpenCL C into MSL, but Apple's [Metal developer tools for Windows](developer.apple.com/metal) will help if that does not work.
