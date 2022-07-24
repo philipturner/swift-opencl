@@ -56,4 +56,4 @@ SwiftOpenCL dynamically loads OpenCL symbols at runtime like [PythonKit](https:/
 
 ## Future Directions
 
-SwiftOpenCL could evolve into a wrapper for Metal, letting cross-platform GPU benchmarks run on iOS. This would enable OpenCL 3.0 functionality on Apple devices, which are eternally stuck on v1.2. The wrapper could also allow half-precision in shaders, which Apple withholds from OpenCL to reduce performance. SPIR-V should translate OpenCL C into MSL, but Apple's [Metal developer tools for Windows](developer.apple.com/metal) will help if that does not work.
+SwiftOpenCL could evolve into a wrapper for Metal, letting cross-platform GPU benchmarks run on iOS. This would enable OpenCL 3.0 functionality on Apple devices, which are eternally stuck on v1.2. The wrapper could also allow half-precision in shaders, which Apple withholds from OpenCL to reduce performance. SPIR-V should translate OpenCL C into MSL. If that does not work, Apple's [Metal developer tools for Windows](developer.apple.com/metal) allow for manually translating OpenCL shaders to Metal on non-Apple platforms.
