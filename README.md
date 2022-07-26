@@ -8,7 +8,7 @@ A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/Kh
 
 ## Usage
 
-Read through the tutorial notebook listed on [Swift-Colab](https://github.com/philipturner/swift-colab/blob/main/README.md#swift-tutorials). For quick reference, the notebook is linked _here_ (tutorial not yet created).
+Read through the tutorial notebook listed on [Swift-Colab](https://github.com/philipturner/swift-colab/#swift-tutorials). For quick reference, the notebook is linked _here_ (tutorial not yet created).
 
 ## Naming Conventions
 
