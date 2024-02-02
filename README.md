@@ -4,7 +4,7 @@ A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/Kh
 
 ## Naming Conventions
 
-SwiftOpenCL renames the following words in OpenCL macros:
+`swift-opencl` renames the following words in OpenCL macros:
 - "Addr" to "Address"
 - "Alloc" to "Allocation"
 - "Arg" to "Argument"
@@ -42,6 +42,6 @@ func inList(device: CLDevice, names: [String]) -> Bool {
 }
 ```
 
-SwiftOpenCL dynamically loads OpenCL symbols at runtime like [PythonKit](https://github.com/pvieito/PythonKit), so it can import OpenCL on macOS without depending on the Objective-C framework. This means `swift-opencl`'s Swift module can be named `OpenCL`. If you use SwiftOpenCL, ensure the system framework named `OpenCL` is not in your dependency chain.
+`swift-opencl` dynamically loads OpenCL symbols at runtime like [PythonKit](https://github.com/pvieito/PythonKit), so it can import OpenCL on macOS without depending on the Objective-C framework. This means `swift-opencl`'s Swift module can be named `OpenCL`. If you use the module, ensure the system framework named `OpenCL` is not in your dependency chain.
 
 `CLError` produces a name collision with Apple’s CoreLocation framework. You can work around it by stating `CoreLocation.CLError` and `OpenCL.CLError` explicitly.
