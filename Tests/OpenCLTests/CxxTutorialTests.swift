@@ -2,7 +2,7 @@ import XCTest
 import OpenCL
 
 // Reproduction of the tutorial at this link:
-// https://ulhpc-tutorials.readthedocs.io/en/latest/gpu/opencl
+// https://github.com/ULHPC/tutorials/blob/devel/gpu/opencl/code/exercise3.cpp
 final class CxxTutorialTests: XCTestCase {
   func testSimpleAdd() throws {
     // MARK: - Locate Device
@@ -55,12 +55,18 @@ final class CxxTutorialTests: XCTestCase {
     XCTAssertEqual(A_d.memory.size, 40)
     XCTAssertEqual(D_d.memory.size, 40)
     
+    let A_h: [Int32] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    let B_h: [Int32] = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+    let C_h: [Int32] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    
     let queue = CLCommandQueue(context: context, device: defaultDevice)
-    guard let queue else {
+    guard var queue else {
       fatalError("Could not create queue.")
     }
     
-    
+    try! queue.enqueueWrite(A_d, offset: 0, size: listSize * 4, A_h)
+    try! queue.enqueueWrite(B_d, offset: 0, size: listSize * 4, B_h)
+    try! queue.enqueueWrite(C_d, offset: 0, size: listSize * 4, C_h)
     
     // MARK: - Compile Sources
     
@@ -113,7 +119,7 @@ final class CxxTutorialTests: XCTestCase {
       fatalError("Could not retrieve kernels.")
     }
     
-    
+    // MARK: - Encode Commands
     
   }
 }
