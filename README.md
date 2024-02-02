@@ -1,6 +1,6 @@
 # Swift Bindings for OpenCL
 
-A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). This package runs on macOS, Linux, Windows, and Android - every platform except iOS\*. It detects which OpenCL version you have at runtime.
+A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). This package runs on macOS, Linux, Windows, and Android. It detects which OpenCL version you have at runtime.
 
 ## Naming Conventions
 
