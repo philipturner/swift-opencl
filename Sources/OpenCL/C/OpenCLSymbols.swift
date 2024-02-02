@@ -26,6 +26,16 @@ fileprivate func load<T>(name: StaticString) -> T? {
   OpenCLLibrary.loadSymbol(name: name)
 }
 
+@inline(__always)
+fileprivate func objectCreationError<T>(
+  name: String,
+  error: UnsafeMutablePointer<Int32>?
+) -> T? {
+  CLError.setCode(CLErrorCode.symbolNotFound.rawValue, name)
+  error?.pointee = CLError.latest!.code
+  return nil
+}
+
 // OpenCL 1.0
 
 public let clGetPlatformIDs: cl_api_clGetPlatformIDs =
@@ -573,8 +583,8 @@ load(name: "clCreateEventFromEGLSyncKHR") ?? { _, _, _, _ in
 
 public let clCreateCommandQueueWithProperties:
   cl_api_clCreateCommandQueueWithProperties =
-load(name: "clCreateCommandQueueWithProperties") ?? { _, _, _, _ in
-  fatalError()
+load(name: "clCreateCommandQueueWithProperties") ?? { _, _, _, error in
+  objectCreationError(name: "clCreateCommandQueueWithProperties", error: error)
 }
 
 public let clCreatePipe: cl_api_clCreatePipe =
@@ -699,8 +709,8 @@ load(name: "clSetProgramSpecializationConstant") ?? { _, _, _, _ in
 // OpenCL 3.0
 
 public let clCreateBufferWithProperties: cl_api_clCreateBufferWithProperties =
-load(name: "clCreateBufferWithProperties") ?? { _, _, _, _, _, _ in
-  fatalError()
+load(name: "clCreateBufferWithProperties") ?? { _, _, _, _, _, error in
+  objectCreationError(name: "clCreateBufferWithProperties", error: error)
 }
 
 public let clCreateImageWithProperties: cl_api_clCreateImageWithProperties =

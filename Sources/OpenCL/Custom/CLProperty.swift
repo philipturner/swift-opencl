@@ -45,9 +45,11 @@ extension CLProperty {
     if let count = properties?.count {
       capacity += count * 2
     }
+    
     return try Swift.withUnsafeTemporaryAllocation(
       of: Key.RawValue.self, capacity: capacity
     ) { bufferPointer in
+      var argument = bufferPointer
       if let properties = properties {
         for i in 0..<properties.count {
           let keyIndex = i * 2
@@ -57,9 +59,9 @@ extension CLProperty {
         }
         bufferPointer[properties.count * 2] = 0
       } else {
-        bufferPointer[0] = 0
+        argument = UnsafeMutableBufferPointer(start: nil, count: 0)
       }
-      return try body(bufferPointer)
+      return try body(argument)
     }
   }
 }

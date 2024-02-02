@@ -8,5 +8,6 @@
 import COpenCL
 
 extension CLCommandQueue {
-  
+  // TODO: clEnqueueWriteBuffer
+  // - Set the default value of 'blocking' to 'true'.
 }
