@@ -29,16 +29,10 @@ let package = Package(
       name: "COpenCL",
       dependencies: []),
     
-    // Where the magic happens.
     .target(
       name: "OpenCL",
       dependencies: ["COpenCL"],
       exclude: [
-//        "C",
-//        "Core",
-//        "Custom",
-//        "Utilities",
-        
         // Scripts
         "C/Scripts"
       ]),

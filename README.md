@@ -1,14 +1,6 @@
-# SwiftOpenCL
+# Swift Bindings for OpenCL
 
-> Note: This is a work in progress. Do not use it for any project except contributing to the development of this repository.
-
-A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). This package runs on macOS, Linux, Windows, and Android - every platform except iOS\*. It automatically detects which OpenCL version you have at runtime, requiring no special build configuration or compiler flags.
-
-> \*On macOS, OpenCL is implemented as a layer on top of Metal. Apple views OpenCL as deprecated, so it prohibits use of OpenCL on iOS. Metal runs faster than OpenCL in some situations (especially ML), similarly to how CUDA is optimized for NVIDIA devices. If you can use SwiftOpenCL, learning Metal to run GPGPU algorithms on iOS should not be a major hurdle.
-
-## Usage
-
-Read through the tutorial notebook listed on [Swift-Colab](https://github.com/philipturner/swift-colab/#swift-tutorials). For quick reference, the notebook is linked _here_ (tutorial not yet created).
+A native Swift API for OpenCL, based on the [C++ bindings](https://github.com/KhronosGroup/OpenCL-CLHPP). This package runs on macOS, Linux, Windows, and Android - every platform except iOS\*. It detects which OpenCL version you have at runtime.
 
 ## Naming Conventions
 
@@ -32,7 +24,7 @@ This package's source code has numerous comments explaining where its API struct
 
 ## Tips
 
-Most properties of OpenCL types take a non-negligible time to retrieve, making multiple function calls under the hood. When possible, access them once and reuse the returned value. This rule of thumb may apply when using other GPU libraries, such as Metal.
+Most properties of OpenCL types take a non-negligible time to retrieve, making multiple function calls under the hood. When possible, access them once and reuse the returned value.
 
 ```swift
 import OpenCL
@@ -50,10 +42,6 @@ func inList(device: CLDevice, names: [String]) -> Bool {
 }
 ```
 
-SwiftOpenCL dynamically loads OpenCL symbols at runtime like [PythonKit](https://github.com/pvieito/PythonKit), so it can import OpenCL on macOS without depending on the Objective-C framework. This means SwiftOpenCL's Swift module can be named `OpenCL`. If you use SwiftOpenCL, ensure the system framework named `OpenCL` is not in your dependency chain.
+SwiftOpenCL dynamically loads OpenCL symbols at runtime like [PythonKit](https://github.com/pvieito/PythonKit), so it can import OpenCL on macOS without depending on the Objective-C framework. This means `swift-opencl`'s Swift module can be named `OpenCL`. If you use SwiftOpenCL, ensure the system framework named `OpenCL` is not in your dependency chain.
 
 `CLError` produces a name collision with Apple’s CoreLocation framework. You can work around it by stating `CoreLocation.CLError` and `OpenCL.CLError` explicitly.
-
-## Future Directions
-
-SwiftOpenCL could evolve into a wrapper for Metal, letting cross-platform GPU benchmarks run on iOS. This would enable OpenCL 3.0 functionality on Apple devices, which are eternally stuck on v1.2. The wrapper could also allow half-precision in shaders, which Apple withholds from OpenCL to reduce performance. SPIR-V should translate OpenCL C into MSL. If that does not work, Apple's [Metal developer tools for Windows](developer.apple.com/metal) allow for manually translating OpenCL shaders to Metal on non-Apple platforms.

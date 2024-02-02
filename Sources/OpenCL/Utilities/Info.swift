@@ -122,12 +122,14 @@ func getInfo_String(_ name: Int32, _ getInfo: GetInfoClosure) -> String? {
   }
   
   if required > 0 {
-    var value: UnsafeMutableRawPointer = .allocate(
-      byteCount: required, alignment: MemoryLayout<UInt8>.alignment)
-    error = getInfo(UInt32(name), required, &value, nil)
+    let value = UnsafeMutablePointer<UInt8>.allocate(capacity: required)
+    error = getInfo(UInt32(name), required, value, nil)
     guard CLError.setCode(error) else {
       value.deallocate()
       return nil
+    }
+    if value[required - 1] == 0 {
+      required -= 1
     }
     return String(
       bytesNoCopy: value, length: required, encoding: .utf8,
