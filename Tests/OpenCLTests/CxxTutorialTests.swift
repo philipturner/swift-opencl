@@ -115,11 +115,19 @@ final class CxxTutorialTests: XCTestCase {
     XCTAssertEqual(kernels.count, 2)
     let simpleAdd = kernels.first(where: { $0.functionName == "simple_add" })
     let otherAdd = kernels.first(where: { $0.functionName == "other_add" })
-    guard let simpleAdd, let otherAdd else {
+    guard var simpleAdd, var otherAdd else {
       fatalError("Could not retrieve kernels.")
     }
     
     // MARK: - Encode Commands
+    
+    try! simpleAdd.setArgument(A_d, index: 0)
+    try! simpleAdd.setArgument(B_d, index: 1)
+    try! simpleAdd.setArgument(C_d, index: 2)
+    try! simpleAdd.setArgument(D_d, index: 3)
+    try! queue.enqueueKernel(simpleAdd, globalSize: CLNDRange(width: listSize))
+    try! queue.finish()
+    
     
   }
 }

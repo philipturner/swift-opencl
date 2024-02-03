@@ -109,4 +109,35 @@ extension CLCommandQueue {
       throw CLError.latest!
     }
   }
+  
+  public mutating func enqueueKernel(
+    _ kernel: CLKernel,
+    globalOffset: CLNDRange? = nil,
+    globalSize: CLNDRange,
+    localSize: CLNDRange? = nil
+  ) throws {
+    try withUnsafeTemporaryAllocation(
+      of: SIMD4<Int>.self, capacity: 3
+    ) { vectors in
+      let opaque = OpaquePointer(vectors.baseAddress!)
+      let casted = UnsafePointer<Int>(opaque)
+      if let globalOffset {
+        vectors[0] = globalOffset.storage
+      }
+      vectors[1] = globalSize.storage
+      if let localSize {
+        vectors[2] = localSize.storage
+      }
+      
+      let error = clEnqueueNDRangeKernel(
+        wrapper.object, kernel.clKernel, cl_uint(globalSize.dimensions),
+        globalOffset == nil ? nil : casted + 0,
+        casted + 4,
+        localSize == nil ? nil : casted + 8,
+        0, nil, nil)
+      guard CLError.setCode(error, "__ENQUEUE_NDRANGE_KERNEL_ERR") else {
+        throw CLError.latest!
+      }
+    }
+  }
 }

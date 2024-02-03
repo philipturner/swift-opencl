@@ -32,15 +32,38 @@ public struct CLKernel: CLReferenceCountable {
     clReleaseKernel(object)
   }
   
-  // Create a protocol called `CLResource` to encapsulate every possible argument.
-  // public mutating func setArgument<T: CLResource>(_:index:)
-  // public mutating func setArgument(bytes:count/size:index:)
+  // This differs from the C API because putting the actual argument after
+  // 'setArgument(' looks more like plain English.
+  //
+  // To create a null buffer in the OpenCL kernel, enter 'nil' for the memory.
+  // This is the same as how null textures are specified in Metal.
+  public mutating func setArgument(
+    _ memory: CLMemoryProtocol?, index: Int
+  ) throws {
+    var clMemory: cl_mem?
+    if let memory {
+      clMemory = memory.memory.clMemory
+    }
+    
+    let error = clSetKernelArg(
+      wrapper.object, cl_uint(index), MemoryLayout<OpaquePointer>.stride,
+      &clMemory)
+    guard CLError.setCode(error, "__SET_KERNEL_ARGS_ERR") else {
+      throw CLError.latest!
+    }
+  }
   
-  // Document how this name differs from the C++ bindings.
-  // public mutating func setArgumentSVMPointer(_:index:)
-  
-  // Should these be raw pointers? Or should they be a special kind of object?
-  // public mutating func setSVMPointers(_: [UnsafeMutableRawPointer])
+  // Use this function to set local memory: enter a null pointer and only the
+  // size of the allocation.
+  public mutating func setArgument(
+    _ bytes: UnsafeRawPointer?, index: Int, size: Int
+  ) throws {
+    let error = clSetKernelArg(
+      wrapper.object, cl_uint(index), size, bytes)
+    guard CLError.setCode(error, "__SET_KERNEL_ARGS_ERR") else {
+      throw CLError.latest!
+    }
+  }
   
   // Prepends `set` to the C++ function `enableFineGrainedSystemSVM`. This shows
   // that the argument is the object of the verb `set`. Look at the comment
@@ -72,3 +95,4 @@ public struct CLKernel: CLReferenceCountable {
     return CLKernel(clKernel)
   }
 }
+
