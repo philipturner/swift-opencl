@@ -72,7 +72,7 @@ final class CxxTutorialTests: XCTestCase {
     
     var sources: [String] = []
     sources.append("""
-    void kernel simple_add(
+    kernel void simple_add(
       global const int* A,
       global const int* B,
       global int* C,
@@ -85,7 +85,7 @@ final class CxxTutorialTests: XCTestCase {
     }
     """)
     sources.append("""
-    void kernel other_add(
+    kernel void other_add(
       global const int* A,
       global const int* B,
       global int* C,
