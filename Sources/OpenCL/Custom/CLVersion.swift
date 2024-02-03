@@ -7,7 +7,7 @@
 
 import COpenCL
 
-public struct CLVersion: Comparable {
+public struct CLVersion: Comparable, Equatable {
   // Using `UInt32` instead of `Int` to halve CPU register usage. Also, it's a
   // standard type to represent things across the OpenCL API. `cl_version` is
   // even a typealias of `UInt32`.
@@ -40,7 +40,7 @@ public struct CLVersion: Comparable {
   }
 }
 
-public struct CLNameVersion {
+public struct CLNameVersion: Equatable {
   public var version: CLVersion
   public var name: String
   

@@ -83,7 +83,7 @@ extension CLProgram {
     if let combined = getInfo_String(CL_PROGRAM_KERNEL_NAMES, getInfo) {
       // Separated by semicolons.
       let substrings = combined.split(
-        separator: ";", omittingEmptySubsequences: false)
+        separator: ";", omittingEmptySubsequences: true)
       return substrings.map(String.init)
     } else {
       return nil

@@ -95,6 +95,23 @@ import COpenCL
 //  }
 
 extension CLCommandQueue {
+  public mutating func enqueueMap(
+    _ buffer: CLBuffer,
+    blocking: Bool = true,
+    flags: CLMapFlags,
+    offset: Int,
+    size: Int
+  ) throws -> UnsafeMutableRawPointer {
+    var error: Int32 = .zero
+    let pointer = clEnqueueMapBuffer(
+      wrapper.object, buffer.memory.clMemory, blocking ? 1 : 0, flags.rawValue,
+      offset, size, 0, nil, nil, &error)
+    guard CLError.setCode(error, "__ENQUEUE_MAP_BUFFER_ERR") else {
+      throw CLError.latest!
+    }
+    return pointer!
+  }
+  
   public mutating func enqueueRead(
     _ buffer: CLBuffer,
     blocking: Bool = true,
@@ -105,7 +122,18 @@ extension CLCommandQueue {
     let error = clEnqueueReadBuffer(
       wrapper.object, buffer.memory.clMemory, blocking ? 1 : 0,
       offset, size, pointer, 0, nil, nil)
-    guard CLError.setCode(error, "__ENQUEUE_REAd_BUFFER_ERR") else {
+    guard CLError.setCode(error, "__ENQUEUE_READ_BUFFER_ERR") else {
+      throw CLError.latest!
+    }
+  }
+  
+  public mutating func enqueueUnmap(
+    _ buffer: CLBuffer,
+    _ pointer: UnsafeMutableRawPointer
+  ) throws {
+    let error = clEnqueueUnmapMemObject(
+      wrapper.object, buffer.memory.clMemory, pointer, 0, nil, nil)
+    guard CLError.setCode(error, "__ENQUEUE_UNMAP_BUFFER_ERR") else {
       throw CLError.latest!
     }
   }

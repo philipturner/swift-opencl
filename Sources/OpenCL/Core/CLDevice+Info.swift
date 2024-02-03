@@ -217,7 +217,7 @@ extension CLDevice {
     if let combined = getInfo_String(CL_DEVICE_EXTENSIONS, getInfo) {
       // Separated by spaces.
       let substrings = combined.split(
-        separator: " ", omittingEmptySubsequences: false)
+        separator: " ", omittingEmptySubsequences: true)
       return substrings.map(String.init)
     } else {
       return nil
@@ -334,7 +334,7 @@ extension CLDevice {
     if let combined = getInfo_String(CL_DEVICE_BUILT_IN_KERNELS, getInfo) {
       // Separated by semicolons.
       let substrings = combined.split(
-        separator: ";", omittingEmptySubsequences: false)
+        separator: ";", omittingEmptySubsequences: true)
       return substrings.map(String.init)
     } else {
       return nil
@@ -441,7 +441,7 @@ extension CLDevice {
     if let combined = getInfo_String(CL_DEVICE_IL_VERSION, getInfo) {
       // Separated by spaces.
       let substrings = combined.split(
-        separator: " ", omittingEmptySubsequences: false)
+        separator: " ", omittingEmptySubsequences: true)
       return substrings.map(String.init)
     } else {
       return nil

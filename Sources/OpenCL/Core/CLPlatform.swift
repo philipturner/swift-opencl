@@ -172,7 +172,7 @@ extension CLPlatform {
     if let combined = getInfo_String(CL_PLATFORM_EXTENSIONS, getInfo) {
       // Separated by spaces.
       let substrings = combined.split(
-        separator: " ", omittingEmptySubsequences: false)
+        separator: " ", omittingEmptySubsequences: true)
       return substrings.map(String.init)
     } else {
       return nil
