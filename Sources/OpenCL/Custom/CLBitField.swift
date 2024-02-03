@@ -7,7 +7,7 @@
 
 import COpenCL
 
-protocol CLMacro: RawRepresentable where RawValue: BinaryInteger {}
+protocol CLMacro: RawRepresentable where RawValue: FixedWidthInteger {}
 extension CLMacro {
   init(_ macro: Int32) {
     self.init(rawValue: RawValue(macro))!

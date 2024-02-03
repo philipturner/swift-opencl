@@ -70,7 +70,7 @@ final class CxxTests: XCTestCase {
     
     guard let context = CLContext.default,
           let device = CLDevice.default,
-          var program = CLProgram(context: context, source: source) else {
+          let program = CLProgram(context: context, source: source) else {
       fatalError("Could not create program.")
     }
     try! program.build(device: device)
@@ -78,7 +78,7 @@ final class CxxTests: XCTestCase {
       fatalError("Could not create kernels.")
     }
     
-    var kernel = kernels[0]
+    let kernel = kernels[0]
     var scalarArg: UInt32 = 0xcafebabe
     var vectorArg: SIMD3<UInt32> = [0x12345678, 0x23456789, 0x87654321]
     try! kernel.setArgument(&scalarArg, index: 3, size: 4)
@@ -88,7 +88,7 @@ final class CxxTests: XCTestCase {
     try! kernel.setArgument(buffer, index: 1)
     try! kernel.setArgument(nil, index: 0, size: 123)
     
-    var commandQueue = CLCommandQueue(context: context, device: device)!
+    let commandQueue = CLCommandQueue(context: context, device: device)!
     try! commandQueue.enqueueKernel(kernel, globalSize: CLNDRange(width: 1))
     try! commandQueue.finish()
   }
@@ -99,7 +99,7 @@ final class CxxTests: XCTestCase {
     // unmap.
     guard let context = CLContext.default,
           let device = CLDevice.default,
-          var queue = CLCommandQueue(context: context, device: device) else {
+          let queue = CLCommandQueue(context: context, device: device) else {
       fatalError("Could not create resources.")
     }
     
@@ -194,7 +194,7 @@ final class CxxTests: XCTestCase {
     // Create the original program.
     guard let context = CLContext.default,
           let device = CLDevice.default,
-          var program = CLProgram(context: context, source: source) else {
+          let program = CLProgram(context: context, source: source) else {
       fatalError("Could not create context.")
     }
     try! program.build()
@@ -223,7 +223,7 @@ final class CxxTests: XCTestCase {
         XCTAssertEqual(binaryStatus, [CLErrorCode.success.rawValue])
       }
       
-      guard var loadedProgram else {
+      guard let loadedProgram else {
         XCTFail("Could not create program for 'usingBinaryStatus = \(usingBinaryStatus)'.")
         continue
       }
@@ -236,11 +236,11 @@ final class CxxTests: XCTestCase {
       // Create resources for a GPU command.
       let kernelIndex = loadedProgram.kernelNames!
         .firstIndex(of: "bufferFilter")!
-      var kernel = loadedProgram.createKernels()![kernelIndex]
+      let kernel = loadedProgram.createKernels()![kernelIndex]
       let bufferA = CLBuffer(context: context, flags: .readWrite, size: 4)!
       let bufferB = CLBuffer(context: context, flags: .readWrite, size: 4)!
       let bufferC = CLBuffer(context: context, flags: .readWrite, size: 4)!
-      var queue = CLCommandQueue.default!
+      let queue = CLCommandQueue.default!
       
       let buffers = [bufferA, bufferB, bufferC]
       var pointers: [UnsafeMutablePointer<Float>] = []
@@ -290,8 +290,8 @@ final class CxxTests: XCTestCase {
     
     let invalidProgram = CLProgram(context: context, source: invalidSource)
     let validProgram = CLProgram(context: context, source: validSource)
-    guard var invalidProgram,
-          var validProgram else {
+    guard let invalidProgram,
+          let validProgram else {
       fatalError("Could not create programs.")
     }
     

@@ -13,7 +13,7 @@ import COpenCL
 // Here is what such an API would look like:
 //
 //  @discardableResult
-//  private mutating func _enqueueWrite(
+//  private func _enqueueWrite(
 //    _ buffer: CLBuffer,
 //    blocking: Bool,
 //    offset: Int,
@@ -67,7 +67,7 @@ import COpenCL
 //    }
 //  }
 //
-//  public mutating func enqueueWrite(
+//  public func enqueueWrite(
 //    _ buffer: CLBuffer,
 //    blocking: Bool = true,
 //    offset: Int,
@@ -80,7 +80,7 @@ import COpenCL
 //      eventWaitList: eventWaitList, returnEvent: false)
 //  }
 //
-//  public mutating func enqueueWrite(
+//  public func enqueueWrite(
 //    _ buffer: CLBuffer,
 //    blocking: Bool = true,
 //    offset: Int,
@@ -95,7 +95,7 @@ import COpenCL
 //  }
 
 extension CLCommandQueue {
-  public mutating func enqueueMap(
+  public func enqueueMap(
     _ buffer: CLBuffer,
     blocking: Bool = true,
     flags: CLMapFlags,
@@ -112,7 +112,7 @@ extension CLCommandQueue {
     return pointer!
   }
   
-  public mutating func enqueueRead(
+  public func enqueueRead(
     _ buffer: CLBuffer,
     blocking: Bool = true,
     offset: Int,
@@ -127,7 +127,7 @@ extension CLCommandQueue {
     }
   }
   
-  public mutating func enqueueUnmap(
+  public func enqueueUnmap(
     _ buffer: CLBuffer,
     _ pointer: UnsafeMutableRawPointer
   ) throws {
@@ -138,7 +138,7 @@ extension CLCommandQueue {
     }
   }
   
-  public mutating func enqueueWrite(
+  public func enqueueWrite(
     _ buffer: CLBuffer,
     blocking: Bool = true,
     offset: Int,
@@ -153,7 +153,7 @@ extension CLCommandQueue {
     }
   }
   
-  public mutating func enqueueKernel(
+  public func enqueueKernel(
     _ kernel: CLKernel,
     globalOffset: CLNDRange? = nil,
     globalSize: CLNDRange,

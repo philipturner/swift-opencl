@@ -37,7 +37,7 @@ public struct CLKernel: CLReferenceCountable {
   //
   // To create a null buffer in the OpenCL kernel, enter 'nil' for the memory.
   // This is the same as how null textures are specified in Metal.
-  public mutating func setArgument(
+  public func setArgument(
     _ memory: CLMemoryProtocol?, index: Int
   ) throws {
     var clMemory: cl_mem?
@@ -55,7 +55,7 @@ public struct CLKernel: CLReferenceCountable {
   
   // Use this function to set local memory: enter a null pointer and only the
   // size of the allocation.
-  public mutating func setArgument(
+  public func setArgument(
     _ bytes: UnsafeRawPointer?, index: Int, size: Int
   ) throws {
     let error = clSetKernelArg(
@@ -68,7 +68,7 @@ public struct CLKernel: CLReferenceCountable {
   // Prepends `set` to the C++ function `enableFineGrainedSystemSVM`. This shows
   // that the argument is the object of the verb `set`. Look at the comment
   // above `CLEvent.setCallback` for more on this naming convention.
-  public mutating func setEnableFineGrainedSystemSVM(
+  public func setEnableFineGrainedSystemSVM(
     _ svmEnabled: Bool
   ) throws {
     var svmEnabled_: cl_bool = svmEnabled ? 1 : 0

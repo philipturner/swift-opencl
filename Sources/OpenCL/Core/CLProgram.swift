@@ -291,7 +291,7 @@ extension CLProgram {
     }
   }
   
-  public mutating func build(
+  public func build(
     devices: [CLDevice],
     options: String? = nil,
     notify: ((CLProgram) -> Void)? = nil
@@ -312,7 +312,7 @@ extension CLProgram {
     }
   }
   
-  public mutating func build(
+  public func build(
     device: CLDevice,
     options: String? = nil,
     notify: ((CLProgram) -> Void)? = nil
@@ -325,7 +325,7 @@ extension CLProgram {
     try throwBuildCode(error, "__BUILD_PROGRAM_ERR")
   }
   
-  public mutating func build(
+  public func build(
     options: String? = nil,
     notify: ((CLProgram) -> Void)? = nil
   ) throws {
@@ -367,7 +367,7 @@ extension CLProgram {
   
   // These don't work on macOS, so they are removed from the public API. In
   // addition, the current draft does not expose the devices to build for.
-//  public mutating func compile(
+//  public func compile(
 //    options: String? = nil,
 //    notify: ((CLProgram) -> Void)? = nil
 //  ) throws {
@@ -378,7 +378,7 @@ extension CLProgram {
 //    try throwBuildCode(error, "__COMPILE_PROGRAM_ERR")
 //  }
 //
-//  public mutating func setSpecializationConstant(
+//  public func setSpecializationConstant(
 //    _ value: Bool, index: UInt32
 //  ) throws {
 //    var ucValue: UInt8 = value ? .max : 0
@@ -387,7 +387,7 @@ extension CLProgram {
 //    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
 //  }
 //  
-//  public mutating func setSpecializationConstant<T>(
+//  public func setSpecializationConstant<T>(
 //    _ value: T, index: UInt32
 //  ) throws {
 //    var valueCopy = value
@@ -396,7 +396,7 @@ extension CLProgram {
 //    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
 //  }
 //  
-//  public mutating func setSpecializationConstant(
+//  public func setSpecializationConstant(
 //    _ value: UnsafeRawPointer, size: Int, index: UInt32
 //  ) throws {
 //    let error = clSetProgramSpecializationConstant(

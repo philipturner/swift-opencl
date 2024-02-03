@@ -60,7 +60,7 @@ final class CxxTutorialTests: XCTestCase {
     let C_h: [Int32] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     
     let queue = CLCommandQueue(context: context, device: defaultDevice)
-    guard var queue else {
+    guard let queue else {
       fatalError("Could not create queue.")
     }
     
@@ -98,7 +98,7 @@ final class CxxTutorialTests: XCTestCase {
     }
     """)
     
-    guard var program = CLProgram(context: context, sources: sources) else {
+    guard let program = CLProgram(context: context, sources: sources) else {
       fatalError("Could not create program.")
     }
     try! program.build(device: defaultDevice)
@@ -115,7 +115,7 @@ final class CxxTutorialTests: XCTestCase {
     XCTAssertEqual(kernels.count, 2)
     let simpleAdd = kernels.first(where: { $0.functionName == "simple_add" })
     let otherAdd = kernels.first(where: { $0.functionName == "other_add" })
-    guard var simpleAdd, var otherAdd else {
+    guard let simpleAdd, let otherAdd else {
       fatalError("Could not retrieve kernels.")
     }
     

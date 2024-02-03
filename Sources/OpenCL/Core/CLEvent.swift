@@ -46,7 +46,7 @@ public struct CLEvent: CLReferenceCountable {
   // to emphasize that this function is a setter, but that prohibits passing in
   // a trailing closure. Perhaps Swift 6 will allow a trailing closure:
   // https://github.com/apple/swift-evolution/blob/master/proposals/0286-forward-scan-trailing-closures.md
-  public mutating func setCallback(
+  public func setCallback(
     _ notify: @escaping (
       _ event: CLEvent,
       _ eventCommandStatus: CLCommandExecutionStatus) -> Void,
@@ -96,7 +96,7 @@ public struct CLUserEvent {
     self.event = event
   }
   
-  public mutating func setStatus(_ status: Int32) throws {
+  public func setStatus(_ status: Int32) throws {
     let error = clSetUserEventStatus(event.event, status)
     try CLError.throwCode(error, "__SET_USER_EVENT_STATUS_ERR")
   }

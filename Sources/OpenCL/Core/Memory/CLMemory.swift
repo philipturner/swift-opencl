@@ -32,7 +32,7 @@ public struct CLMemory: CLReferenceCountable {
     clReleaseMemObject(object)
   }
   
-  public mutating func setDestructorCallback(
+  public func setDestructorCallback(
     _ notify: @escaping (_ memory: CLMemory) -> Void
   ) throws {
     let callback = CLMemoryDestructorCallback(notify)

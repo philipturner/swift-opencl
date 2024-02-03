@@ -102,7 +102,7 @@ func getInfo_Data(_ name: Int32, _ getInfo: GetInfoClosure) -> Data? {
 }
 
 @inline(__always)
-func getInfo_Int<T: BinaryInteger>(
+func getInfo_Int<T: FixedWidthInteger>(
   _ name: Int32, _ getInfo: GetInfoClosure
 ) -> T? {
   var output: T = 0

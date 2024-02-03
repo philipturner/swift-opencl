@@ -206,7 +206,7 @@ public struct CLContext: CLReferenceCountable {
   // add `clSetContextDestructorCallback` to the bindings.
   //
   // Look at `CLEvent.setCallback` for why `notify` has no argument label.
-  public mutating func setDestructorCallback(
+  public func setDestructorCallback(
     _ notify: @escaping (_ context: CLContext) -> Void
   ) throws {
     let callback = CLContextDestructorCallback(notify)
