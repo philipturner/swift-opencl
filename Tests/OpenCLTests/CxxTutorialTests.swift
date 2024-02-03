@@ -93,8 +93,8 @@ final class CxxTutorialTests: XCTestCase {
     ) {
       D[get_global_id(0)] =
       A[get_global_id(0)] +
-      B[get_global_id(0)] +
-      C[get_global_id(0)];
+      B[get_global_id(0)] -
+      2 * C[get_global_id(0)];
     }
     """)
     
@@ -128,6 +128,19 @@ final class CxxTutorialTests: XCTestCase {
     try! queue.enqueueKernel(simpleAdd, globalSize: CLNDRange(width: listSize))
     try! queue.finish()
     
+    var D_h = [Int32](repeating: .zero, count: listSize)
+    try! queue.enqueueRead(D_d, offset: 0, size: listSize * 4, &D_h)
+    XCTAssertEqual(D_h, [11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
     
+    try! otherAdd.setArgument(A_d, index: 0)
+    try! otherAdd.setArgument(B_d, index: 1)
+    try! otherAdd.setArgument(C_d, index: 2)
+    try! otherAdd.setArgument(D_d, index: 3)
+    try! queue.enqueueKernel(otherAdd, globalSize: CLNDRange(width: listSize))
+    try! queue.finish()
+    
+    var otherD_h = [Int32](repeating: .zero, count: listSize)
+    try! queue.enqueueRead(D_d, offset: 0, size: listSize * 4, &otherD_h)
+    XCTAssertEqual(otherD_h, [8, 6, 4, 2, 0, -2, -4, -6, -8, -10])
   }
 }

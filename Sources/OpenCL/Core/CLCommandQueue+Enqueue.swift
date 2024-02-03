@@ -95,6 +95,21 @@ import COpenCL
 //  }
 
 extension CLCommandQueue {
+  public mutating func enqueueRead(
+    _ buffer: CLBuffer,
+    blocking: Bool = true,
+    offset: Int,
+    size: Int,
+    _ pointer: UnsafeMutableRawPointer
+  ) throws {
+    let error = clEnqueueReadBuffer(
+      wrapper.object, buffer.memory.clMemory, blocking ? 1 : 0,
+      offset, size, pointer, 0, nil, nil)
+    guard CLError.setCode(error, "__ENQUEUE_REAd_BUFFER_ERR") else {
+      throw CLError.latest!
+    }
+  }
+  
   public mutating func enqueueWrite(
     _ buffer: CLBuffer,
     blocking: Bool = true,
