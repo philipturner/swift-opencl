@@ -32,6 +32,22 @@ final class CxxTests: XCTestCase {
   }
   
   func testBufferConstructor() throws {
+    guard let platform = CLPlatform.default,
+          let device = platform.devices(type: .gpu)?.first,
+          let context = CLContext(device: device) else {
+      fatalError("Could not create resources.")
+    }
     
+    let commandQueue = CLCommandQueue(context: context, device: device)!
+    
+    var host = [Int32](repeating: .zero, count: 1024)
+    var buffer = CLBuffer(
+      context: context, flags: [.readWrite], size: 1024 * 4)
+    XCTAssertNotNil(buffer)
+    
+    buffer = CLBuffer(
+      context: context, flags: [.readWrite, .useHostPointer],
+      size: 1024 * 4, hostPointer: &host)
+    XCTAssertNotNil(buffer)
   }
 }
