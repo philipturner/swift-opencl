@@ -8,18 +8,7 @@
 import COpenCL
 import protocol Foundation.LocalizedError
 
-// TODO: Make a custom error description, store the underlying code in `Storage`
-// along with the enumeration or just make the computed property return the
-// enumeration.
-//
-// TODO: Change this from `LocalizedError` to `CustomStringConvertible`, like in
-// PythonKit.
-//
-// Ideas:
-// - Grab both the Swift and C function where the error originated. This
-//   eliminates the need for looking at the line where the error occurred,
-//   because there's often a 1:1 mapping of Swift to C functions.
-public struct CLError: LocalizedError {
+public struct CLError: Error, CustomStringConvertible {
   // Use reference counted storage to improve memory safety if swift-opencl ever
   // writes to `CLError.latest` from two threads simultaneously.
   private class Storage {
@@ -46,6 +35,12 @@ public struct CLError: LocalizedError {
     get { storage.message }
     set { storage.message = newValue }
   }
+  public var description: String {
+    "OpenCL error code \(code): \(message ?? "n/a")"
+  }
+  public var localizedDescription: String {
+    description
+  }
   
   // MARK: - Static Members
   
@@ -66,7 +61,7 @@ public struct CLError: LocalizedError {
   ) -> Never {
     var expandedMessage = "OpenCL error: \(message())"
     // Should this be `.localizedDescription` instead?
-    if let desc = CLError.latest?.errorDescription {
+    if let desc = CLError.latest?.description {
       expandedMessage += "\n\(desc)"
     } else {
       expandedMessage += "\nNo OpenCL errors present."
@@ -79,9 +74,6 @@ public struct CLError: LocalizedError {
     latest = CLError(code: code, message: message())
   }
   
-  // TODO: add #file and #line to allow reconstruction of the stack trace
-  // Pass #file and #line into getInfo_XXX as well.
-  // Decide whether to make this public after reforming the error mechanism.
   @usableFromInline @inline(__always)
   @discardableResult
   static func setCode(
@@ -95,7 +87,6 @@ public struct CLError: LocalizedError {
     }
   }
   
-  // Decide whether to make this public after reforming the error mechanism.
   @inline(__always)
   static func throwCode(
     _ code: Int32, _ message: @autoclosure () -> String? = Optional(nil)
@@ -105,7 +96,4 @@ public struct CLError: LocalizedError {
       throw latest!
     }
   }
-  
-  // TODO: more advanced functionality that holds a stack of errors, ways to
-  // flush them, stack traces, etc.
 }

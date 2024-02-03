@@ -258,6 +258,8 @@ extension CLDevice {
     getInfo_Int(CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF, getInfo)
   }
   
+  // Treating "OpenCL C" as one large word to capitalize together. The API
+  // looks more elegant this way.
   public var openclCVersion: String? {
     getInfo_String(CL_DEVICE_OPENCL_C_VERSION, getInfo)
   }

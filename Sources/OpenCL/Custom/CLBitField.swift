@@ -195,14 +195,6 @@ public enum CLChannelOrder: cl_channel_order, CLEnum {
   // "OpenCL C", other parts of this API translate it to `openclC`. This clearly
   // shows "opencl" came from one word and "C" came from another. The
   // alternative, `openCLC`, looks like something called "CLC" was very open.
-  //
-  // Even worse, when translating "DirectX 12" to Swift, you could do
-  // `directX12` instead of the lowercase `directx12`. Emphasis on the surprise
-  // "X!". Imagine the fun Microsoft would have with that in an irreversible,
-  // backwards-compatible API. Meanwhile, "Metal 3" becomes the beautiful
-  // `metal3` no matter what we do. This favoring of Apple's graphics libraries
-  // would sabotage our already finite efforts to make Swift something taken
-  // seriously on Windows.
   case srgb = 0x10BF
   case srgbx = 0x10C0
   case srgba = 0x10C1

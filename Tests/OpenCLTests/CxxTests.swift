@@ -313,4 +313,83 @@ final class CxxTests: XCTestCase {
     let validLog = validProgram.buildLog(device: device)!
     XCTAssertEqual(validLog, "")
   }
+  
+  func testVersion() throws {
+    guard let platform = CLPlatform.default,
+          let platformVersion = platform.version,
+          let device = CLDevice.default,
+          let deviceVersion = device.version,
+          let openclCVersion = device.openclCVersion else {
+      fatalError("Could not create versions.")
+    }
+    let versions = [platformVersion, deviceVersion, openclCVersion]
+    
+    for version in versions {
+      var openclLocation: String.Index?
+    outer:
+      for i in version.indices {
+        guard version[i] == "O" else {
+          continue
+        }
+        let opencl = "OpenCL"
+        
+        var versionIterator = i
+        var openclIterator = opencl.indices.first!
+        for _ in 0..<6 {
+          let versionLetter = version[versionIterator]
+          let openclLetter = opencl[openclIterator]
+          guard versionLetter == openclLetter else {
+            continue outer
+          }
+          versionIterator = version.index(after: versionIterator)
+          openclIterator = opencl.index(after: openclIterator)
+        }
+        openclLocation = i
+        break
+      }
+      guard let openclLocation else {
+        fatalError("Could not locate OpenCL in version string.")
+      }
+      
+      var cursor = openclLocation
+      XCTAssertEqual(version[cursor], "O")
+      for _ in 0..<6 {
+        cursor = version.index(after: cursor)
+      }
+      XCTAssertEqual(version[cursor], " ")
+      
+      // Skip the "C" character, if it exists.
+      cursor = version.index(after: cursor)
+      if version[cursor] == "C" {
+        cursor = version.index(after: cursor)
+        cursor = version.index(after: cursor)
+      }
+      
+      // Locate the major version.
+      let major = version[cursor].asciiValue! - Character("0").asciiValue!
+      
+      // Locate the minor version.
+      cursor = version.index(after: cursor)
+      XCTAssertEqual(version[cursor], ".")
+      cursor = version.index(after: cursor)
+      let minor = version[cursor].asciiValue! - Character("0").asciiValue!
+      
+      let clVersion = CLVersion(major: UInt32(major), minor: UInt32(minor))
+      let minimumVersion = CLVersion(major: 1, minor: 2)
+      XCTAssertGreaterThanOrEqual(clVersion, minimumVersion)
+      
+      let maximumVersion = CLVersion(major: 10, minor: 10, patch: 10)
+      XCTAssertLessThan(clVersion, maximumVersion)
+    }
+  }
+  
+  func testDevice() throws {
+    guard let device = CLDevice.default else {
+      fatalError("Could not retrieve device.")
+    }
+    
+    XCTAssertNotNil(device.vendorID)
+    XCTAssertNotNil(device.vendor)
+    XCTAssertNotNil(device.name)
+  }
 }
