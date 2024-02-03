@@ -107,7 +107,7 @@ public struct CLDevice: CLReferenceCountable {
   //
   // Instead of naming the argument label `property`, I chose the more
   // descriptive label `partitionType`. This creates an API similar to
-  // `CLPlatform.devices(type:)`. No other functions in SwiftOpenCL use an API
+  // `CLPlatform.devices(type:)`. No other functions in swift-opencl use an API
   // like `CLPlatform.devices(property:)`, so a label similar to `type` may
   // create a uniform naming convention.
   public func subDevices(

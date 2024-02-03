@@ -57,9 +57,4 @@ public struct CLBuffer: CLMemoryProtocol {
     }
     self.init(_unsafeMemory: memory)
   }
-  
-  // Removing the initializer with `IteratorType`. SwiftOpenCL exposes the bare
-  // functionality of OpenCL, and does not create new higher-level functions for
-  // convenience. The developer must explicitly specify the commands for sharing
-  // or copying host memory.
 }

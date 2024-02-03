@@ -36,7 +36,7 @@ final class CLReferenceWrapper<T: CLReferenceCountable> {
   init?(_ object: OpaquePointer, _ shouldRetain: Bool) {
     self.object = object
     self.shouldRetain = shouldRetain
-    if _slowPath(shouldRetain) {
+    if shouldRetain {
       guard retain() else {
         return nil
       }
@@ -44,10 +44,10 @@ final class CLReferenceWrapper<T: CLReferenceCountable> {
   }
   
   // I don't know whether `@inlinable` is required to force-inline `deinit` in
-  // a module importing SwiftOpenCL, but I won't risk it.
+  // a module importing swift-opencl, but I won't risk it.
   @inlinable @inline(__always)
   deinit {
-    if _slowPath(shouldRetain) {
+    if shouldRetain {
       _ = release()
     }
   }

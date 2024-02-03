@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-  name: "SwiftOpenCL",
+  name: "swift-opencl",
   products: [
     .library(
       name: "OpenCL",
@@ -20,7 +20,7 @@ let package = Package(
     //
     // COpenCL does not link any libraries, letting me bypass the restriction
     // on overriding system module names. I can freely use `OpenCL` in Swift
-    // code while referring to SwiftOpenCL, rather than the Objective-C module
+    // code while referring to swift-opencl, rather than the Objective-C module
     // that Apple created.
     //
     // Rather than specify a target OpenCL version, I silenced the warning

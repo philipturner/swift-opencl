@@ -28,6 +28,7 @@ protocol CLCallback {
 extension CLCallback {
   @inline(__always)
   init(_ functionPointer: FunctionPointer?) {
+    // Keeping this slow-path because it may be critical to performance.
     if _slowPath(functionPointer != nil) {
       self.init(storage: Storage(functionPointer!))
     } else {

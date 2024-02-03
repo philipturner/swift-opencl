@@ -20,7 +20,7 @@ import protocol Foundation.LocalizedError
 //   eliminates the need for looking at the line where the error occurred,
 //   because there's often a 1:1 mapping of Swift to C functions.
 public struct CLError: LocalizedError {
-  // Use reference counted storage to improve memory safety if SwiftOpenCL ever
+  // Use reference counted storage to improve memory safety if swift-opencl ever
   // writes to `CLError.latest` from two threads simultaneously.
   private class Storage {
     var code: Int32
@@ -87,7 +87,7 @@ public struct CLError: LocalizedError {
   static func setCode(
     _ code: Int32, _ message: @autoclosure () -> String? = Optional(nil)
   ) -> Bool {
-    if _slowPath(code != CL_SUCCESS) {
+    if code != CL_SUCCESS {
       setLatest(code: code, message: message)
       return false
     } else {
@@ -100,7 +100,7 @@ public struct CLError: LocalizedError {
   static func throwCode(
     _ code: Int32, _ message: @autoclosure () -> String? = Optional(nil)
   ) throws {
-    if _slowPath(code != CL_SUCCESS) {
+    if code != CL_SUCCESS {
       setLatest(code: code, message: message)
       throw latest!
     }

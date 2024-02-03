@@ -363,9 +363,8 @@ public enum CLCommandType: cl_command_type, CLEnum {
   case svmMigrateMemory = 0x120E
 }
 
-// No associated C typedef or enumeration in COpenCL. SwiftOpenCL synthesizes
-// this new type for developer ergonomics. Should this declaration be `public`
-// or `internal`?
+// No associated C typedef or enumeration in COpenCL. swift-opencl synthesizes
+// this new type for developer ergonomics.
 public enum CLCommandExecutionStatus: Int32, CLEnum {
   case complete = 0x0
   case running = 0x1

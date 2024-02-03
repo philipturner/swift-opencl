@@ -11,7 +11,7 @@ final class CxxTests: XCTestCase {
       fatalError("Could not create resources.")
     }
     
-    var commandQueue = CLCommandQueue(context: context, device: device)!
+    let commandQueue = CLCommandQueue(context: context, device: device)!
     XCTAssertEqual(commandQueue.context!.clContext, context.clContext)
     XCTAssertEqual(commandQueue.device!.clDeviceID, device.clDeviceID)
     
@@ -37,8 +37,6 @@ final class CxxTests: XCTestCase {
           let context = CLContext(device: device) else {
       fatalError("Could not create resources.")
     }
-    
-    let commandQueue = CLCommandQueue(context: context, device: device)!
     
     var host = [Int32](repeating: .zero, count: 1024)
     var buffer = CLBuffer(
@@ -164,42 +162,109 @@ final class CxxTests: XCTestCase {
     XCTAssertEqual(device.builtInKernels, [])
   }
   
-  func testLinkProgram() throws {
-    // TODO: Test whether you can declare a symbol in the first program, but
-    // defer its implementation to another. This could be very helpful for
-    // reducing compile time of the OpenCL Metal stdlib.
-    //
-    // TODO: Test whether you can create header programs from source, and use
-    // that to (maybe) reduce the compile time of the OpenCL Metal stdlib. Or,
-    // at least avoid the injection of raw shader code. Transform the OpenCL
-    // Metal stdlib into a neat include ("#include <metal_stdlib").
-    let source1 = """
-    kernel void testKernel1(local bool* argument0,
-                            local bool* argument1) {
-      *argument0 = *argument1;
+  func testProgramBinary() throws {
+    let source = """
+    float functionA(float x);
+    float functionB(float x);
+    
+    // evaluates C = 2 * A + B^2
+    kernel void bufferFilter(global float *bufferA,
+                             global float *bufferB,
+                             global float *bufferC) {
+      float valueA = bufferA[0];
+      float valueB = bufferB[0];
+      valueA = functionA(valueA);
+      valueB = functionB(valueB);
+      bufferC[0] = valueA + valueB;
     }
-    """
-    let source2 = """
-    kernel void testKernel2(global bool* argument0,
-                            global bool* argument1) {
-      *argument0 = *argument1;
+    
+    kernel void unusedFunction() {
+    
+    }
+    
+    float functionA(float x) {
+      return x + x;
+    }
+    
+    float functionB(float x) {
+      return x * x;
     }
     """
     
+    // Create the original program.
     guard let context = CLContext.default,
           let device = CLDevice.default,
-          var program1 = CLProgram(context: context, source: source1),
-          var program2 = CLProgram(context: context, source: source2) else {
-      fatalError("Could not create programs.")
+          var program = CLProgram(context: context, source: source) else {
+      fatalError("Could not create context.")
     }
+    try! program.build()
+    XCTAssertEqual(
+      program.kernelNames?.sorted(), 
+      ["bufferFilter", "unusedFunction"])
     
-    // TODO: Figure out why the program is failing to compile.
-//    try! program1.compile()
-//    try! program2.compile()
+    // Extract the binary.
+    guard let binaries = program.binaries,
+          let binary = binaries.first else {
+      fatalError("Could not create binary.")
+    }
+    XCTAssertEqual(binaries.count, 1)
     
-    let program = CLProgram.link(program1, program2)
-    let programFromVector = CLProgram.link([program1, program2])
-    XCTAssertNil(program)
-    XCTAssertNil(programFromVector)
+    // Create another program with the binary.
+    for usingBinaryStatus in [false, true] {
+      var loadedProgram: CLProgram?
+      if usingBinaryStatus {
+        loadedProgram = CLProgram(
+          context: context, devices: [device], binaries: [binary])
+      } else {
+        var binaryStatus: [Int32] = []
+        loadedProgram = CLProgram(
+          context: context, devices: [device], binaries: [binary], 
+          binaryStatus: &binaryStatus)
+        XCTAssertEqual(binaryStatus, [CLErrorCode.success.rawValue])
+      }
+      
+      guard var loadedProgram else {
+        XCTFail("Could not create program for 'usingBinaryStatus = \(usingBinaryStatus)'.")
+        continue
+      }
+      try! loadedProgram.build()
+      XCTAssertEqual(loadedProgram.numKernels, 2)
+      XCTAssertEqual(
+        loadedProgram.kernelNames?.sorted(),
+        ["bufferFilter", "unusedFunction"])
+      
+      // Create resources for a GPU command.
+      let kernelIndex = loadedProgram.kernelNames!
+        .firstIndex(of: "bufferFilter")!
+      var kernel = loadedProgram.createKernels()![kernelIndex]
+      let bufferA = CLBuffer(context: context, flags: .readWrite, size: 4)!
+      let bufferB = CLBuffer(context: context, flags: .readWrite, size: 4)!
+      let bufferC = CLBuffer(context: context, flags: .readWrite, size: 4)!
+      var queue = CLCommandQueue.default!
+      
+      let buffers = [bufferA, bufferB, bufferC]
+      var pointers: [UnsafeMutablePointer<Float>] = []
+      for buffer in buffers {
+        let pointer = try! queue
+          .enqueueMap(buffer, flags: [.read, .write], offset: 0, size: 4)
+          .assumingMemoryBound(to: Float.self)
+        pointers.append(pointer)
+      }
+      
+      // Encode the arguments for a GPU command.
+      try! kernel.setArgument(bufferA, index: 0)
+      pointers[0].pointee = 6
+      pointers[1].pointee = 7
+      pointers[2].pointee = -2
+      try! kernel.setArgument(bufferB, index: 1)
+      try! kernel.setArgument(bufferC, index: 2)
+      
+      // Issue a GPU command.
+      try! queue.enqueueKernel(kernel, globalSize: CLNDRange(width: 1))
+      try! queue.finish()
+      XCTAssertEqual(2 * 6 + 7 * 7, pointers[2].pointee)
+    }
   }
+  
+  // TODO: Test the build log.
 }

@@ -39,12 +39,8 @@ public struct CLProgram: CLReferenceCountable {
   // "-cl-std=CL2.0" to this niche build pathway, but not to explicit
   // `Program::build` members. On devices that don't support OpenCL 2.0, the
   // OpenCL C compiler would fail as described in the OpenCL 3.0 specification.
-  // This build pathway will not be part of SwiftOpenCL because it's opaque to
+  // This build pathway will not be part of swift-opencl because it's opaque to
   // the developer and could cause an unintentional bug.
-  //
-  // If you're concerned about the CPU-side overhead of separating
-  // initialization and building into two function calls, you can just call the
-  // underlying C functions manually.
   //
   // I am also keeping the option to build with one source instead of an array
   // of sources. This creates multiple ways of accomplishing the same thing, but
@@ -155,7 +151,7 @@ public struct CLProgram: CLReferenceCountable {
     context: CLContext,
     devices: [CLDevice],
     binaries: [Data],
-    binaryStatus: inout [Int32]?,
+    binaryStatus: inout [Int32],
     usingBinaryStatus: Bool
   ) {
     var error: Int32 = CL_SUCCESS
@@ -167,42 +163,43 @@ public struct CLProgram: CLReferenceCountable {
     
     var object_: cl_program?
     withExtendedLifetime(binaries) {
-    
-    withUnsafeTemporaryAllocation(
-      of: Int.self, capacity: numDevices
-    ) { bufferPointer in
-      let lengths = bufferPointer.baseAddress.unsafelyUnwrapped
       
-    withUnsafeTemporaryAllocation(
-      of: UnsafePointer<UInt8>?.self, capacity: numDevices
-    ) { bufferPointer in
-      let images = bufferPointer.baseAddress.unsafelyUnwrapped
-      
-    withUnsafeTemporaryAllocation(
-      of: cl_device_id?.self, capacity: numDevices
-    ) { bufferPointer in
-      let clDeviceIDs = bufferPointer.baseAddress.unsafelyUnwrapped
-      for i in 0..<numDevices {
-        binaries[i].withUnsafeBytes {
-          lengths[i] = $0.count
-          images[i] = $0.baseAddress?.assumingMemoryBound(to: UInt8.self)
+      withUnsafeTemporaryAllocation(
+        of: Int.self, capacity: numDevices
+      ) { bufferPointer in
+        let lengths = bufferPointer.baseAddress.unsafelyUnwrapped
+        
+        withUnsafeTemporaryAllocation(
+          of: UnsafePointer<UInt8>?.self, capacity: numDevices
+        ) { bufferPointer in
+          let executables = bufferPointer.baseAddress.unsafelyUnwrapped
+          
+          withUnsafeTemporaryAllocation(
+            of: cl_device_id?.self, capacity: numDevices
+          ) { bufferPointer in
+            let clDeviceIDs = bufferPointer.baseAddress.unsafelyUnwrapped
+            for i in 0..<numDevices {
+              binaries[i].withUnsafeBytes {
+                lengths[i] = $0.count
+                executables[i] = $0.baseAddress?
+                  .assumingMemoryBound(to: UInt8.self)
+              }
+              clDeviceIDs[i] = devices[i].clDeviceID
+            }
+            
+            if usingBinaryStatus {
+              binaryStatus = Array(repeating: 0, count: numDevices)
+              object_ = clCreateProgramWithBinary(
+                context.clContext, UInt32(numDevices), clDeviceIDs, lengths,
+                executables, &binaryStatus, &error)
+            } else {
+              object_ = clCreateProgramWithBinary(
+                context.clContext, UInt32(numDevices), clDeviceIDs, lengths,
+                executables, nil, &error)
+            }
+          }
         }
-        clDeviceIDs[i] = devices[i].clDeviceID
       }
-      
-      if usingBinaryStatus {
-        binaryStatus = Array(repeating: 0, count: numDevices)
-        object_ = clCreateProgramWithBinary(
-          context.clContext, UInt32(numDevices), clDeviceIDs, lengths, images,
-          &binaryStatus!, &error)
-      } else {
-        object_ = clCreateProgramWithBinary(
-          context.clContext, UInt32(numDevices), clDeviceIDs, lengths, images,
-          nil, &error)
-      }
-    }
-    }
-    }
     }
     
     guard CLError.setCode(error, "__CREATE_PROGRAM_WITH_BINARY_ERR"),
@@ -218,7 +215,7 @@ public struct CLProgram: CLReferenceCountable {
     devices: [CLDevice],
     binaries: [Data]
   ) {
-    var ignoredBinaryStatus: [Int32]?
+    var ignoredBinaryStatus: [Int32] = []
     self.init(
       context: context, devices: devices, binaries: binaries,
       binaryStatus: &ignoredBinaryStatus, usingBinaryStatus: false)
@@ -229,7 +226,7 @@ public struct CLProgram: CLReferenceCountable {
     context: CLContext,
     devices: [CLDevice],
     binaries: [Data],
-    binaryStatus: inout [Int32]?
+    binaryStatus: inout [Int32]
   ) {
     self.init(
       context: context, devices: devices, binaries: binaries,
@@ -294,7 +291,6 @@ extension CLProgram {
     }
   }
   
-  // Change `notify` to a single-line type declaration.
   public mutating func build(
     devices: [CLDevice],
     options: String? = nil,
@@ -340,17 +336,6 @@ extension CLProgram {
     try throwBuildCode(error, "__BUILD_PROGRAM_ERR")
   }
   
-  public mutating func compile(
-    options: String? = nil,
-    notify: ((CLProgram) -> Void)? = nil
-  ) throws {
-    let callback = CLProgramCallback(notify)
-    let error = clCompileProgram(
-      wrapper.object, 0, nil, options, 0, nil, nil, callback.callback,
-      callback.passRetained())
-    try throwBuildCode(error, "__COMPILE_PROGRAM_ERR")
-  }
-  
   public func createKernels() -> [CLKernel]? {
     var numKernels: UInt32 = 0
     var error = clCreateKernelsInProgram(wrapper.object, 0, nil, &numKernels)
@@ -380,86 +365,99 @@ extension CLProgram {
     }
   }
   
-  public mutating func setSpecializationConstant(
-    _ value: Bool, index: UInt32
-  ) throws {
-    var ucValue: UInt8 = value ? .max : 0
-    let error = clSetProgramSpecializationConstant(
-      wrapper.object, index, MemoryLayout.stride(ofValue: ucValue), &ucValue)
-    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
-  }
-  
-  public mutating func setSpecializationConstant<T>(
-    _ value: T, index: UInt32
-  ) throws {
-    var valueCopy = value
-    let error = clSetProgramSpecializationConstant(
-      wrapper.object, index, MemoryLayout<T>.stride, &valueCopy)
-    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
-  }
-  
-  public mutating func setSpecializationConstant(
-    _ value: UnsafeRawPointer, size: Int, index: UInt32
-  ) throws {
-    let error = clSetProgramSpecializationConstant(
-      wrapper.object, index, size, value)
-    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
-  }
-  
-  public static func link(
-    _ input1: CLProgram,
-    _ input2: CLProgram,
-    options: String? = nil,
-    notify: ((CLProgram) -> Void)? = nil
-  ) -> CLProgram? {
-    var error: Int32 = CL_SUCCESS
-    guard let ctx = input1.context else {
-      CLError.latest!.message = "__LINK_PROGRAM_ERR"
-      return nil
-    }
-
-    let prog: cl_program? = withUnsafeTemporaryAllocation(
-      of: cl_program?.self, capacity: 2
-    ) { clPrograms in
-      clPrograms[0] = input1.clProgram
-      clPrograms[1] = input2.clProgram
-      
-      let callback = CLProgramCallback(notify)
-      return clLinkProgram(
-        ctx.clContext, 0, nil, options, 2, clPrograms.baseAddress,
-        callback.callback, callback.passRetained(), &error)
-    }
-    guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
-          let prog = prog else {
-      return nil
-    }
-    return CLProgram(prog)
-  }
-  
-  public static func link(
-    _ inputPrograms: [CLProgram],
-    options: String? = nil,
-    notify: ((CLProgram) -> Void)? = nil
-  ) -> CLProgram? {
-    var error: Int32 = CL_SUCCESS
-    let clPrograms: [cl_program?] = inputPrograms.map(\.clProgram)
-    var clContext: cl_context?
-    if inputPrograms.count > 0 {
-      guard let ctx = inputPrograms[0].context else {
-        CLError.latest!.message = "__LINK_PROGRAM_ERR"
-        return nil
-      }
-      clContext = ctx.clContext
-    }
-    
-    let callback = CLProgramCallback(notify)
-    let prog = clLinkProgram(
-      clContext, 0, nil, options, UInt32(inputPrograms.count), clPrograms,
-      callback.callback, callback.passRetained(), &error)
-    guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
-          let prog = prog else {
-      return nil
-    }
-    return CLProgram(prog)
-  }
+  // These don't work on macOS, so they are removed from the public API. In
+  // addition, the current draft does not expose the devices to build for.
+//  public mutating func compile(
+//    options: String? = nil,
+//    notify: ((CLProgram) -> Void)? = nil
+//  ) throws {
+//    let callback = CLProgramCallback(notify)
+//    let error = clCompileProgram(
+//      wrapper.object, 0, nil, options, 0, nil, nil, callback.callback,
+//      callback.passRetained())
+//    try throwBuildCode(error, "__COMPILE_PROGRAM_ERR")
+//  }
+//
+//  public mutating func setSpecializationConstant(
+//    _ value: Bool, index: UInt32
+//  ) throws {
+//    var ucValue: UInt8 = value ? .max : 0
+//    let error = clSetProgramSpecializationConstant(
+//      wrapper.object, index, MemoryLayout.stride(ofValue: ucValue), &ucValue)
+//    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
+//  }
+//  
+//  public mutating func setSpecializationConstant<T>(
+//    _ value: T, index: UInt32
+//  ) throws {
+//    var valueCopy = value
+//    let error = clSetProgramSpecializationConstant(
+//      wrapper.object, index, MemoryLayout<T>.stride, &valueCopy)
+//    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
+//  }
+//  
+//  public mutating func setSpecializationConstant(
+//    _ value: UnsafeRawPointer, size: Int, index: UInt32
+//  ) throws {
+//    let error = clSetProgramSpecializationConstant(
+//      wrapper.object, index, size, value)
+//    try CLError.throwCode(error, "__SET_PROGRAM_SPECIALIZATION_CONSTANT_ERR")
+//  }
+//  
+//  public static func link(
+//    _ input1: CLProgram,
+//    _ input2: CLProgram,
+//    options: String? = nil,
+//    notify: ((CLProgram) -> Void)? = nil
+//  ) -> CLProgram? {
+//    var error: Int32 = CL_SUCCESS
+//    guard let ctx = input1.context else {
+//      CLError.latest!.message = "__LINK_PROGRAM_ERR"
+//      return nil
+//    }
+//
+//    let prog: cl_program? = withUnsafeTemporaryAllocation(
+//      of: cl_program?.self, capacity: 2
+//    ) { clPrograms in
+//      clPrograms[0] = input1.clProgram
+//      clPrograms[1] = input2.clProgram
+//      
+//      let callback = CLProgramCallback(notify)
+//      return clLinkProgram(
+//        ctx.clContext, 0, nil, options, 2, clPrograms.baseAddress,
+//        callback.callback, callback.passRetained(), &error)
+//    }
+//    guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
+//          let prog = prog else {
+//      return nil
+//    }
+//    return CLProgram(prog)
+//  }
+//  
+//  public static func link(
+//    _ inputPrograms: [CLProgram],
+//    options: String? = nil,
+//    notify: ((CLProgram) -> Void)? = nil
+//  ) -> CLProgram? {
+//    var error: Int32 = CL_SUCCESS
+//    let clPrograms: [cl_program?] = inputPrograms.map(\.clProgram)
+//    var clContext: cl_context?
+//    if inputPrograms.count > 0 {
+//      guard let ctx = inputPrograms[0].context else {
+//        CLError.latest!.message = "__LINK_PROGRAM_ERR"
+//        return nil
+//      }
+//      clContext = ctx.clContext
+//    }
+//    
+//    let callback = CLProgramCallback(notify)
+//    let prog = clLinkProgram(
+//      clContext, 0, nil, options, UInt32(inputPrograms.count), clPrograms,
+//      callback.callback, callback.passRetained(), &error)
+//    guard CLError.setCode(error, "__COMPILE_PROGRAM_ERR"),
+//          let prog = prog else {
+//      return nil
+//    }
+//    return CLProgram(prog)
+//  }
 }

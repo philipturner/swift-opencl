@@ -390,7 +390,6 @@ load(name: "clGetGLContextInfoKHR") ?? { _, _, _, _, _ in
 }
 
 // cl_khr_d3d10_sharing
-// Not part of SwiftOpenCL for now.
 
 // OpenCL 1.1
 
@@ -550,10 +549,8 @@ load(name: "clCreateFromGLTexture") ?? { _, _, _, _, _, _ in
 }
 
 // cl_khr_d3d11_sharing
-// Not part of SwiftOpenCL for now.
 
 // cl_khr_dx9_media_sharing
-// Not part of SwiftOpenCL for now.
 
 // cl_khr_egl_image
 
