@@ -266,5 +266,51 @@ final class CxxTests: XCTestCase {
     }
   }
   
-  // TODO: Test the build log.
+  func testBuildLog() throws {
+    // Ensure the OpenCL compiler fails on an invalid program and reports the
+    // failure to the log. Afterward, the compiler should successfully compile
+    // a valid program.
+    guard let context = CLContext.default,
+          let device = CLDevice.default else {
+      fatalError("Could not create context and device.")
+    }
+    
+    let invalidSource = """
+    kernel void invalidFunction(global float *bufferA,
+                                global float *bufferB) {
+      bufferE[0] = bufferA[0];
+    }
+    """
+    let validSource = """
+    kernel void validFunction(global float *bufferA,
+                              global float *bufferB) {
+      bufferB[0] = bufferA[0];
+    }
+    """
+    
+    let invalidProgram = CLProgram(context: context, source: invalidSource)
+    let validProgram = CLProgram(context: context, source: validSource)
+    guard var invalidProgram,
+          var validProgram else {
+      fatalError("Could not create programs.")
+    }
+    
+    // The Swift compiler confuses 'CLBuildStatus.none' with 'Optional.none',
+    // so we explicitly unwrap the optional.
+    XCTAssertEqual(invalidProgram.buildStatus(device: device)!, .none)
+    XCTAssertThrowsError(try invalidProgram.build())
+    XCTAssertEqual(invalidProgram.buildOptions(device: device), "")
+    XCTAssertEqual(invalidProgram.buildStatus(device: device), .error)
+    
+    let invalidLog = invalidProgram.buildLog(device: device)!
+    XCTAssert(invalidLog.contains("bufferE"))
+    
+    XCTAssertEqual(validProgram.buildStatus(device: device)!, .none)
+    XCTAssertNoThrow(try validProgram.build())
+    XCTAssertEqual(validProgram.buildOptions(device: device), "")
+    XCTAssertEqual(validProgram.buildStatus(device: device), .success)
+    
+    let validLog = validProgram.buildLog(device: device)!
+    XCTAssertEqual(validLog, "")
+  }
 }
