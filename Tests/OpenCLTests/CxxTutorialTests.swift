@@ -101,7 +101,12 @@ final class CxxTutorialTests: XCTestCase {
     guard let program = CLProgram(context: context, sources: sources) else {
       fatalError("Could not create program.")
     }
-    try! program.build(device: defaultDevice)
+    do {
+      try program.build(device: defaultDevice)
+    } catch {
+      fatalError(
+        "Could not build program: \(program.buildLog(device: defaultDevice) ?? "n/a")")
+    }
     XCTAssertEqual(program.numKernels, 2)
     guard let kernelNames = program.kernelNames else {
       fatalError("Could not retrieve kernel names.")

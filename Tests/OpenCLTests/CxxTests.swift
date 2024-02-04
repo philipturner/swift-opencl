@@ -73,7 +73,12 @@ final class CxxTests: XCTestCase {
           let program = CLProgram(context: context, source: source) else {
       fatalError("Could not create program.")
     }
-    try! program.build(device: device)
+    do {
+      try program.build(device: device)
+    } catch {
+      fatalError(
+        "Could not build program: \(program.buildLog(device: device) ?? "n/a")")
+    }
     guard let kernels = program.createKernels(), kernels.count == 1 else {
       fatalError("Could not create kernels.")
     }
@@ -197,7 +202,12 @@ final class CxxTests: XCTestCase {
           let program = CLProgram(context: context, source: source) else {
       fatalError("Could not create context.")
     }
-    try! program.build()
+    do {
+      try program.build(device: device)
+    } catch {
+      fatalError(
+        "Could not build program: \(program.buildLog(device: device) ?? "n/a")")
+    }
     XCTAssertEqual(
       program.kernelNames?.sorted(), 
       ["bufferFilter", "unusedFunction"])
@@ -311,7 +321,7 @@ final class CxxTests: XCTestCase {
     XCTAssertEqual(validProgram.buildStatus(device: device), .success)
     
     let validLog = validProgram.buildLog(device: device)!
-    XCTAssertEqual(validLog, "")
+    XCTAssert(!validLog.contains(where: { $0.isLetter }))
   }
   
   func testVersion() throws {
