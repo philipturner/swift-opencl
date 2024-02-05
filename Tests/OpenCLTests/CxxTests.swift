@@ -244,7 +244,9 @@ final class CxxTests: XCTestCase {
           devices: program.devices!,
           binaries: program.binaries!,
           binaryStatus: &binaryStatus)
-        XCTAssertEqual(binaryStatus, [CLErrorCode.success.rawValue])
+        let expected = Array(
+          repeating: CLErrorCode.success.rawValue, count: binaries.count)
+        XCTAssertEqual(binaryStatus, expected)
       }
       
       guard let loadedProgram else {
@@ -299,7 +301,18 @@ final class CxxTests: XCTestCase {
       // Issue a GPU command.
       try! queue.enqueueKernel(kernel, globalSize: CLNDRange(width: 1))
       try! queue.finish()
-      XCTAssertEqual(2 * 6 + 7 * 7, pointers[2].pointee)
+      XCTAssertEqual(2 * 6 + 7 * 7, pointers[2].pointee, "Attempt 1")
+      try! queue.flush()
+      try! queue.finish()
+      XCTAssertEqual(2 * 6 + 7 * 7, pointers[2].pointee, "Attempt 2")
+      
+      // +10 ms
+      #if os(macOS) || os(Linux)
+      usleep(10_000)
+      try! queue.flush()
+      try! queue.finish()
+      XCTAssertEqual(2 * 6 + 7 * 7, pointers[2].pointee, "Attempt 3")
+      #endif
     }
   }
   
