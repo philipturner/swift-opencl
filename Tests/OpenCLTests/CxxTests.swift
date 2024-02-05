@@ -205,7 +205,7 @@ final class CxxTests: XCTestCase {
       fatalError("Could not create context.")
     }
     do {
-      try program.build(device: device)
+      try program.build(devices: context.devices!)
     } catch {
       fatalError(
         "Could not build program: \(program.buildLog(device: device) ?? "n/a")")
@@ -216,30 +216,42 @@ final class CxxTests: XCTestCase {
     
     // Extract the binary.
     guard let binaries = program.binaries,
-          let binary = binaries.first else {
+          let devices = program.devices else {
       fatalError("Could not create binary.")
     }
-    XCTAssertGreaterThan(program.devices!.count, 0)
-    XCTAssertLessThan(program.devices!.count, 1_000)
-    XCTAssertEqual(binaries.count, program.devices!.count)
+    XCTAssertGreaterThan(devices.count, 0)
+    XCTAssertLessThan(devices.count, 1_000)
+    XCTAssertEqual(binaries.count, devices.count)
     
-    if program.devices!.first!.clDeviceID != device.clDeviceID {
-      XCTFail("This test will not pass, because the first binary doesn't correspond to the first device.")
-    }
-    if binaries.count != 1 {
-      print("WARNING: multiple binaries, binary sizes = \( program.binarySizes!), devices.count = \(program.devices!.count)")
+    // Check that there's only one legitimate binary.
+    do {
+      let sizes = program.binarySizes!
+      let nonZeroCount = sizes.reduce(into: 0) {
+        if $1 > 0 { $0 += 1 }
+      }
+      XCTAssertEqual(nonZeroCount, 1, """
+        WARNING: Unexpected behavior for program binaries.
+        - multiple nonzero binaries
+        - program.binarySizes = \(program.binarySizes!)
+        - program.devices.count = \(devices.count)
+        """)
+      XCTAssertEqual(program.devices!.count, context.devices!.count)
     }
     
     // Create another program with the binary.
-    for usingBinaryStatus in [false, true] {
+    for usingBinaryStatus in [true, false] {
       var loadedProgram: CLProgram?
       if usingBinaryStatus {
         loadedProgram = CLProgram(
-          context: context, devices: [device], binaries: [binary])
+          context: context, devices:
+            program.devices!, binaries:
+            program.binaries!)
       } else {
         var binaryStatus: [Int32] = []
         loadedProgram = CLProgram(
-          context: context, devices: [device], binaries: [binary], 
+          context: context, 
+          devices: program.devices!,
+          binaries: program.binaries!,
           binaryStatus: &binaryStatus)
         XCTAssertEqual(binaryStatus, [CLErrorCode.success.rawValue])
       }
@@ -251,12 +263,16 @@ final class CxxTests: XCTestCase {
       do {
         try loadedProgram.build()
       } catch {
-        if let log = loadedProgram.buildLog(device: device) {
-          print("Encountered build error. Build log: \(log)")
-        } else {
-          print("No build log available.")
+        for (deviceID, device) in program.devices!.enumerated() {
+          var message: String
+          if let log = loadedProgram.buildLog(device: device) {
+            message = "Encountered build error. Build log: \(log)"
+          } else {
+            message = "No build log available."
+          }
+          print("Device \(deviceID): \(message)")
         }
-        return
+        continue
       }
       XCTAssertEqual(loadedProgram.numKernels, 2)
       XCTAssertEqual(
