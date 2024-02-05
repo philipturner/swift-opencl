@@ -52,7 +52,7 @@ final class CxxTests: XCTestCase {
   func testKernelArgument() throws {
     let source = """
     kernel void testKernel(local bool* argument0,
-                           global bool4* argument1,
+                           global uchar8* argument1,
                            uint3 argument2,
                            uint argument3) {
       argument0[0] = argument1[0][0];
