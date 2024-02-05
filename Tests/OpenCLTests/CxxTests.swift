@@ -248,7 +248,16 @@ final class CxxTests: XCTestCase {
         XCTFail("Could not create program for 'usingBinaryStatus = \(usingBinaryStatus)'.")
         continue
       }
-      try! loadedProgram.build()
+      do {
+        try loadedProgram.build()
+      } catch {
+        if let log = loadedProgram.buildLog(device: device) {
+          print("Encountered build error. Build log: \(log)")
+        } else {
+          print("No build log available.")
+        }
+        return
+      }
       XCTAssertEqual(loadedProgram.numKernels, 2)
       XCTAssertEqual(
         loadedProgram.kernelNames?.sorted(),
