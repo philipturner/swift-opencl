@@ -58,11 +58,13 @@ final class CxxTests: XCTestCase {
       argument0[0] = argument1[0][0];
       argument0[50] = argument1[0][0];
       
+      uint constant5 = 5;
+      uint constant1 = 1;
       if (argument2[0] + argument2[1] + argument2[2] > argument3) {
-        uint address = min(uint(5), argument3);
+        uint address = min(constant5, argument3);
         argument1[1][1] = argument0[address];
       } else {
-        uint address = min(uint(5), argument3 - 1);
+        uint address = min(constant5, argument3 - constant1);
         argument1[1][1] = argument0[address];
       }
     }
@@ -217,7 +219,16 @@ final class CxxTests: XCTestCase {
           let binary = binaries.first else {
       fatalError("Could not create binary.")
     }
-    XCTAssertEqual(binaries.count, 1)
+    XCTAssertGreaterThan(program.devices!.count, 0)
+    XCTAssertLessThan(program.devices!.count, 1_000)
+    XCTAssertEqual(binaries.count, program.devices!.count)
+    
+    if program.devices!.first!.clDeviceID != device.clDeviceID {
+      XCTFail("This test will not pass, because the first binary doesn't correspond to the first device.")
+    }
+    if binaries.count != 1 {
+      print("WARNING: multiple binaries, binary sizes = \( program.binarySizes!), devices.count = \(program.devices!.count)")
+    }
     
     // Create another program with the binary.
     for usingBinaryStatus in [false, true] {
