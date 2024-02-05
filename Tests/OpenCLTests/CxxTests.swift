@@ -223,20 +223,11 @@ final class CxxTests: XCTestCase {
     XCTAssertLessThan(devices.count, 1_000)
     XCTAssertEqual(binaries.count, devices.count)
     
-    // Check that there's only one legitimate binary.
-    do {
-      let sizes = program.binarySizes!
-      let nonZeroCount = sizes.reduce(into: 0) {
-        if $1 > 0 { $0 += 1 }
-      }
-      XCTAssertEqual(nonZeroCount, 1, """
-        WARNING: Unexpected behavior for program binaries.
-        - multiple nonzero binaries
-        - program.binarySizes = \(program.binarySizes!)
-        - program.devices.count = \(devices.count)
-        """)
-      XCTAssertEqual(program.devices!.count, context.devices!.count)
-    }
+    // Inspect the binary sizes.
+    let binarySizes = program.binarySizes!
+    XCTAssertEqual(context.devices!.count, program.devices!.count)
+    XCTAssertEqual(binarySizes.count, devices.count)
+    XCTAssert(binarySizes.allSatisfy { $0 > 0 })
     
     // Create another program with the binary.
     for usingBinaryStatus in [true, false] {
