@@ -110,7 +110,8 @@ final class CxxTests: XCTestCase {
       fatalError("Could not create resources.")
     }
     
-    let buffer = CLBuffer(context: context, flags: .readWrite, size: 1024 * 4)
+    let flags: CLMemoryFlags = [.readWrite, .allocateHostPointer]
+    let buffer = CLBuffer(context: context, flags: flags, size: 1024 * 4)
     guard let buffer else {
       fatalError("Could not create buffer.")
     }
@@ -276,9 +277,10 @@ final class CxxTests: XCTestCase {
       let kernelIndex = loadedProgram.kernelNames!
         .firstIndex(of: "bufferFilter")!
       let kernel = loadedProgram.createKernels()![kernelIndex]
-      let bufferA = CLBuffer(context: context, flags: .readWrite, size: 4)!
-      let bufferB = CLBuffer(context: context, flags: .readWrite, size: 4)!
-      let bufferC = CLBuffer(context: context, flags: .readWrite, size: 4)!
+      let flags: CLMemoryFlags = [.readWrite, .allocateHostPointer]
+      let bufferA = CLBuffer(context: context, flags: flags, size: 4)!
+      let bufferB = CLBuffer(context: context, flags: flags, size: 4)!
+      let bufferC = CLBuffer(context: context, flags: flags, size: 4)!
       let queue = CLCommandQueue.default!
       
       let buffers = [bufferA, bufferB, bufferC]
@@ -301,18 +303,7 @@ final class CxxTests: XCTestCase {
       // Issue a GPU command.
       try! queue.enqueueKernel(kernel, globalSize: CLNDRange(width: 1))
       try! queue.finish()
-      XCTAssertEqual(2 * 6 + 7 * 7, pointers[2].pointee, "Attempt 1")
-      try! queue.flush()
-      try! queue.finish()
-      XCTAssertEqual(2 * 6 + 7 * 7, pointers[2].pointee, "Attempt 2")
-      
-      // +10 ms
-      #if os(macOS) || os(Linux)
-      usleep(10_000)
-      try! queue.flush()
-      try! queue.finish()
-      XCTAssertEqual(2 * 6 + 7 * 7, pointers[2].pointee, "Attempt 3")
-      #endif
+      XCTAssertEqual(2 * 6 + 7 * 7, pointers[2].pointee)
     }
   }
   
