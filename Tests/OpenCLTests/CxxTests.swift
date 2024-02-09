@@ -273,37 +273,54 @@ final class CxxTests: XCTestCase {
         loadedProgram.kernelNames?.sorted(),
         ["bufferFilter", "unusedFunction"])
       
-      // Create resources for a GPU command.
+      // Create the queue and kernel.
       let kernelIndex = loadedProgram.kernelNames!
         .firstIndex(of: "bufferFilter")!
       let kernel = loadedProgram.createKernels()![kernelIndex]
-      let flags: CLMemoryFlags = [.readWrite, .allocateHostPointer]
-      let bufferA = CLBuffer(context: context, flags: flags, size: 4)!
-      let bufferB = CLBuffer(context: context, flags: flags, size: 4)!
-      let bufferC = CLBuffer(context: context, flags: flags, size: 4)!
       let queue = CLCommandQueue.default!
       
-      let buffers = [bufferA, bufferB, bufferC]
-      var pointers: [UnsafeMutablePointer<Float>] = []
-      for buffer in buffers {
+      // Create the memory allocation.
+      let hostPointer = UnsafeMutablePointer<UInt32>.allocate(capacity: 3)
+      defer { hostPointer.deallocate() }
+      
+      // The offset is in 4-byte words.
+      var mappedPointers: [UnsafeMutableRawPointer] = []
+      func createBuffer(offset: Int) -> CLBuffer {
+        let buffer = CLBuffer(
+          context: context, flags: [.readWrite, .useHostPointer], size: 4,
+          hostPointer: hostPointer + offset)!
         let pointer = try! queue
           .enqueueMap(buffer, flags: [.read, .write], offset: 0, size: 4)
-          .assumingMemoryBound(to: Float.self)
-        pointers.append(pointer)
+        XCTAssertEqual(pointer, hostPointer + offset)
+        mappedPointers.append(pointer)
+        return buffer
       }
+      
+      // Create the buffers.
+      let bufferA = createBuffer(offset: 0)
+      let bufferB = createBuffer(offset: 1)
+      let bufferC = createBuffer(offset: 2)
       
       // Encode the arguments for a GPU command.
       try! kernel.setArgument(bufferA, index: 0)
-      pointers[0].pointee = 6
-      pointers[1].pointee = 7
-      pointers[2].pointee = -2
+      hostPointer[0] = Float(6).bitPattern
+      hostPointer[1] = Float(7).bitPattern
+      hostPointer[2] = Float(-2).bitPattern
+      for buffer in [bufferA, bufferB, bufferC] {
+        try! queue.enqueueUnmap(buffer, mappedPointers.first!)
+        mappedPointers.removeFirst()
+      }
       try! kernel.setArgument(bufferB, index: 1)
       try! kernel.setArgument(bufferC, index: 2)
       
       // Issue a GPU command.
       try! queue.enqueueKernel(kernel, globalSize: CLNDRange(width: 1))
       try! queue.finish()
-      XCTAssertEqual(2 * 6 + 7 * 7, pointers[2].pointee)
+      let pointerC = try! queue.enqueueMap(
+        bufferC, flags: [.read, .write], offset: 0, size: 4)
+        .assumingMemoryBound(to: UInt32.self)
+      XCTAssertEqual(pointerC, hostPointer + 2)
+      XCTAssertEqual(2 * 6 + 7 * 7, Float(bitPattern: pointerC.pointee))
     }
   }
   
